@@ -1,0 +1,16 @@
+{
+  "name": "fullstack-assessment-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:backend": "npm --prefix backend run build",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "prisma:studio": "npm --prefix backend run prisma:studio",
+    "prisma:migrate": "npm --prefix backend run prisma:migrate",
+    "prisma:generate": "npm --prefix backend run prisma:generate"
+  }
+}
