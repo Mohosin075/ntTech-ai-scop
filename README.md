@@ -25,13 +25,19 @@ An enterprise-grade, modular full-stack application that transforms raw software
 ## 🛠 Tech Stack & Architecture
 
 ### **Frontend (`/frontend`)**
-- **Framework:** Next.js 16 (App Router with Turbopack)
+- **Framework:** Next.js 16 (App Router with Turbopack) & React 19
 - **Styling:** Tailwind CSS + Lucide Icons
-- **Design System:** Modern Dark Slate (`#090D16`) + Electric Indigo (`#6366F1`)
-- **State & Auth:** React Context + JWT Bearer Token Session Management
+- **Design System:** Modern Dark Slate (`#090D16`) + Electric Indigo (`#6366F1`) + Plus Jakarta Sans & JetBrains Mono typography
+- **State & Auth:** React Context + JWT Bearer Token Session Management + Non-blocking Toast notification system
+- **Enterprise Capabilities:**
+  - **Phased AI Synthesis Dialog:** 4-step progressive state visualization during scope generation.
+  - **Executive Analytics Bar:** Global pipeline value, total engineering hours, pending review gates, and average quote metrics.
+  - **Visual Architecture Effort & Cost Distribution:** Multi-segment stacked progress chart breakdown by category (Frontend, Backend, Database, Integration, AI).
+  - **Client Proposal / Statement of Work (SOW) Export:** 1-click printable & PDF-ready commercial contract with deliverables, financial schedules, and signature blocks.
+  - **Interactive Feature Breakdown:** Multi-range steppers (-5/-1/+1/+5), inline title editing, instant category filter pills, and live keyword search.
 - **Key Pages:**
   - `/login`: 1-Click Quick Demo Login & Registration
-  - `/dashboard`: Hero AI Generator with Sample Prompt Chips & Recent Estimates Grid
+  - `/dashboard`: Executive Analytics, Hero AI Generator with Sample Prompt Chips & Recent Estimates Grid
   - `/projects/[id]`: 2-Column Workspace with Live Interactive Feature Table (CRUD), Risk Profile, 30-40-30 Milestones, and State Machine Action Modals
 
 ### **Backend (`/backend`)**

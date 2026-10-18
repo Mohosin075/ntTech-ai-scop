@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
+import { ToastProvider } from '@/context/ToastContext';
 
 const sansFont = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -31,7 +32,9 @@ export default function RootLayout({
       <body
         className={`${sansFont.variable} ${monoFont.variable} font-sans bg-[#090D16] text-[#F9FAFB] min-h-screen antialiased selection:bg-indigo-500 selection:text-white`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <ToastProvider>{children}</ToastProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,15 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
 import { fetchApi } from '@/lib/api';
 import { Feature, FeatureCategory, FeatureComplexity, Project, ProjectStatus } from '@/types';
 import Navbar from '@/components/common/Navbar';
 import StatusBadge from '@/components/common/StatusBadge';
 import Modal from '@/components/common/Modal';
 import KpiCard from '@/components/common/KpiCard';
+import CategoryAnalytics from '@/components/workspace/CategoryAnalytics';
+import ProposalModal from '@/components/workspace/ProposalModal';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -28,6 +31,10 @@ import {
   RefreshCw,
   X,
   FileText,
+  Search,
+  Edit2,
+  Check,
+  Filter,
 } from 'lucide-react';
 
 function ProjectWorkspaceContent() {
@@ -35,13 +42,12 @@ function ProjectWorkspaceContent() {
   const projectId = routeParams?.id as string;
 
   const { user, isLoading } = useAuth();
+  const { toast } = useToast();
   const router = useRouter();
 
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Hourly Rate adjuster state
   const [newRate, setNewRate] = useState<number>(25);
@@ -62,18 +68,28 @@ function ProjectWorkspaceContent() {
   // AI Evaluation & Specs Modal state
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
 
+  // Proposal / SOW Modal state
+  const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
+
+  // Feature Table Filter & Search state
+  const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+  const [featureSearch, setFeatureSearch] = useState('');
+
+  // Inline Title Editing state
+  const [editingFeatureId, setEditingFeatureId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+
   // Load project
   const loadProject = async () => {
     try {
       setLoading(true);
-      setErrorMsg(null);
       const res = await fetchApi<Project>(`/projects/${projectId}`);
       if (res.success && res.data) {
         setProject(res.data);
         setNewRate(res.data.hourlyRate);
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to load project');
+      toast.error(err instanceof Error ? err.message : 'Failed to load project');
     } finally {
       setLoading(false);
     }
@@ -93,8 +109,6 @@ function ProjectWorkspaceContent() {
   const handleStatusChange = async (targetStatus: ProjectStatus, reason?: string) => {
     try {
       setActionLoading(true);
-      setErrorMsg(null);
-      setSuccessMsg(null);
 
       const res = await fetchApi<Project>(`/projects/${projectId}/status`, {
         method: 'PATCH',
@@ -106,12 +120,12 @@ function ProjectWorkspaceContent() {
 
       if (res.success && res.data) {
         setProject(res.data);
-        setSuccessMsg(`Project status transitioned to ${targetStatus}`);
+        toast.success(`Project status transitioned to ${targetStatus}`);
         setIsRejectModalOpen(false);
         setRejectionReason('');
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Status transition failed');
+      toast.error(err instanceof Error ? err.message : 'Status transition failed');
     } finally {
       setActionLoading(false);
     }
@@ -122,17 +136,16 @@ function ProjectWorkspaceContent() {
     e.preventDefault();
     try {
       setUpdatingRate(true);
-      setErrorMsg(null);
       const res = await fetchApi<Project>(`/projects/${projectId}/rate`, {
         method: 'PATCH',
         body: JSON.stringify({ hourlyRate: Number(newRate) }),
       });
       if (res.success && res.data) {
         setProject(res.data);
-        setSuccessMsg('Hourly rate updated and costs recalculated!');
+        toast.success('Hourly rate updated and all deliverables recalculated!');
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to update hourly rate');
+      toast.error(err instanceof Error ? err.message : 'Failed to update hourly rate');
     } finally {
       setUpdatingRate(false);
     }
@@ -151,9 +164,12 @@ function ProjectWorkspaceContent() {
       );
       if (res.success && res.data) {
         setProject(res.data.project);
+        toast.info(
+          `Feature ${feature.isIncluded ? 'excluded from' : 'included in'} budget calculations`
+        );
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to update feature');
+      toast.error(err instanceof Error ? err.message : 'Failed to update feature');
     }
   };
 
@@ -173,7 +189,31 @@ function ProjectWorkspaceContent() {
         setProject(res.data.project);
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to adjust hours');
+      toast.error(err instanceof Error ? err.message : 'Failed to adjust hours');
+    }
+  };
+
+  // Save Inline Edited Title
+  const handleSaveTitle = async (featureId: string) => {
+    if (!editingTitle.trim()) {
+      setEditingFeatureId(null);
+      return;
+    }
+    try {
+      const res = await fetchApi<{ feature: Feature; project: Project }>(
+        `/projects/${projectId}/features/${featureId}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ title: editingTitle.trim() }),
+        }
+      );
+      if (res.success && res.data) {
+        setProject(res.data.project);
+        toast.success('Feature title updated');
+        setEditingFeatureId(null);
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to save title');
     }
   };
 
@@ -190,9 +230,10 @@ function ProjectWorkspaceContent() {
       );
       if (res.success && res.data) {
         setProject(res.data.project);
+        toast.success('Feature removed and metrics recalculated');
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to delete feature');
+      toast.error(err instanceof Error ? err.message : 'Failed to delete feature');
     }
   };
 
@@ -201,7 +242,6 @@ function ProjectWorkspaceContent() {
     e.preventDefault();
     try {
       setAddingFeature(true);
-      setErrorMsg(null);
       const res = await fetchApi<{ feature: Feature; project: Project }>(
         `/projects/${projectId}/features`,
         {
@@ -220,13 +260,36 @@ function ProjectWorkspaceContent() {
         setIsAddModalOpen(false);
         setFeatureTitle('');
         setFeatureHours(10);
+        toast.success('Custom feature added to scope');
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Failed to add custom feature');
+      toast.error(err instanceof Error ? err.message : 'Failed to add custom feature');
     } finally {
       setAddingFeature(false);
     }
   };
+
+  // Filtered and Searched Features
+  const filteredFeatures = useMemo(() => {
+    if (!project) return [];
+    return project.features.filter((f) => {
+      const matchCat = categoryFilter === 'ALL' || f.category === categoryFilter;
+      const matchSearch =
+        !featureSearch.trim() ||
+        f.title.toLowerCase().includes(featureSearch.toLowerCase()) ||
+        f.category.toLowerCase().includes(featureSearch.toLowerCase());
+      return matchCat && matchSearch;
+    });
+  }, [project, categoryFilter, featureSearch]);
+
+  // Category counts for filter tabs
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { ALL: project?.features.length || 0 };
+    project?.features.forEach((f) => {
+      counts[f.category] = (counts[f.category] || 0) + 1;
+    });
+    return counts;
+  }, [project]);
 
   if (isLoading || loading) {
     return (
@@ -260,7 +323,7 @@ function ProjectWorkspaceContent() {
           <div className="space-y-1.5">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition mb-1"
+              className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition mb-1 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
             </Link>
@@ -275,13 +338,23 @@ function ProjectWorkspaceContent() {
             </div>
           </div>
 
-          {/* Action Buttons based on Status and Role */}
-          <div className="flex items-center gap-3">
+          {/* Action Buttons based on Status and Role + Proposal Button */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* SOW Commercial Proposal Export Button */}
+            <button
+              onClick={() => setIsProposalModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-200 text-xs font-semibold transition cursor-pointer"
+              title="Preview and print formal Statement of Work"
+            >
+              <FileText className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Export SOW Proposal</span>
+            </button>
+
             {project.status === 'AI_ESTIMATED' && (
               <button
                 onClick={() => handleStatusChange('UNDER_REVIEW')}
                 disabled={actionLoading || project.totalHours === 0}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/25 transition disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/25 transition disabled:opacity-50 cursor-pointer"
               >
                 {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                 Submit for Approval
@@ -293,7 +366,7 @@ function ProjectWorkspaceContent() {
                 <button
                   onClick={() => setIsRejectModalOpen(true)}
                   disabled={actionLoading}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-semibold transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
                 >
                   <XCircle className="w-3.5 h-3.5" />
                   Reject
@@ -301,7 +374,7 @@ function ProjectWorkspaceContent() {
                 <button
                   onClick={() => handleStatusChange('APPROVED')}
                   disabled={actionLoading}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-600/20 transition disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-600/20 transition disabled:opacity-50 cursor-pointer"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Approve Scope
@@ -319,27 +392,13 @@ function ProjectWorkspaceContent() {
               <button
                 onClick={() => handleStatusChange('UNDER_REVIEW')}
                 disabled={actionLoading || project.totalHours === 0}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition cursor-pointer"
               >
                 <RefreshCw className="w-3.5 h-3.5" /> Resubmit for Review
               </button>
             )}
           </div>
         </div>
-
-        {/* Global Notifications */}
-        {errorMsg && (
-          <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center justify-between">
-            <span>{errorMsg}</span>
-            <button onClick={() => setErrorMsg(null)}><X className="w-4 h-4" /></button>
-          </div>
-        )}
-        {successMsg && (
-          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center justify-between">
-            <span>{successMsg}</span>
-            <button onClick={() => setSuccessMsg(null)}><X className="w-4 h-4" /></button>
-          </div>
-        )}
 
         {/* Summary KPI Strip (4 cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -380,6 +439,9 @@ function ProjectWorkspaceContent() {
           />
         </div>
 
+        {/* Visual Architecture Effort & Cost Distribution Bar */}
+        <CategoryAnalytics features={project.features} hourlyRate={project.hourlyRate} />
+
         {/* 2-Column Workspace Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: AI Summary + Feature Table (8 Columns) */}
@@ -394,7 +456,7 @@ function ProjectWorkspaceContent() {
                   <h3 className="font-semibold text-sm text-gray-50">AI Executive Summary</h3>
                   <button
                     onClick={() => setIsEvalModalOpen(true)}
-                    className="text-[11px] font-medium text-violet-400 hover:text-violet-300 underline underline-offset-2 ml-1"
+                    className="text-[11px] font-medium text-violet-400 hover:text-violet-300 underline underline-offset-2 ml-1 cursor-pointer"
                   >
                     (View AI Specs &amp; Limitations)
                   </button>
@@ -406,47 +468,90 @@ function ProjectWorkspaceContent() {
                 )}
               </div>
 
-              <p className="text-xs sm:text-sm text-gray-300 leading-relaxed mb-4">
+              <p className="text-xs text-gray-300 leading-relaxed">
                 {project.executiveSummary}
               </p>
 
-              <div>
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 block mb-2">
-                  Recommended Technology Stack
-                </span>
-                <div className="flex flex-wrap gap-1.5">
+              {/* Recommended Stack Chips */}
+              {project.recommendedStack && project.recommendedStack.length > 0 && (
+                <div className="mt-4 pt-3 border-t border-gray-800/80 flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                    Recommended Tech Stack:
+                  </span>
                   {project.recommendedStack.map((tech, idx) => (
                     <span
                       key={idx}
-                      className="px-2.5 py-1 rounded-lg text-xs font-mono bg-[#090D16] border border-gray-800 text-indigo-300"
+                      className="px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-violet-500/10 text-violet-300 border border-violet-500/20"
                     >
                       {tech}
                     </span>
                   ))}
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Interactive Feature Breakdown Table */}
             <div className="rounded-2xl border border-gray-800 bg-[#111827] p-6 space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-800">
                 <div>
-                  <h3 className="font-bold text-base text-gray-50">Feature Breakdown Table</h3>
+                  <h3 className="font-bold text-sm text-gray-50 flex items-center gap-2">
+                    <span>Feature Breakdown &amp; Effort Allocation</span>
+                    <span className="text-[11px] font-mono text-gray-400">
+                      ({filteredFeatures.length} of {project.features.length})
+                    </span>
+                  </h3>
                   <p className="text-xs text-gray-400">
-                    Toggle inclusion checkboxes or adjust hours to view instant cost recalculations.
+                    Toggle inclusion checkbox or use steppers to calibrate hours in real-time.
                   </p>
                 </div>
 
                 {!isApproved && (
                   <button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/20 transition cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5" /> Add Custom Feature
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Custom Feature</span>
                   </button>
                 )}
               </div>
 
+              {/* Search & Category Filter Tabs */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                {/* Category Pills */}
+                <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                  {['ALL', 'FRONTEND', 'BACKEND', 'DATABASE', 'INTEGRATION', 'AI'].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setCategoryFilter(cat)}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition cursor-pointer flex items-center gap-1 ${
+                        categoryFilter === cat
+                          ? 'bg-indigo-600 text-white shadow-sm'
+                          : 'bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-800'
+                      }`}
+                    >
+                      <span>{cat}</span>
+                      <span className="text-[10px] opacity-70 font-mono">
+                        ({categoryCounts[cat] || 0})
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Table Search */}
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={featureSearch}
+                    onChange={(e) => setFeatureSearch(e.target.value)}
+                    placeholder="Search features..."
+                    className="pl-8 pr-3 py-1 rounded-xl bg-gray-900 border border-gray-800 text-xs text-gray-300 placeholder:text-gray-500 focus:outline-none focus:border-indigo-500 transition w-full sm:w-44"
+                  />
+                </div>
+              </div>
+
+              {/* Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#090D16] text-gray-400 font-mono uppercase text-[10px] border-b border-gray-800">
@@ -461,7 +566,7 @@ function ProjectWorkspaceContent() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-800/60 font-mono">
-                    {project.features.map((f) => (
+                    {filteredFeatures.map((f) => (
                       <tr
                         key={f.id}
                         className={`hover:bg-gray-800/40 transition ${
@@ -479,9 +584,50 @@ function ProjectWorkspaceContent() {
                           />
                         </td>
 
-                        {/* Title */}
+                        {/* Title with Inline Edit */}
                         <td className="py-3 px-4 font-sans font-medium text-gray-100 text-xs">
-                          {f.title}
+                          {editingFeatureId === f.id ? (
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="text"
+                                value={editingTitle}
+                                onChange={(e) => setEditingTitle(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle(f.id)}
+                                autoFocus
+                                className="px-2 py-1 rounded bg-[#090D16] border border-indigo-500 text-white text-xs w-full focus:outline-none"
+                              />
+                              <button
+                                onClick={() => handleSaveTitle(f.id)}
+                                className="p-1 rounded bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer"
+                                title="Save"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => setEditingFeatureId(null)}
+                                className="p-1 rounded bg-gray-800 text-gray-400 hover:text-white cursor-pointer"
+                                title="Cancel"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 group/title">
+                              <span>{f.title}</span>
+                              {!isApproved && (
+                                <button
+                                  onClick={() => {
+                                    setEditingFeatureId(f.id);
+                                    setEditingTitle(f.title);
+                                  }}
+                                  className="opacity-0 group-hover/title:opacity-100 text-gray-500 hover:text-indigo-400 transition cursor-pointer"
+                                  title="Edit feature title"
+                                >
+                                  <Edit2 className="w-3 h-3" />
+                                </button>
+                              )}
+                            </div>
+                          )}
                         </td>
 
                         {/* Category */}
@@ -506,27 +652,47 @@ function ProjectWorkspaceContent() {
                           </span>
                         </td>
 
-                        {/* Hours Stepper */}
+                        {/* Hours Steppers (-5 / -1 / Hours / +1 / +5) */}
                         <td className="py-3 px-4 text-center">
-                          <div className="inline-flex items-center gap-1.5 bg-[#090D16] border border-gray-800 px-2 py-1 rounded-lg">
+                          <div className="inline-flex items-center gap-1 bg-[#090D16] border border-gray-800 px-2 py-1 rounded-lg">
                             {!isApproved && (
-                              <button
-                                onClick={() => handleAdjustHours(f, -2)}
-                                className="text-gray-400 hover:text-white px-1 font-bold text-xs"
-                              >
-                                -
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => handleAdjustHours(f, -5)}
+                                  className="text-gray-500 hover:text-white px-1 text-[10px] font-mono cursor-pointer"
+                                  title="-5 hours"
+                                >
+                                  -5
+                                </button>
+                                <button
+                                  onClick={() => handleAdjustHours(f, -1)}
+                                  className="text-gray-400 hover:text-white px-1 font-bold text-xs cursor-pointer"
+                                  title="-1 hour"
+                                >
+                                  -
+                                </button>
+                              </>
                             )}
                             <span className="font-bold text-gray-100 text-xs min-w-8">
                               {f.estimatedHours}h
                             </span>
                             {!isApproved && (
-                              <button
-                                onClick={() => handleAdjustHours(f, 2)}
-                                className="text-gray-400 hover:text-white px-1 font-bold text-xs"
-                              >
-                                +
-                              </button>
+                              <>
+                                <button
+                                  onClick={() => handleAdjustHours(f, 1)}
+                                  className="text-gray-400 hover:text-white px-1 font-bold text-xs cursor-pointer"
+                                  title="+1 hour"
+                                >
+                                  +
+                                </button>
+                                <button
+                                  onClick={() => handleAdjustHours(f, 5)}
+                                  className="text-gray-500 hover:text-white px-1 text-[10px] font-mono cursor-pointer"
+                                  title="+5 hours"
+                                >
+                                  +5
+                                </button>
+                              </>
                             )}
                           </div>
                         </td>
@@ -541,7 +707,7 @@ function ProjectWorkspaceContent() {
                           {!isApproved ? (
                             <button
                               onClick={() => handleDeleteFeature(f.id)}
-                              className="text-gray-500 hover:text-rose-400 p-1 transition"
+                              className="text-gray-500 hover:text-rose-400 p-1 transition cursor-pointer"
                               title="Delete feature"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -615,7 +781,7 @@ function ProjectWorkspaceContent() {
                   <button
                     type="submit"
                     disabled={updatingRate || newRate === project.hourlyRate}
-                    className="w-full py-2.5 px-4 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 transition disabled:opacity-40 flex items-center justify-center gap-2"
+                    className="w-full py-2.5 px-4 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 transition disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {updatingRate ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
                     Recalculate Cost
@@ -725,14 +891,14 @@ function ProjectWorkspaceContent() {
             <button
               type="button"
               onClick={() => setIsAddModalOpen(false)}
-              className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300 hover:bg-gray-700"
+              className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300 hover:bg-gray-700 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={addingFeature}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white flex items-center gap-1.5 cursor-pointer"
             >
               {addingFeature && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               Add Feature
@@ -768,7 +934,7 @@ function ProjectWorkspaceContent() {
           <button
             type="button"
             onClick={() => setIsRejectModalOpen(false)}
-            className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300"
+            className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300 cursor-pointer"
           >
             Cancel
           </button>
@@ -776,7 +942,7 @@ function ProjectWorkspaceContent() {
             type="button"
             disabled={actionLoading || rejectionReason.trim().length < 10}
             onClick={() => handleStatusChange('REJECTED', rejectionReason)}
-            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white flex items-center gap-1.5 disabled:opacity-50"
+            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
           >
             {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             Confirm Rejection
@@ -816,7 +982,7 @@ function ProjectWorkspaceContent() {
             </span>
             <p>
               • <strong>Risk Classification:</strong> Automated assessment into <code className="text-emerald-300">LOW (5%)</code>, <code className="text-amber-300">MEDIUM (12%)</code>, or <code className="text-rose-300">HIGH (20%)</code> buffer tiers.<br />
-              • <strong>Domain Feature Breakdown:</strong> 6 to 8 structured feature modules categorized by <code className="text-indigo-300">FRONTEND</code>, <code className="text-sky-300">BACKEND</code>, <code className="text-teal-300">DATABASE</code>, <code className="text-purple-300">INTEGRATION</code>, and <code className="text-pink-300">AI</code> with granular hour projections.<br />
+              • <strong>Domain Feature Breakdown:</strong> Structured feature modules categorized by <code className="text-indigo-300">FRONTEND</code>, <code className="text-sky-300">BACKEND</code>, <code className="text-teal-300">DATABASE</code>, <code className="text-purple-300">INTEGRATION</code>, and <code className="text-pink-300">AI</code> with granular hour projections.<br />
               • <strong>Tech Stack Recommendations:</strong> Curated modern production libraries tailored to project complexity.<br />
               • <strong>Milestone Schedules:</strong> Rounding-safe 30% / 40% / 30% milestone cost breakdown with zero cent drift.
             </p>
@@ -849,12 +1015,19 @@ function ProjectWorkspaceContent() {
           <button
             type="button"
             onClick={() => setIsEvalModalOpen(false)}
-            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition"
+            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition cursor-pointer"
           >
             Close Technical Overview
           </button>
         </div>
       </Modal>
+
+      {/* SOW Commercial Proposal Export Modal */}
+      <ProposalModal
+        isOpen={isProposalModalOpen}
+        onClose={() => setIsProposalModalOpen(false)}
+        project={project}
+      />
     </div>
   );
 }
