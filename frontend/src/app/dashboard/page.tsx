@@ -60,25 +60,31 @@ export default function DashboardPage() {
     }
   }, [user, isLoading, router]);
 
-  const loadProjects = async (filter?: string) => {
-    try {
-      setFetchingProjects(true);
-      const query = filter && filter !== 'ALL' ? `?status=${filter}` : '';
-      const res = await fetchApi<Project[]>(`/projects${query}`);
-      if (res.success && res.data) {
-        setProjects(res.data);
-      }
-    } catch (err) {
-      console.error('Failed to load projects:', err);
-    } finally {
-      setFetchingProjects(false);
-    }
-  };
-
   useEffect(() => {
-    if (user) {
-      loadProjects(statusFilter);
+    if (!user) return;
+    let isCancelled = false;
+
+    async function fetchProjectList() {
+      try {
+        const query = statusFilter && statusFilter !== 'ALL' ? `?status=${statusFilter}` : '';
+        const res = await fetchApi<Project[]>(`/projects${query}`);
+        if (!isCancelled && res.success && res.data) {
+          setProjects(res.data);
+        }
+      } catch (err) {
+        console.error('Failed to load projects:', err);
+      } finally {
+        if (!isCancelled) {
+          setFetchingProjects(false);
+        }
+      }
     }
+
+    fetchProjectList();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [user, statusFilter]);
 
   const stats = useMemo(() => {

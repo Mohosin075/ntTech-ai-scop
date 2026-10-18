@@ -68,30 +68,39 @@ function ProjectWorkspaceContent() {
   const [editingFeatureId, setEditingFeatureId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
 
-  const loadProject = async () => {
-    try {
-      setLoading(true);
-      const res = await fetchApi<Project>(`/projects/${projectId}`);
-      if (res.success && res.data) {
-        setProject(res.data);
-        setNewRate(res.data.hourlyRate);
-      }
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Failed to load project');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (!isLoading && !user) {
       router.push('/login');
       return;
     }
-    if (user) {
-      loadProject();
+    if (!user || !projectId) return;
+
+    let isCancelled = false;
+
+    async function fetchProjectDetails() {
+      try {
+        const res = await fetchApi<Project>(`/projects/${projectId}`);
+        if (!isCancelled && res.success && res.data) {
+          setProject(res.data);
+          setNewRate(res.data.hourlyRate);
+        }
+      } catch (err: unknown) {
+        if (!isCancelled) {
+          toast.error(err instanceof Error ? err.message : 'Failed to load project');
+        }
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+        }
+      }
     }
-  }, [user, isLoading, projectId]);
+
+    fetchProjectDetails();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user, isLoading, projectId, router, toast]);
 
   const handleStatusChange = async (targetStatus: ProjectStatus, reason?: string) => {
     try {
