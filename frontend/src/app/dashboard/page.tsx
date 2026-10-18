@@ -203,17 +203,17 @@ export default function DashboardPage() {
           />
         </section>
 
-        {/* Project Scoping Generator Card */}
-        <section className="rounded-lg border border-zinc-800 bg-zinc-900 p-5 space-y-4">
+        {/* Project Scoping Generator Section */}
+        <section className="border-l-2 border-l-emerald-500 bg-zinc-900/30 border-y border-r border-zinc-800/80 p-5 space-y-4">
           <div>
-            <h2 className="text-base font-semibold text-zinc-100">Create Project Estimate</h2>
+            <h2 className="text-sm font-semibold text-zinc-100">Create project estimate</h2>
             <p className="text-xs text-zinc-400 mt-0.5">
               Enter target requirements and base hourly rate to calculate effort breakdown, risk buffer, and milestones.
             </p>
           </div>
 
           {genError && (
-            <div className="flex items-start gap-2 p-2.5 rounded-md bg-rose-950/40 border border-rose-800 text-rose-300 text-xs">
+            <div className="flex items-start gap-2 p-2.5 bg-rose-950/40 border border-rose-800 text-rose-300 text-xs">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-rose-400" />
               <span>{genError}</span>
             </div>
@@ -223,7 +223,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <div className="sm:col-span-3">
                 <label className="block text-xs font-medium text-zinc-300 mb-1">
-                  Project Title
+                  Project title
                 </label>
                 <input
                   type="text"
@@ -231,13 +231,13 @@ export default function DashboardPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Pathao Courier COD Settlement Engine"
-                  className="w-full px-3 py-2 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition placeholder:text-zinc-600"
+                  className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-medium text-zinc-300 mb-1">
-                  Hourly Rate ($/hr)
+                  Hourly rate ($/hr)
                 </label>
                 <div className="relative">
                   <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-mono">$</span>
@@ -248,7 +248,7 @@ export default function DashboardPage() {
                     required
                     value={hourlyRate}
                     onChange={(e) => setHourlyRate(Number(e.target.value))}
-                    className="w-full pl-6 pr-3 py-2 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-mono focus:outline-none focus:border-emerald-500 transition"
+                    className="w-full pl-6 pr-3 py-2 bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-mono focus:outline-none focus:border-zinc-500 transition-colors"
                   />
                 </div>
               </div>
@@ -257,9 +257,9 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-center justify-between mb-1">
                 <label className="block text-xs font-medium text-zinc-300">
-                  Project Requirements &amp; Scope Description (min 20 characters)
+                  Project requirements and scope description (minimum 20 characters)
                 </label>
-                <span className="text-[11px] text-zinc-500 font-mono">
+                <span className="text-xs text-zinc-500 font-mono">
                   {rawRequirement.length} chars
                 </span>
               </div>
@@ -269,12 +269,12 @@ export default function DashboardPage() {
                 value={rawRequirement}
                 onChange={(e) => setRawRequirement(e.target.value)}
                 placeholder="Describe business capabilities, core workflows, database entities, and integrations..."
-                className="w-full px-3 py-2 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition placeholder:text-zinc-600 resize-none leading-relaxed"
+                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600 resize-none leading-relaxed font-sans"
               />
 
               {/* Sample Blueprints */}
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">
+                <span className="text-xs text-zinc-500 font-sans">
                   Presets:
                 </span>
                 {SAMPLE_PROMPTS.map((p, idx) => (
@@ -282,7 +282,7 @@ export default function DashboardPage() {
                     key={idx}
                     type="button"
                     onClick={() => applySamplePrompt(p)}
-                    className="text-[11px] px-2 py-0.5 rounded bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 hover:text-white transition"
+                    className="text-xs px-2 py-0.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
                   >
                     {p.title.split(' ')[0]} {p.title.split(' ')[1]}
                   </button>
@@ -294,7 +294,7 @@ export default function DashboardPage() {
               <button
                 type="submit"
                 disabled={generating}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-md font-medium text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition disabled:opacity-50"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 font-medium text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition-colors disabled:opacity-50"
               >
                 {generating ? (
                   <>
@@ -302,7 +302,7 @@ export default function DashboardPage() {
                     <span>Calculating project scope...</span>
                   </>
                 ) : (
-                  <span>Calculate Scope &amp; Milestones</span>
+                  <span>Calculate scope and milestones</span>
                 )}
               </button>
             </div>
@@ -313,7 +313,7 @@ export default function DashboardPage() {
         <section className="space-y-3.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-base font-semibold text-zinc-100">Project Estimates</h3>
+              <h3 className="text-sm font-semibold text-zinc-100">Project estimates</h3>
               <p className="text-xs text-zinc-400">Track and review scoped projects and milestones</p>
             </div>
 
@@ -325,7 +325,7 @@ export default function DashboardPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search estimates..."
-                  className="pl-8 pr-3 py-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 transition w-44 sm:w-52"
+                  className="pl-8 pr-3 py-1.5 bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors w-44 sm:w-52"
                 />
               </div>
 
@@ -334,11 +334,11 @@ export default function DashboardPage() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-2.5 py-1.5 rounded-md bg-zinc-900 border border-zinc-800 text-xs text-zinc-300 focus:outline-none focus:border-emerald-500 transition"
+                  className="px-2.5 py-1.5 bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 focus:outline-none focus:border-zinc-500 transition-colors"
                 >
-                  <option value="ALL">All Statuses</option>
-                  <option value="AI_ESTIMATED">AI Estimated</option>
-                  <option value="UNDER_REVIEW">Under Review</option>
+                  <option value="ALL">All statuses</option>
+                  <option value="AI_ESTIMATED">AI estimated</option>
+                  <option value="UNDER_REVIEW">Under review</option>
                   <option value="APPROVED">Approved</option>
                   <option value="REJECTED">Rejected</option>
                 </select>
@@ -352,9 +352,9 @@ export default function DashboardPage() {
               <span className="text-xs">Loading estimates...</span>
             </div>
           ) : filteredProjects.length === 0 ? (
-            <div className="p-8 text-center rounded-lg border border-zinc-800 bg-zinc-900/60 text-zinc-400 space-y-1">
+            <div className="p-8 text-center border border-zinc-800 bg-zinc-900/30 text-zinc-400 space-y-1">
               <p className="text-xs font-medium text-zinc-300">No project estimates found.</p>
-              <p className="text-[11px] text-zinc-500">
+              <p className="text-xs text-zinc-500">
                 {searchQuery
                   ? 'No estimates match your search query.'
                   : 'Use the form above to calculate your first project scope.'}

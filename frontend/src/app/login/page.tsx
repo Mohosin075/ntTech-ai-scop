@@ -49,17 +49,17 @@ export default function LoginPage() {
     <div className="min-h-screen bg-zinc-950 flex flex-col justify-center items-center px-4 py-8">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6 space-y-1">
-          <div className="inline-flex h-9 w-9 rounded-md bg-emerald-600 items-center justify-center font-bold text-white text-sm mb-1">
-            S
+          <div className="inline-flex h-8 w-8 border border-zinc-700 bg-zinc-900 items-center justify-center font-mono font-semibold text-zinc-200 text-sm mb-1">
+            /
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-zinc-100">ScopeAI</h1>
-          <p className="text-xs text-zinc-400">Software Scoping &amp; Milestone Cost Engine</p>
+          <h1 className="text-lg font-semibold tracking-tight text-zinc-100">scope-ai</h1>
+          <p className="text-xs text-zinc-400">Software scoping &amp; milestone cost engine</p>
         </div>
 
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5 space-y-5">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-            <h2 className="text-sm font-semibold text-zinc-100">
-              {isRegister ? 'Create Account' : 'Sign In'}
+        <div className="border-l-2 border-l-emerald-500 bg-zinc-900/30 border-y border-r border-zinc-800/80 p-5 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
+            <h2 className="text-xs font-semibold text-zinc-100">
+              {isRegister ? 'Create account' : 'Sign in'}
             </h2>
             <button
               type="button"
@@ -67,14 +67,14 @@ export default function LoginPage() {
                 setIsRegister(!isRegister);
                 setError(null);
               }}
-              className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition"
+              className="text-xs text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
             >
-              {isRegister ? 'Have an account? Sign In' : 'New here? Register'}
+              {isRegister ? 'Have an account? Sign in' : 'New here? Register'}
             </button>
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 p-2.5 rounded-md bg-rose-950/40 border border-rose-800 text-rose-300 text-xs">
+            <div className="flex items-start gap-2 p-2.5 bg-rose-950/40 border border-rose-800 text-rose-300 text-xs">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-rose-400" />
               <span>{error}</span>
             </div>
@@ -83,27 +83,27 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {isRegister && (
               <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1">Full Name</label>
+                <label className="block text-xs font-medium text-zinc-300 mb-1">Full name</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Tanvir Hasan"
-                  className="w-full px-3 py-2 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition placeholder:text-zinc-600"
+                  className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600"
                 />
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-medium text-zinc-300 mb-1">Email Address</label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">Email address</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tanvir@scopeai.dev"
-                className="w-full px-3 py-2 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition placeholder:text-zinc-600"
+                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600"
               />
             </div>
 
@@ -115,31 +115,31 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition placeholder:text-zinc-600 font-mono"
+                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600 font-mono"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 px-3 rounded-md font-medium text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+              className="w-full py-2 px-3 font-medium text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              <span>{isRegister ? 'Register & Continue' : 'Sign In'}</span>
+              <span>{isRegister ? 'Register & continue' : 'Sign in'}</span>
             </button>
           </form>
 
           {/* Quick Demo Access */}
-          <div className="pt-3 border-t border-zinc-800">
-            <span className="block text-[11px] font-medium text-zinc-500 mb-2 uppercase tracking-wider text-center">
-              Quick Demo Access
+          <div className="pt-3 border-t border-zinc-800/80">
+            <span className="block text-xs text-zinc-500 mb-2 text-center font-sans">
+              Quick demo access
             </span>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 disabled={demoLoading !== null}
                 onClick={() => handleDemo('ESTIMATOR')}
-                className="py-1.5 px-2 rounded-md bg-zinc-800 hover:bg-zinc-700/80 border border-zinc-700 text-zinc-200 text-xs font-medium transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                className="py-1.5 px-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
                 {demoLoading === 'ESTIMATOR' ? (
                   <Loader2 className="w-3 h-3 animate-spin" />
@@ -153,7 +153,7 @@ export default function LoginPage() {
                 type="button"
                 disabled={demoLoading !== null}
                 onClick={() => handleDemo('ADMIN')}
-                className="py-1.5 px-2 rounded-md bg-zinc-800 hover:bg-zinc-700/80 border border-zinc-700 text-zinc-200 text-xs font-medium transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                className="py-1.5 px-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
                 {demoLoading === 'ADMIN' ? (
                   <Loader2 className="w-3 h-3 animate-spin" />
@@ -163,7 +163,7 @@ export default function LoginPage() {
                 <span>As Admin</span>
               </button>
             </div>
-            <p className="text-[10px] text-zinc-500 text-center mt-2">
+            <p className="text-xs text-zinc-500 text-center mt-2">
               Tanvir Hasan (Estimator) • Farhan Ahmed (Admin)
             </p>
           </div>

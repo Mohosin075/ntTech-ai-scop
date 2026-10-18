@@ -12,31 +12,31 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, risk, classNam
     switch (status) {
       case 'APPROVED':
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 ${className}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            Approved
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-mono bg-emerald-950/40 text-emerald-400 border border-emerald-800/80 ${className}`}>
+            <span className="w-1.5 h-1.5 bg-emerald-400"></span>
+            approved
           </span>
         );
       case 'UNDER_REVIEW':
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 ${className}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-            Under Review
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-mono bg-amber-950/40 text-amber-400 border border-amber-800/80 ${className}`}>
+            <span className="w-1.5 h-1.5 bg-amber-400 animate-pulse"></span>
+            under review
           </span>
         );
       case 'REJECTED':
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20 ${className}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
-            Rejected
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-mono bg-rose-950/40 text-rose-400 border border-rose-800/80 ${className}`}>
+            <span className="w-1.5 h-1.5 bg-rose-400"></span>
+            rejected
           </span>
         );
       case 'AI_ESTIMATED':
       default:
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-500/10 text-sky-400 border border-sky-500/20 ${className}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
-            AI Estimated
+          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-mono bg-zinc-900 text-zinc-300 border border-zinc-700 ${className}`}>
+            <span className="w-1.5 h-1.5 bg-zinc-400"></span>
+            ai estimated
           </span>
         );
     }
@@ -46,21 +46,21 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, risk, classNam
     switch (risk) {
       case 'LOW':
         return (
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 ${className}`}>
-            Low Risk (5%)
+          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-mono bg-emerald-950/40 text-emerald-400 border border-emerald-800/80 ${className}`}>
+            low risk (5%)
           </span>
         );
       case 'HIGH':
         return (
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20 ${className}`}>
-            High Risk (20%)
+          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-mono bg-rose-950/40 text-rose-400 border border-rose-800/80 ${className}`}>
+            high risk (20%)
           </span>
         );
       case 'MEDIUM':
       default:
         return (
-          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 ${className}`}>
-            Medium Risk (12%)
+          <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-xs font-mono bg-amber-950/40 text-amber-400 border border-amber-800/80 ${className}`}>
+            medium risk (12%)
           </span>
         );
     }

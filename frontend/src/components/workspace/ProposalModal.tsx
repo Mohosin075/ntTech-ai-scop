@@ -35,53 +35,53 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
       }
     >
       <div className="space-y-4 text-xs text-zinc-300">
-        <div className="flex items-center justify-between p-2.5 rounded-md bg-zinc-950 border border-zinc-800 print:hidden">
+        <div className="flex items-center justify-between p-2.5 border-l-2 border-l-emerald-500 bg-zinc-950 border-y border-r border-zinc-800 print:hidden">
           <span className="text-zinc-400">
             Commercial proposal ready for client sign-off or PDF print.
           </span>
           <button
             onClick={handlePrint}
-            className="px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-medium flex items-center gap-1.5 transition text-xs"
+            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium flex items-center gap-1.5 transition-colors text-xs"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print SOW</span>
           </button>
         </div>
 
-        <div className="p-6 rounded-md bg-white text-zinc-900 border border-zinc-200 space-y-5 print:p-0 print:border-none">
+        <div className="p-6 bg-white text-zinc-900 border border-zinc-300 space-y-5 print:p-0 print:border-none">
           <div className="flex flex-col sm:flex-row justify-between items-start pb-4 border-b-2 border-zinc-800 gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded bg-zinc-900 flex items-center justify-center text-white font-bold text-xs">
-                  S
+                <div className="w-6 h-6 bg-zinc-900 flex items-center justify-center text-white font-mono font-semibold text-xs">
+                  /
                 </div>
-                <h2 className="text-lg font-bold text-zinc-900 tracking-tight">
+                <h2 className="text-base font-semibold text-zinc-900 tracking-tight">
                   ScopeAI Engineering Solutions
                 </h2>
               </div>
-              <p className="text-[11px] text-zinc-500 mt-0.5">
+              <p className="text-xs text-zinc-500 mt-0.5">
                 Software Architecture &amp; Delivery Services
               </p>
             </div>
 
-            <div className="text-right font-mono text-[11px] text-zinc-600 space-y-0.5">
-              <div className="font-bold text-zinc-900 text-xs">COMMERCIAL STATEMENT OF WORK</div>
+            <div className="text-right font-mono text-xs text-zinc-600 space-y-0.5">
+              <div className="font-semibold text-zinc-900">Commercial Statement of Work</div>
               <div>Ref: PRJ-{project.id.slice(0, 8).toUpperCase()}</div>
               <div>Date: {new Date(project.createdAt).toLocaleDateString()}</div>
-              <div>Status: <span className="font-bold text-zinc-900">{project.status}</span></div>
+              <div>Status: <span className="font-semibold text-zinc-900">{project.status}</span></div>
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <h3 className="text-sm font-bold text-zinc-900">{project.title}</h3>
-            <p className="text-xs text-zinc-700 leading-relaxed">
+            <h3 className="text-sm font-semibold text-zinc-900">{project.title}</h3>
+            <p className="text-xs text-zinc-700 leading-relaxed font-sans">
               {project.executiveSummary}
             </p>
           </div>
 
-          <div className="p-3 rounded bg-zinc-50 border border-zinc-200 text-xs space-y-1">
-            <span className="font-bold text-zinc-800 uppercase tracking-wider text-[10px] block">
-              Client Requirements Summary
+          <div className="p-3 bg-zinc-50 border border-zinc-200 text-xs space-y-1">
+            <span className="font-medium text-zinc-800 text-xs block">
+              Client requirements summary
             </span>
             <p className="text-zinc-600 italic leading-relaxed">
               &quot;{project.rawRequirement}&quot;
@@ -89,15 +89,15 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
           </div>
 
           {project.recommendedStack && project.recommendedStack.length > 0 && (
-            <div className="space-y-1">
-              <span className="font-bold text-zinc-800 uppercase tracking-wider text-[10px] block">
-                Target Architecture &amp; Technologies
+            <div className="space-y-1.5">
+              <span className="font-medium text-zinc-800 text-xs block">
+                Target architecture and tech stack
               </span>
               <div className="flex flex-wrap gap-1">
                 {project.recommendedStack.map((tech, idx) => (
                   <span
                     key={idx}
-                    className="px-2 py-0.5 rounded text-[10px] font-mono bg-zinc-100 text-zinc-800 border border-zinc-300"
+                    className="px-2 py-0.5 text-xs font-mono bg-zinc-100 text-zinc-800 border border-zinc-300"
                   >
                     {tech}
                   </span>
@@ -107,27 +107,27 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
           )}
 
           <div className="space-y-1.5">
-            <span className="font-bold text-zinc-800 uppercase tracking-wider text-[10px] block">
-              Itemized Scope of Deliverables ({activeFeatures.length} Active Modules)
+            <span className="font-medium text-zinc-800 text-xs block">
+              Itemized scope of deliverables ({activeFeatures.length} active modules)
             </span>
-            <table className="w-full text-left text-xs border border-zinc-200 rounded overflow-hidden">
-              <thead className="bg-zinc-100 text-zinc-700 font-mono text-[10px] uppercase border-b border-zinc-200">
+            <table className="w-full text-left text-xs border border-zinc-200">
+              <thead className="bg-zinc-100 text-zinc-700 font-sans text-xs border-b border-zinc-200">
                 <tr>
-                  <th className="py-2 px-2.5">Module / Deliverable</th>
-                  <th className="py-2 px-2.5">Category</th>
-                  <th className="py-2 px-2.5">Complexity</th>
-                  <th className="py-2 px-2.5 text-center">Hours</th>
-                  <th className="py-2 px-2.5 text-right">Subtotal</th>
+                  <th className="py-2 px-2.5 font-medium">Deliverable</th>
+                  <th className="py-2 px-2.5 font-medium">Category</th>
+                  <th className="py-2 px-2.5 font-medium">Complexity</th>
+                  <th className="py-2 px-2.5 text-center font-medium">Hours</th>
+                  <th className="py-2 px-2.5 text-right font-medium">Subtotal</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-200 font-mono text-zinc-800 text-[11px]">
+              <tbody className="divide-y divide-zinc-200 font-mono text-zinc-800 text-xs">
                 {activeFeatures.map((f) => (
                   <tr key={f.id} className="hover:bg-zinc-50/50">
                     <td className="py-1.5 px-2.5 font-sans font-medium text-zinc-900">{f.title}</td>
-                    <td className="py-1.5 px-2.5">{f.category}</td>
-                    <td className="py-1.5 px-2.5">{f.complexity}</td>
+                    <td className="py-1.5 px-2.5 font-sans">{f.category.toLowerCase()}</td>
+                    <td className="py-1.5 px-2.5 font-sans">{f.complexity.toLowerCase()}</td>
                     <td className="py-1.5 px-2.5 text-center">{f.estimatedHours}h</td>
-                    <td className="py-1.5 px-2.5 text-right font-bold">
+                    <td className="py-1.5 px-2.5 text-right font-semibold">
                       ${(f.estimatedHours * project.hourlyRate).toLocaleString()}
                     </td>
                   </tr>

@@ -67,23 +67,23 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
   if (totalActiveHours === 0) return null;
 
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 space-y-3.5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-zinc-800">
+    <div className="border-l-2 border-l-blue-500 bg-zinc-900/30 border-y border-r border-zinc-800/80 p-4 space-y-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-zinc-800/80">
         <div>
-          <h3 className="font-semibold text-xs text-zinc-100 uppercase tracking-wider">
-            Effort &amp; Cost Distribution by Layer
+          <h3 className="font-medium text-xs text-zinc-200">
+            Effort and cost distribution
           </h3>
-          <p className="text-[11px] text-zinc-400">
-            Workload distribution across architectural components
+          <p className="text-xs text-zinc-400 font-sans">
+            Workload distribution across architectural layers
           </p>
         </div>
-        <span className="text-[11px] font-mono text-zinc-400 bg-zinc-950 border border-zinc-800 px-2 py-0.5 rounded">
-          {activeFeatures.length} Modules • {totalActiveHours}h Total
+        <span className="text-xs font-mono text-zinc-400 bg-zinc-950 border border-zinc-800 px-2 py-0.5">
+          {activeFeatures.length} modules • {totalActiveHours}h total
         </span>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full h-2 rounded-full bg-zinc-950 overflow-hidden flex border border-zinc-800">
+      <div className="w-full h-1.5 bg-zinc-950 overflow-hidden flex border border-zinc-800/80">
         {distribution.map((item) => (
           <div
             key={item.category}
@@ -95,26 +95,26 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
       </div>
 
       {/* Breakdown Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
         {distribution.map((item) => (
           <div
             key={item.category}
-            className="p-2.5 rounded bg-zinc-950 border border-zinc-800 space-y-1 font-mono text-xs"
+            className="p-2.5 bg-zinc-950/70 border border-zinc-800/80 space-y-1 font-mono text-xs"
           >
             <div className="flex items-center justify-between">
-              <span className={`px-1.5 py-0.2 rounded text-[10px] font-medium border ${item.colors.badge}`}>
-                {item.category}
+              <span className={`px-1.5 py-0.5 text-[11px] font-medium border ${item.colors.badge}`}>
+                {item.category.toLowerCase()}
               </span>
-              <span className="font-bold text-zinc-300 text-xs">
+              <span className="font-semibold text-zinc-300 text-xs">
                 {item.percentage}%
               </span>
             </div>
 
             <div className="pt-0.5">
-              <div className="text-xs font-bold text-zinc-100">
+              <div className="text-xs font-semibold text-zinc-100">
                 ${item.cost.toLocaleString()}
               </div>
-              <div className="text-[10px] text-zinc-500 font-sans">
+              <div className="text-xs text-zinc-500 font-sans">
                 {item.hours}h ({item.count} {item.count === 1 ? 'task' : 'tasks'})
               </div>
             </div>

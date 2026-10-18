@@ -10,20 +10,20 @@ interface ProjectCardProps {
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 flex flex-col justify-between hover:border-zinc-700 transition">
-      <div className="space-y-2.5">
+    <div className="border-l-2 border-l-emerald-500 bg-zinc-900/30 border-y border-r border-zinc-800/80 p-4 flex flex-col justify-between hover:bg-zinc-900/60 transition-colors">
+      <div className="space-y-3">
         <div className="flex items-start justify-between gap-2">
-          <h4 className="font-semibold text-sm text-zinc-100 line-clamp-1">
+          <h4 className="font-medium text-sm text-zinc-100 line-clamp-1">
             {project.title}
           </h4>
           <StatusBadge status={project.status} />
         </div>
 
-        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
+        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed font-sans">
           {project.executiveSummary}
         </p>
 
-        <div className="pt-2 flex items-center justify-between border-t border-zinc-800 text-xs">
+        <div className="pt-2 flex items-center justify-between border-t border-zinc-800/70 text-xs">
           <StatusBadge risk={project.riskLevel} />
           <span className="text-zinc-500 font-mono text-[11px] flex items-center gap-1">
             <Calendar className="w-3 h-3" />
@@ -32,15 +32,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         </div>
 
         <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-xs">
-          <div className="p-2 rounded bg-zinc-950 border border-zinc-800">
-            <span className="text-[10px] text-zinc-500 block uppercase">Quote</span>
-            <span className="font-bold text-emerald-400 flex items-center text-sm">
+          <div className="p-2 bg-zinc-950/70 border-l border-zinc-800">
+            <span className="text-xs text-zinc-500 block font-sans">Quote</span>
+            <span className="font-semibold text-emerald-400 flex items-center text-sm mt-0.5">
               <DollarSign className="w-3.5 h-3.5 -mr-0.5" />
               {project.finalTotalCost.toLocaleString()}
             </span>
           </div>
-          <div className="p-2 rounded bg-zinc-950 border border-zinc-800">
-            <span className="text-[10px] text-zinc-500 block uppercase">Timeline</span>
+          <div className="p-2 bg-zinc-950/70 border-l border-zinc-800">
+            <span className="text-xs text-zinc-500 block font-sans">Timeline</span>
             <span className="font-medium text-zinc-300 flex items-center gap-1 text-xs mt-0.5">
               <Clock className="w-3 h-3 text-zinc-400" />
               {project.totalHours}h ({project.estimatedWeeks}w)
@@ -49,12 +49,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         </div>
       </div>
 
-      <div className="mt-3 pt-2.5 border-t border-zinc-800">
+      <div className="mt-3 pt-2.5 border-t border-zinc-800/70">
         <Link
           href={`/projects/${project.id}`}
-          className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-xs font-medium text-zinc-200 transition"
+          className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-3 bg-zinc-800/80 hover:bg-zinc-800 border border-zinc-700/80 text-xs font-medium text-zinc-200 transition-colors"
         >
-          <span>Open Workspace</span>
+          <span>Open workspace</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

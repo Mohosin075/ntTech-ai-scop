@@ -36,7 +36,7 @@ export const Modal: React.FC<ModalProps> = ({
       onClick={onClose}
     >
       <div
-        className={`w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-900 p-5 space-y-4`}
+        className={`w-full ${maxWidth} max-h-[90vh] overflow-y-auto border border-zinc-700 bg-zinc-950 p-5 space-y-4`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
