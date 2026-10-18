@@ -204,7 +204,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Project Scoping Generator Section */}
-        <section className="border-l-2 border-l-emerald-500 bg-zinc-900/30 border-y border-r border-zinc-800/80 p-5 space-y-4">
+        <section className="rounded-lg border border-zinc-800/80 bg-zinc-900/60 p-5 space-y-4">
           <div>
             <h2 className="text-sm font-semibold text-zinc-100">Create project estimate</h2>
             <p className="text-xs text-zinc-400 mt-0.5">
@@ -213,7 +213,7 @@ export default function DashboardPage() {
           </div>
 
           {genError && (
-            <div className="flex items-start gap-2 p-2.5 bg-rose-950/40 border border-rose-800 text-rose-300 text-xs">
+            <div className="flex items-start gap-2 p-2.5 rounded-md bg-rose-950/40 border border-rose-800/80 text-rose-300 text-xs">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-rose-400" />
               <span>{genError}</span>
             </div>
@@ -231,7 +231,7 @@ export default function DashboardPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Pathao Courier COD Settlement Engine"
-                  className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600"
+                  className="w-full px-3 py-2 rounded-md bg-zinc-950/80 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600"
                 />
               </div>
 
@@ -248,7 +248,7 @@ export default function DashboardPage() {
                     required
                     value={hourlyRate}
                     onChange={(e) => setHourlyRate(Number(e.target.value))}
-                    className="w-full pl-6 pr-3 py-2 bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-mono focus:outline-none focus:border-zinc-500 transition-colors"
+                    className="w-full pl-6 pr-3 py-2 rounded-md bg-zinc-950/80 border border-zinc-800 text-zinc-100 text-xs font-mono focus:outline-none focus:border-zinc-600 transition-colors"
                   />
                 </div>
               </div>
@@ -269,7 +269,7 @@ export default function DashboardPage() {
                 value={rawRequirement}
                 onChange={(e) => setRawRequirement(e.target.value)}
                 placeholder="Describe business capabilities, core workflows, database entities, and integrations..."
-                className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600 resize-none leading-relaxed font-sans"
+                className="w-full px-3 py-2 rounded-md bg-zinc-950/80 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600 resize-none leading-relaxed font-sans"
               />
 
               {/* Sample Blueprints */}
@@ -282,7 +282,7 @@ export default function DashboardPage() {
                     key={idx}
                     type="button"
                     onClick={() => applySamplePrompt(p)}
-                    className="text-xs px-2 py-0.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
+                    className="text-xs px-2.5 py-1 rounded-md bg-zinc-950/80 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors"
                   >
                     {p.title.split(' ')[0]} {p.title.split(' ')[1]}
                   </button>
@@ -294,7 +294,7 @@ export default function DashboardPage() {
               <button
                 type="submit"
                 disabled={generating}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 font-medium text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition-colors disabled:opacity-50"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-md font-medium text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition-colors disabled:opacity-50"
               >
                 {generating ? (
                   <>
@@ -325,7 +325,7 @@ export default function DashboardPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search estimates..."
-                  className="pl-8 pr-3 py-1.5 bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors w-44 sm:w-52"
+                  className="pl-8 pr-3 py-1.5 rounded-md bg-zinc-900/90 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-600 transition-colors w-44 sm:w-52"
                 />
               </div>
 
@@ -334,7 +334,7 @@ export default function DashboardPage() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-2.5 py-1.5 bg-zinc-950 border border-zinc-800 text-xs text-zinc-300 focus:outline-none focus:border-zinc-500 transition-colors"
+                  className="px-2.5 py-1.5 rounded-md bg-zinc-900/90 border border-zinc-800 text-xs text-zinc-300 focus:outline-none focus:border-zinc-600 transition-colors"
                 >
                   <option value="ALL">All statuses</option>
                   <option value="AI_ESTIMATED">AI estimated</option>
@@ -352,7 +352,7 @@ export default function DashboardPage() {
               <span className="text-xs">Loading estimates...</span>
             </div>
           ) : filteredProjects.length === 0 ? (
-            <div className="p-8 text-center border border-zinc-800 bg-zinc-900/30 text-zinc-400 space-y-1">
+            <div className="p-8 text-center rounded-lg border border-zinc-800/80 bg-zinc-900/40 text-zinc-400 space-y-1">
               <p className="text-xs font-medium text-zinc-300">No project estimates found.</p>
               <p className="text-xs text-zinc-500">
                 {searchQuery
