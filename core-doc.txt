@@ -1,0 +1,102 @@
+================================================================================
+                           NT TECH INNOVATION
+               FULL STACK DEVELOPER | PRACTICAL ASSESSMENT
+================================================================================
+
+Assessment Type : Independent Full-Stack Project
+Submission Date : 17 October 2026
+Total Marks     : 100 Marks
+
+--------------------------------------------------------------------------------
+1. OBJECTIVE
+--------------------------------------------------------------------------------
+Choose a practical software idea that solves a real problem and build a working 
+full-stack application. Your project may address any industry or business use 
+case. We will assess your ability to plan, implement, explain, and improve your 
+solution independently.
+
+
+--------------------------------------------------------------------------------
+2. REQUIRED IMPLEMENTATION
+--------------------------------------------------------------------------------
+• Frontend:
+  - Responsive, usable interface with clear loading, success, and error states.
+
+• Backend and Data:
+  - Working APIs, database persistence, meaningful CRUD operations, and 
+    appropriate relationships.
+
+• Authentication and Security:
+  - Secure login and protected operations.
+  - Apply authorization and input validation where relevant.
+
+• Business Logic:
+  - Implement at least one meaningful workflow, calculation, or status-based 
+    process.
+
+• AI / ML Feature:
+  - Include one practical AI-powered or basic machine-learning feature relevant 
+    to your project (e.g., smart recommendations, classification, text 
+    summarization, or demand prediction).
+  - An existing AI API, open-source model, or simple self-built model may be 
+    used.
+  - Explain inputs, outputs, limitations, and how you evaluated its usefulness.
+
+
+--------------------------------------------------------------------------------
+3. TECHNICAL EXPECTATIONS
+--------------------------------------------------------------------------------
+• Stack: Use a suitable technology stack of your choice.
+• Architecture: Keep code modular and maintainable.
+• Version Control: Use Git with meaningful, descriptive commits.
+• Robustness: Handle edge cases and invalid inputs gracefully.
+• Quality: Include basic testing of a critical feature.
+• Scope: Prioritize a reliable, working application over excessive scope.
+
+
+--------------------------------------------------------------------------------
+4. SUBMISSION AND LIVE REVIEW
+--------------------------------------------------------------------------------
+• Deliverables:
+  - Git repository link.
+  - Comprehensive README with setup instructions.
+  - Environment variable example (.env.example).
+  - Demo credentials (if authentication is required).
+
+• Deployment & Execution:
+  - Provide a working deployment link if available; otherwise be ready to run 
+    the application locally.
+
+• Presentation:
+  - Demonstrate the main user flow and the AI/ML feature.
+  - Explain the database schema, key APIs, architecture, and known limitations.
+
+• Live Evaluation:
+  - Be prepared for a short live code change, debugging task, and technical 
+    questions regarding your implementation.
+
+
+--------------------------------------------------------------------------------
+5. EVALUATION CRITERIA (100 MARKS)
+--------------------------------------------------------------------------------
++-----------------------------------+-------+-----------------------------------+-------+
+| Evaluation Category               | Marks | Evaluation Category               | Marks |
++-----------------------------------+-------+-----------------------------------+-------+
+| Problem Solving & Planning        |  10   | Security & Validation             |  10   |
+| Frontend & User Experience        |  15   | AI / ML Feature & Explanation     |  10   |
+| Backend, APIs & Business Logic    |  20   | Code Quality, Testing & Git       |  10   |
+| Database & Data Handling          |  15   | Live Demo & Technical Review      |  10   |
++-----------------------------------+-------+-----------------------------------+-------+
+| TOTAL SCORE                                                                   |  100  |
++-----------------------------------+-------+-----------------------------------+-------+
+
+
+--------------------------------------------------------------------------------
+6. INDEPENDENCE POLICY
+--------------------------------------------------------------------------------
+The solution and submitted code must be your own work. AI coding assistants, 
+generated project code, and copied complete solutions are not permitted. 
+
+Using an AI API or ML model as part of your application's functionality is 
+allowed. You must be able to explain and modify every submitted component.
+================================================================================
