@@ -8,6 +8,8 @@ import { fetchApi } from '@/lib/api';
 import { Feature, FeatureCategory, FeatureComplexity, Project, ProjectStatus } from '@/types';
 import Navbar from '@/components/common/Navbar';
 import StatusBadge from '@/components/common/StatusBadge';
+import Modal from '@/components/common/Modal';
+import KpiCard from '@/components/common/KpiCard';
 import {
   ArrowLeft,
   CheckCircle2,
@@ -341,57 +343,41 @@ function ProjectWorkspaceContent() {
 
         {/* Summary KPI Strip (4 cards) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Total Cost */}
-          <div className="rounded-2xl border border-gray-800 bg-[#111827] p-4 font-mono">
-            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
-              Total Estimated Cost
-            </span>
-            <div className="text-2xl font-bold text-emerald-400 flex items-center">
-              <DollarSign className="w-5 h-5 -mr-1" />
-              {project.finalTotalCost.toLocaleString()}
-            </div>
-            <div className="text-[11px] text-gray-500 mt-1">
-              Base: ${project.baseCost.toLocaleString()} + Buffer: ${project.riskBufferAmount.toLocaleString()}
-            </div>
-          </div>
+          <KpiCard
+            label="Total Estimated Cost"
+            value={project.finalTotalCost.toLocaleString()}
+            icon={<DollarSign className="w-5 h-5 -mr-1" />}
+            valueClassName="text-emerald-400"
+            subtitle={`Base: $${project.baseCost.toLocaleString()} + Buffer: $${project.riskBufferAmount.toLocaleString()}`}
+          />
 
-          {/* Card 2: Total Effort */}
-          <div className="rounded-2xl border border-gray-800 bg-[#111827] p-4 font-mono">
-            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
-              Total Effort
-            </span>
-            <div className="text-2xl font-bold text-sky-400 flex items-center gap-1.5">
-              <Clock className="w-5 h-5" />
-              {project.totalHours} hrs
-            </div>
-            <div className="text-[11px] text-gray-500 mt-1">Active features only</div>
-          </div>
+          <KpiCard
+            label="Total Effort"
+            value={`${project.totalHours} hrs`}
+            icon={<Clock className="w-5 h-5" />}
+            valueClassName="text-sky-400"
+            subtitle="Active features only"
+          />
 
-          {/* Card 3: Estimated Timeline */}
-          <div className="rounded-2xl border border-gray-800 bg-[#111827] p-4 font-mono">
-            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
-              Estimated Timeline
-            </span>
-            <div className="text-2xl font-bold text-gray-100 flex items-center gap-1.5">
-              <Calendar className="w-5 h-5 text-indigo-400" />
-              {project.estimatedWeeks} Weeks
-            </div>
-            <div className="text-[11px] text-gray-500 mt-1">Based on 30 hrs/week</div>
-          </div>
+          <KpiCard
+            label="Estimated Timeline"
+            value={`${project.estimatedWeeks} Weeks`}
+            icon={<Calendar className="w-5 h-5 text-indigo-400" />}
+            valueClassName="text-gray-100"
+            subtitle="Based on 30 hrs/week"
+          />
 
-          {/* Card 4: Risk Profile */}
-          <div className="rounded-2xl border border-gray-800 bg-[#111827] p-4 font-mono">
-            <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block mb-1">
-              Risk Profile
-            </span>
-            <div className="text-lg font-bold text-gray-100 flex items-center gap-2 mt-0.5">
-              <StatusBadge risk={project.riskLevel} />
-            </div>
-            <div className="text-[11px] text-gray-400 mt-1.5 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-              AI Confidence: {project.aiConfidenceScore}%
-            </div>
-          </div>
+          <KpiCard
+            label="Risk Profile"
+            value={<StatusBadge risk={project.riskLevel} />}
+            valueClassName="text-lg"
+            subtitle={
+              <span className="flex items-center gap-1 text-gray-400">
+                <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
+                AI Confidence: {project.aiConfidenceScore}%
+              </span>
+            }
+          />
         </div>
 
         {/* 2-Column Workspace Layout */}
@@ -584,44 +570,23 @@ function ProjectWorkspaceContent() {
               </div>
 
               <div className="space-y-4 font-mono text-xs">
-                {/* Milestone 1 */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-gray-300 font-sans">
-                    <span className="font-medium">Milestone 1 (Kickoff &amp; UI - 30%)</span>
-                    <span className="font-mono font-bold text-gray-50">
-                      ${project.milestone1Amount.toLocaleString()}
-                    </span>
+                {[
+                  { label: 'Milestone 1 (Kickoff & UI - 30%)', amount: project.milestone1Amount, width: '30%', color: 'bg-indigo-500' },
+                  { label: 'Milestone 2 (Core MVP & APIs - 40%)', amount: project.milestone2Amount, width: '40%', color: 'bg-sky-500' },
+                  { label: 'Milestone 3 (QA & Deploy - 30%)', amount: project.milestone3Amount, width: '30%', color: 'bg-emerald-500' },
+                ].map((ms, idx) => (
+                  <div key={idx} className="space-y-1.5">
+                    <div className="flex justify-between items-center text-gray-300 font-sans">
+                      <span className="font-medium">{ms.label}</span>
+                      <span className="font-mono font-bold text-gray-50">
+                        ${ms.amount.toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="w-full h-2 rounded-full bg-gray-800 overflow-hidden">
+                      <div className={`h-full ${ms.color} rounded-full`} style={{ width: ms.width }}></div>
+                    </div>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-gray-800 overflow-hidden">
-                    <div className="h-full bg-indigo-500 rounded-full" style={{ width: '30%' }}></div>
-                  </div>
-                </div>
-
-                {/* Milestone 2 */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-gray-300 font-sans">
-                    <span className="font-medium">Milestone 2 (Core MVP &amp; APIs - 40%)</span>
-                    <span className="font-mono font-bold text-gray-50">
-                      ${project.milestone2Amount.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-gray-800 overflow-hidden">
-                    <div className="h-full bg-sky-500 rounded-full" style={{ width: '40%' }}></div>
-                  </div>
-                </div>
-
-                {/* Milestone 3 */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-gray-300 font-sans">
-                    <span className="font-medium">Milestone 3 (QA &amp; Deploy - 30%)</span>
-                    <span className="font-mono font-bold text-gray-50">
-                      ${project.milestone3Amount.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-gray-800 overflow-hidden">
-                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: '30%' }}></div>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -695,221 +660,201 @@ function ProjectWorkspaceContent() {
       </main>
 
       {/* Add Custom Feature Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-800">
-              <h4 className="font-bold text-base text-gray-50">Add Custom Feature</h4>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-gray-400 hover:text-white">
-                <X className="w-4 h-4" />
-              </button>
+      <Modal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        title="Add Custom Feature"
+      >
+        <form onSubmit={handleAddFeatureSubmit} className="space-y-3.5">
+          <div>
+            <label className="block text-xs font-semibold text-gray-300 mb-1">Feature Name</label>
+            <input
+              type="text"
+              required
+              value={featureTitle}
+              onChange={(e) => setFeatureTitle(e.target.value)}
+              placeholder="e.g. Stripe Webhook & Automated Invoicing"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-indigo-500 transition"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-300 mb-1">Category</label>
+              <select
+                value={featureCategory}
+                onChange={(e) => setFeatureCategory(e.target.value as FeatureCategory)}
+                className="w-full px-3 py-2 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-indigo-500 transition"
+              >
+                <option value="FRONTEND">FRONTEND</option>
+                <option value="BACKEND">BACKEND</option>
+                <option value="DATABASE">DATABASE</option>
+                <option value="INTEGRATION">INTEGRATION</option>
+                <option value="AI">AI</option>
+              </select>
             </div>
 
-            <form onSubmit={handleAddFeatureSubmit} className="space-y-3.5">
-              <div>
-                <label className="block text-xs font-semibold text-gray-300 mb-1">Feature Name</label>
-                <input
-                  type="text"
-                  required
-                  value={featureTitle}
-                  onChange={(e) => setFeatureTitle(e.target.value)}
-                  placeholder="e.g. Stripe Webhook & Automated Invoicing"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-indigo-500 transition"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">Category</label>
-                  <select
-                    value={featureCategory}
-                    onChange={(e) => setFeatureCategory(e.target.value as FeatureCategory)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-indigo-500 transition"
-                  >
-                    <option value="FRONTEND">FRONTEND</option>
-                    <option value="BACKEND">BACKEND</option>
-                    <option value="DATABASE">DATABASE</option>
-                    <option value="INTEGRATION">INTEGRATION</option>
-                    <option value="AI">AI</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">Complexity</label>
-                  <select
-                    value={featureComplexity}
-                    onChange={(e) => setFeatureComplexity(e.target.value as FeatureComplexity)}
-                    className="w-full px-3 py-2 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-indigo-500 transition"
-                  >
-                    <option value="LOW">LOW</option>
-                    <option value="MEDIUM">MEDIUM</option>
-                    <option value="HIGH">HIGH</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-300 mb-1">Estimated Hours</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={200}
-                  required
-                  value={featureHours}
-                  onChange={(e) => setFeatureHours(Number(e.target.value))}
-                  className="w-full px-3.5 py-2 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs font-mono focus:outline-none focus:border-indigo-500 transition"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300 hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={addingFeature}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white flex items-center gap-1.5"
-                >
-                  {addingFeature && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  Add Feature
-                </button>
-              </div>
-            </form>
+            <div>
+              <label className="block text-xs font-semibold text-gray-300 mb-1">Complexity</label>
+              <select
+                value={featureComplexity}
+                onChange={(e) => setFeatureComplexity(e.target.value as FeatureComplexity)}
+                className="w-full px-3 py-2 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-indigo-500 transition"
+              >
+                <option value="LOW">LOW</option>
+                <option value="MEDIUM">MEDIUM</option>
+                <option value="HIGH">HIGH</option>
+              </select>
+            </div>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="block text-xs font-semibold text-gray-300 mb-1">Estimated Hours</label>
+            <input
+              type="number"
+              min={1}
+              max={200}
+              required
+              value={featureHours}
+              onChange={(e) => setFeatureHours(Number(e.target.value))}
+              className="w-full px-3.5 py-2 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs font-mono focus:outline-none focus:border-indigo-500 transition"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300 hover:bg-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={addingFeature}
+              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white flex items-center gap-1.5"
+            >
+              {addingFeature && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              Add Feature
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Reject Reason Modal */}
-      {isRejectModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-800">
-              <h4 className="font-bold text-base text-rose-400 flex items-center gap-2">
-                <XCircle className="w-5 h-5" /> Reject Project Scope
-              </h4>
-              <button onClick={() => setIsRejectModalOpen(false)} className="text-gray-400 hover:text-white">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <p className="text-xs text-gray-400">
-              Please state why this estimate was rejected so the estimator can revise the scope (minimum 10 characters required).
-            </p>
-
-            <textarea
-              rows={4}
-              value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
-              placeholder="e.g. Scope buffer seems insufficient for payment gateway, or hours estimated for real-time tracking are too high..."
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-rose-500 transition resize-none"
-            />
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setIsRejectModalOpen(false)}
-                className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={actionLoading || rejectionReason.trim().length < 10}
-                onClick={() => handleStatusChange('REJECTED', rejectionReason)}
-                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white flex items-center gap-1.5 disabled:opacity-50"
-              >
-                {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                Confirm Rejection
-              </button>
-            </div>
+      <Modal
+        isOpen={isRejectModalOpen}
+        onClose={() => setIsRejectModalOpen(false)}
+        title={
+          <div className="flex items-center gap-2 text-rose-400">
+            <XCircle className="w-5 h-5" />
+            <span>Reject Project Scope</span>
           </div>
+        }
+      >
+        <p className="text-xs text-gray-400">
+          Please state why this estimate was rejected so the estimator can revise the scope (minimum 10 characters required).
+        </p>
+
+        <textarea
+          rows={4}
+          value={rejectionReason}
+          onChange={(e) => setRejectionReason(e.target.value)}
+          placeholder="e.g. Scope buffer seems insufficient for payment gateway, or hours estimated for real-time tracking are too high..."
+          className="w-full px-3.5 py-2.5 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-rose-500 transition resize-none"
+        />
+
+        <div className="flex justify-end gap-2 pt-2">
+          <button
+            type="button"
+            onClick={() => setIsRejectModalOpen(false)}
+            className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            disabled={actionLoading || rejectionReason.trim().length < 10}
+            onClick={() => handleStatusChange('REJECTED', rejectionReason)}
+            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white flex items-center gap-1.5 disabled:opacity-50"
+          >
+            {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            Confirm Rejection
+          </button>
         </div>
-      )}
+      </Modal>
 
       {/* AI Transparency, Limitations & Evaluation Modal */}
-      {isEvalModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-gray-800">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-violet-400" />
-                <h4 className="font-bold text-base text-gray-50">
-                  AI Scoping Engine — Architecture, Inputs, Outputs &amp; Limitations
-                </h4>
-              </div>
-              <button
-                onClick={() => setIsEvalModalOpen(false)}
-                className="text-gray-400 hover:text-white p-1"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+      <Modal
+        isOpen={isEvalModalOpen}
+        onClose={() => setIsEvalModalOpen(false)}
+        maxWidth="max-w-2xl"
+        title={
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-violet-400" />
+            <span>AI Scoping Engine — Architecture, Inputs, Outputs &amp; Limitations</span>
+          </div>
+        }
+      >
+        <div className="space-y-4 text-xs leading-relaxed text-gray-300">
+          {/* Section 1: Inputs */}
+          <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
+            <span className="font-bold text-indigo-400 uppercase tracking-wider block mb-1">
+              1. Input Parameters
+            </span>
+            <p>
+              • <strong>Project Title:</strong> Concept identifier defining the primary domain (e.g. E-Commerce, Logistics, Healthcare).<br />
+              • <strong>Raw Requirements Text:</strong> Natural language project description detailing user roles, workflows, third-party integrations, and performance expectations.<br />
+              • <strong>Hourly Rate ($):</strong> Financial baseline used by the calculation engine to project cost deliverables.
+            </p>
+          </div>
 
-            <div className="space-y-4 text-xs leading-relaxed text-gray-300">
-              {/* Section 1: Inputs */}
-              <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
-                <span className="font-bold text-indigo-400 uppercase tracking-wider block mb-1">
-                  1. Input Parameters
-                </span>
-                <p>
-                  • <strong>Project Title:</strong> Concept identifier defining the primary domain (e.g. E-Commerce, Logistics, Healthcare).<br />
-                  • <strong>Raw Requirements Text:</strong> Natural language project description detailing user roles, workflows, third-party integrations, and performance expectations.<br />
-                  • <strong>Hourly Rate ($):</strong> Financial baseline used by the calculation engine to project cost deliverables.
-                </p>
-              </div>
+          {/* Section 2: Outputs */}
+          <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
+            <span className="font-bold text-emerald-400 uppercase tracking-wider block mb-1">
+              2. Generated Outputs &amp; Metrics
+            </span>
+            <p>
+              • <strong>Risk Classification:</strong> Automated assessment into <code className="text-emerald-300">LOW (5%)</code>, <code className="text-amber-300">MEDIUM (12%)</code>, or <code className="text-rose-300">HIGH (20%)</code> buffer tiers.<br />
+              • <strong>Domain Feature Breakdown:</strong> 6 to 8 structured feature modules categorized by <code className="text-indigo-300">FRONTEND</code>, <code className="text-sky-300">BACKEND</code>, <code className="text-teal-300">DATABASE</code>, <code className="text-purple-300">INTEGRATION</code>, and <code className="text-pink-300">AI</code> with granular hour projections.<br />
+              • <strong>Tech Stack Recommendations:</strong> Curated modern production libraries tailored to project complexity.<br />
+              • <strong>Milestone Schedules:</strong> Rounding-safe 30% / 40% / 30% milestone cost breakdown with zero cent drift.
+            </p>
+          </div>
 
-              {/* Section 2: Outputs */}
-              <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
-                <span className="font-bold text-emerald-400 uppercase tracking-wider block mb-1">
-                  2. Generated Outputs &amp; Metrics
-                </span>
-                <p>
-                  • <strong>Risk Classification:</strong> Automated assessment into <code className="text-emerald-300">LOW (5%)</code>, <code className="text-amber-300">MEDIUM (12%)</code>, or <code className="text-rose-300">HIGH (20%)</code> buffer tiers.<br />
-                  • <strong>Domain Feature Breakdown:</strong> 6 to 8 structured feature modules categorized by <code className="text-indigo-300">FRONTEND</code>, <code className="text-sky-300">BACKEND</code>, <code className="text-teal-300">DATABASE</code>, <code className="text-purple-300">INTEGRATION</code>, and <code className="text-pink-300">AI</code> with granular hour projections.<br />
-                  • <strong>Tech Stack Recommendations:</strong> Curated modern production libraries tailored to project complexity.<br />
-                  • <strong>Milestone Schedules:</strong> Rounding-safe 30% / 40% / 30% milestone cost breakdown with zero cent drift.
-                </p>
-              </div>
+          {/* Section 3: Limitations */}
+          <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
+            <span className="font-bold text-amber-400 uppercase tracking-wider block mb-1">
+              3. Known Limitations
+            </span>
+            <p>
+              • Estimates provide an initial high-fidelity architectural baseline. Unspecified legacy system integrations, proprietary on-premise hardware, or compliance audits (e.g., HIPAA / SOC 2) may require manual scope adjustments.<br />
+              • The engine enforces human-in-the-loop governance: final scopes must be reviewed and approved by an authorized Administrator before contract finalization.
+            </p>
+          </div>
 
-              {/* Section 3: Limitations */}
-              <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
-                <span className="font-bold text-amber-400 uppercase tracking-wider block mb-1">
-                  3. Known Limitations
-                </span>
-                <p>
-                  • Estimates provide an initial high-fidelity architectural baseline. Unspecified legacy system integrations, proprietary on-premise hardware, or compliance audits (e.g., HIPAA / SOC 2) may require manual scope adjustments.<br />
-                  • The engine enforces human-in-the-loop governance: final scopes must be reviewed and approved by an authorized Administrator before contract finalization.
-                </p>
-              </div>
-
-              {/* Section 4: Evaluation */}
-              <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
-                <span className="font-bold text-sky-400 uppercase tracking-wider block mb-1">
-                  4. Usefulness Evaluation &amp; Fallback Resilience
-                </span>
-                <p>
-                  • <strong>Zero-Downtime Fallback:</strong> If third-party AI APIs (Gemini/OpenAI) encounter rate limits or network degradation, the engine seamlessly triggers a deterministic, keyword-aware Rule Engine with 100% uptime.<br />
-                  • <strong>Validation Benchmark:</strong> The scoping model was calibrated against standard real-world deliverables from software agencies, reducing proposal preparation time from 4 hours to under 30 seconds.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="button"
-                onClick={() => setIsEvalModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition"
-              >
-                Close Technical Overview
-              </button>
-            </div>
+          {/* Section 4: Evaluation */}
+          <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
+            <span className="font-bold text-sky-400 uppercase tracking-wider block mb-1">
+              4. Usefulness Evaluation &amp; Fallback Resilience
+            </span>
+            <p>
+              • <strong>Zero-Downtime Fallback:</strong> If third-party AI APIs (Gemini/OpenAI) encounter rate limits or network degradation, the engine seamlessly triggers a deterministic, keyword-aware Rule Engine with 100% uptime.<br />
+              • <strong>Validation Benchmark:</strong> The scoping model was calibrated against standard real-world deliverables from software agencies, reducing proposal preparation time from 4 hours to under 30 seconds.
+            </p>
           </div>
         </div>
-      )}
+
+        <div className="flex justify-end pt-2">
+          <button
+            type="button"
+            onClick={() => setIsEvalModalOpen(false)}
+            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition"
+          >
+            Close Technical Overview
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }

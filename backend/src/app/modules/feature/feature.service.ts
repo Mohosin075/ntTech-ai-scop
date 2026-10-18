@@ -1,9 +1,46 @@
+import { Prisma, RiskLevel } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
 import prisma from '../../../config/prisma';
 import AppError from '../../errors/AppError';
 import CalculationService from '../../services/calculation.service';
 import WorkflowService from '../../services/workflow.service';
 import { ICreateFeatureInput, IUpdateFeatureInput } from './feature.interface';
+
+/**
+ * Reusable helper to recalculate project metrics and persist state inside transaction
+ */
+const recalculateAndSyncProject = async (
+  tx: Prisma.TransactionClient,
+  projectId: string,
+  hourlyRate: number,
+  riskLevel: RiskLevel
+) => {
+  const allFeatures = await tx.feature.findMany({
+    where: { projectId },
+    orderBy: { createdAt: 'asc' },
+  });
+
+  const metrics = CalculationService.calculateMetrics(
+    allFeatures.map((f) => ({
+      estimatedHours: f.estimatedHours,
+      isIncluded: f.isIncluded,
+    })),
+    hourlyRate,
+    riskLevel
+  );
+
+  const updatedProject = await tx.project.update({
+    where: { id: projectId },
+    data: metrics,
+    include: {
+      features: {
+        orderBy: { createdAt: 'asc' },
+      },
+    },
+  });
+
+  return updatedProject;
+};
 
 /**
  * Add a custom feature to a project and recalculate metrics
@@ -14,7 +51,6 @@ const addFeatureToProject = async (
 ) => {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    include: { features: true },
   });
 
   if (!project) {
@@ -24,7 +60,7 @@ const addFeatureToProject = async (
   // Guard 4: Immutability lock check
   WorkflowService.validateFeatureModification(project.status);
 
-  const result = await prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx) => {
     // 1. Create feature
     const createdFeature = await tx.feature.create({
       data: {
@@ -37,39 +73,19 @@ const addFeatureToProject = async (
       },
     });
 
-    // 2. Fetch all features after addition
-    const allFeatures = await tx.feature.findMany({
-      where: { projectId },
-    });
-
-    // 3. Recalculate project metrics
-    const metrics = CalculationService.calculateMetrics(
-      allFeatures.map((f) => ({
-        estimatedHours: f.estimatedHours,
-        isIncluded: f.isIncluded,
-      })),
+    // 2. Recalculate & sync project metrics
+    const updatedProject = await recalculateAndSyncProject(
+      tx,
+      projectId,
       project.hourlyRate,
       project.riskLevel
     );
-
-    // 4. Update project with new metrics
-    const updatedProject = await tx.project.update({
-      where: { id: projectId },
-      data: metrics,
-      include: {
-        features: {
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-    });
 
     return {
       feature: createdFeature,
       project: updatedProject,
     };
   });
-
-  return result;
 };
 
 /**
@@ -99,46 +115,26 @@ const updateFeatureInProject = async (
     throw new AppError(StatusCodes.NOT_FOUND, 'Feature not found in this project!');
   }
 
-  const result = await prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx) => {
     // 1. Update feature
     const updatedFeature = await tx.feature.update({
       where: { id: featureId },
       data: payload,
     });
 
-    // 2. Fetch all features
-    const allFeatures = await tx.feature.findMany({
-      where: { projectId },
-    });
-
-    // 3. Recalculate metrics
-    const metrics = CalculationService.calculateMetrics(
-      allFeatures.map((f) => ({
-        estimatedHours: f.estimatedHours,
-        isIncluded: f.isIncluded,
-      })),
+    // 2. Recalculate & sync project metrics
+    const updatedProject = await recalculateAndSyncProject(
+      tx,
+      projectId,
       project.hourlyRate,
       project.riskLevel
     );
-
-    // 4. Update project
-    const updatedProject = await tx.project.update({
-      where: { id: projectId },
-      data: metrics,
-      include: {
-        features: {
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-    });
 
     return {
       feature: updatedFeature,
       project: updatedProject,
     };
   });
-
-  return result;
 };
 
 /**
@@ -167,45 +163,25 @@ const deleteFeatureFromProject = async (
     throw new AppError(StatusCodes.NOT_FOUND, 'Feature not found in this project!');
   }
 
-  const result = await prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx) => {
     // 1. Delete feature
     await tx.feature.delete({
       where: { id: featureId },
     });
 
-    // 2. Fetch remaining features
-    const remainingFeatures = await tx.feature.findMany({
-      where: { projectId },
-    });
-
-    // 3. Recalculate metrics
-    const metrics = CalculationService.calculateMetrics(
-      remainingFeatures.map((f) => ({
-        estimatedHours: f.estimatedHours,
-        isIncluded: f.isIncluded,
-      })),
+    // 2. Recalculate & sync project metrics
+    const updatedProject = await recalculateAndSyncProject(
+      tx,
+      projectId,
       project.hourlyRate,
       project.riskLevel
     );
-
-    // 4. Update project metrics
-    const updatedProject = await tx.project.update({
-      where: { id: projectId },
-      data: metrics,
-      include: {
-        features: {
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-    });
 
     return {
       message: 'Feature deleted successfully',
       project: updatedProject,
     };
   });
-
-  return result;
 };
 
 export const FeatureServices = {

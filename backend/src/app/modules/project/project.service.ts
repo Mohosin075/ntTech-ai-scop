@@ -11,6 +11,20 @@ import {
   IUpdateProjectStatusInput,
 } from './project.interface';
 
+// Reusable database projection objects (DRY principle)
+const userSummarySelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+} as const;
+
+const projectFullDetailsInclude = {
+  createdBy: { select: userSummarySelect },
+  reviewedBy: { select: userSummarySelect },
+  features: { orderBy: { createdAt: 'asc' as const } },
+} as const;
+
 /**
  * AI-powered project scope and cost generation
  */
@@ -69,14 +83,7 @@ const generateProjectWithAI = async (
 
     return tx.project.findUnique({
       where: { id: createdProject.id },
-      include: {
-        createdBy: {
-          select: { id: true, name: true, email: true, role: true },
-        },
-        features: {
-          orderBy: { createdAt: 'asc' },
-        },
-      },
+      include: projectFullDetailsInclude,
     });
   });
 
@@ -93,9 +100,7 @@ const getAllProjectsFromDB = async (statusFilter?: ProjectStatus) => {
     where: whereClause,
     orderBy: { createdAt: 'desc' },
     include: {
-      createdBy: {
-        select: { id: true, name: true, email: true, role: true },
-      },
+      createdBy: { select: userSummarySelect },
       _count: {
         select: { features: true },
       },
@@ -111,17 +116,7 @@ const getAllProjectsFromDB = async (statusFilter?: ProjectStatus) => {
 const getSingleProjectFromDB = async (projectId: string) => {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
-    include: {
-      createdBy: {
-        select: { id: true, name: true, email: true, role: true },
-      },
-      reviewedBy: {
-        select: { id: true, name: true, email: true, role: true },
-      },
-      features: {
-        orderBy: { createdAt: 'asc' },
-      },
-    },
+    include: projectFullDetailsInclude,
   });
 
   if (!project) {
@@ -171,17 +166,7 @@ const updateProjectStatus = async (
           ? userId
           : project.reviewedById,
     },
-    include: {
-      createdBy: {
-        select: { id: true, name: true, email: true, role: true },
-      },
-      reviewedBy: {
-        select: { id: true, name: true, email: true, role: true },
-      },
-      features: {
-        orderBy: { createdAt: 'asc' },
-      },
-    },
+    include: projectFullDetailsInclude,
   });
 
   return updatedProject;
@@ -214,17 +199,7 @@ const updateHourlyRate = async (
       hourlyRate: payload.hourlyRate,
       ...metrics,
     },
-    include: {
-      createdBy: {
-        select: { id: true, name: true, email: true, role: true },
-      },
-      reviewedBy: {
-        select: { id: true, name: true, email: true, role: true },
-      },
-      features: {
-        orderBy: { createdAt: 'asc' },
-      },
-    },
+    include: projectFullDetailsInclude,
   });
 
   return updatedProject;
