@@ -21,20 +21,17 @@ import {
   DollarSign,
   Calendar,
   ShieldCheck,
-  AlertTriangle,
   Plus,
   Trash2,
   Lock,
   Loader2,
-  Sparkles,
   Send,
   RefreshCw,
-  X,
   FileText,
   Search,
   Edit2,
   Check,
-  Filter,
+  X,
 } from 'lucide-react';
 
 function ProjectWorkspaceContent() {
@@ -49,11 +46,9 @@ function ProjectWorkspaceContent() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Hourly Rate adjuster state
   const [newRate, setNewRate] = useState<number>(25);
   const [updatingRate, setUpdatingRate] = useState(false);
 
-  // Add Feature Modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [featureTitle, setFeatureTitle] = useState('');
   const [featureCategory, setFeatureCategory] = useState<FeatureCategory>('BACKEND');
@@ -61,25 +56,18 @@ function ProjectWorkspaceContent() {
   const [featureHours, setFeatureHours] = useState<number>(10);
   const [addingFeature, setAddingFeature] = useState(false);
 
-  // Reject Modal state
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
 
-  // AI Evaluation & Specs Modal state
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
-
-  // Proposal / SOW Modal state
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
 
-  // Feature Table Filter & Search state
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [featureSearch, setFeatureSearch] = useState('');
 
-  // Inline Title Editing state
   const [editingFeatureId, setEditingFeatureId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
 
-  // Load project
   const loadProject = async () => {
     try {
       setLoading(true);
@@ -105,11 +93,9 @@ function ProjectWorkspaceContent() {
     }
   }, [user, isLoading, projectId]);
 
-  // Status Action Handlers
   const handleStatusChange = async (targetStatus: ProjectStatus, reason?: string) => {
     try {
       setActionLoading(true);
-
       const res = await fetchApi<Project>(`/projects/${projectId}/status`, {
         method: 'PATCH',
         body: JSON.stringify({
@@ -131,7 +117,6 @@ function ProjectWorkspaceContent() {
     }
   };
 
-  // Hourly Rate Update Handler
   const handleUpdateRate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -142,7 +127,7 @@ function ProjectWorkspaceContent() {
       });
       if (res.success && res.data) {
         setProject(res.data);
-        toast.success('Hourly rate updated and all deliverables recalculated!');
+        toast.success('Hourly rate updated and costs recalculated');
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to update hourly rate');
@@ -151,7 +136,6 @@ function ProjectWorkspaceContent() {
     }
   };
 
-  // Toggle Feature Included Checkbox
   const handleToggleInclude = async (feature: Feature) => {
     if (project?.status === 'APPROVED') return;
     try {
@@ -173,7 +157,6 @@ function ProjectWorkspaceContent() {
     }
   };
 
-  // Adjust Feature Hours (+ / -)
   const handleAdjustHours = async (feature: Feature, delta: number) => {
     if (project?.status === 'APPROVED') return;
     const targetHours = Math.max(1, Math.min(200, feature.estimatedHours + delta));
@@ -193,7 +176,6 @@ function ProjectWorkspaceContent() {
     }
   };
 
-  // Save Inline Edited Title
   const handleSaveTitle = async (featureId: string) => {
     if (!editingTitle.trim()) {
       setEditingFeatureId(null);
@@ -217,7 +199,6 @@ function ProjectWorkspaceContent() {
     }
   };
 
-  // Delete Feature Handler
   const handleDeleteFeature = async (featureId: string) => {
     if (project?.status === 'APPROVED') return;
     if (!confirm('Are you sure you want to delete this feature from the scope?')) return;
@@ -230,14 +211,13 @@ function ProjectWorkspaceContent() {
       );
       if (res.success && res.data) {
         setProject(res.data.project);
-        toast.success('Feature removed and metrics recalculated');
+        toast.success('Feature removed');
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to delete feature');
     }
   };
 
-  // Add Custom Feature Submit
   const handleAddFeatureSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -260,7 +240,7 @@ function ProjectWorkspaceContent() {
         setIsAddModalOpen(false);
         setFeatureTitle('');
         setFeatureHours(10);
-        toast.success('Custom feature added to scope');
+        toast.success('Feature added to scope');
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to add custom feature');
@@ -269,7 +249,6 @@ function ProjectWorkspaceContent() {
     }
   };
 
-  // Filtered and Searched Features
   const filteredFeatures = useMemo(() => {
     if (!project) return [];
     return project.features.filter((f) => {
@@ -282,7 +261,6 @@ function ProjectWorkspaceContent() {
     });
   }, [project, categoryFilter, featureSearch]);
 
-  // Category counts for filter tabs
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { ALL: project?.features.length || 0 };
     project?.features.forEach((f) => {
@@ -293,17 +271,17 @@ function ProjectWorkspaceContent() {
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen bg-[#090D16] flex items-center justify-center text-gray-400">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">
+        <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
       </div>
     );
   }
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-[#090D16] flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-rose-400 text-sm mb-4">Project not found or accessible.</p>
-        <Link href="/dashboard" className="px-4 py-2 rounded-xl bg-gray-800 text-gray-200 text-xs">
+      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6 text-center">
+        <p className="text-rose-400 text-xs mb-3">Project not found or accessible.</p>
+        <Link href="/dashboard" className="px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-200 text-xs">
           Return to Dashboard
         </Link>
       </div>
@@ -314,50 +292,48 @@ function ProjectWorkspaceContent() {
   const isAdmin = user?.role === 'ADMIN';
 
   return (
-    <div className="min-h-screen bg-[#090D16] text-[#F9FAFB] flex flex-col font-sans">
+    <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-6 space-y-6">
-        {/* Top Header Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-gray-800">
-          <div className="space-y-1.5">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+        {/* Header Bar */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+          <div className="space-y-1">
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-indigo-400 transition mb-1 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition mb-0.5"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
             </Link>
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl font-extrabold tracking-tight text-gray-50">{project.title}</h1>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="text-xl font-bold tracking-tight text-zinc-100">{project.title}</h1>
               <StatusBadge status={project.status} />
               {isApproved && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-800 text-gray-300 border border-gray-700">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
                   <Lock className="w-3 h-3 text-amber-400" /> Locked Scope
                 </span>
               )}
             </div>
           </div>
 
-          {/* Action Buttons based on Status and Role + Proposal Button */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* SOW Commercial Proposal Export Button */}
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setIsProposalModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-200 text-xs font-semibold transition cursor-pointer"
-              title="Preview and print formal Statement of Work"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-medium transition"
+              title="Preview and print Statement of Work"
             >
-              <FileText className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Export SOW Proposal</span>
+              <FileText className="w-3.5 h-3.5 text-zinc-400" />
+              <span>Export SOW</span>
             </button>
 
             {project.status === 'AI_ESTIMATED' && (
               <button
                 onClick={() => handleStatusChange('UNDER_REVIEW')}
                 disabled={actionLoading || project.totalHours === 0}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/25 transition disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition disabled:opacity-50"
               >
                 {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                Submit for Approval
+                <span>Submit for Approval</span>
               </button>
             )}
 
@@ -366,25 +342,25 @@ function ProjectWorkspaceContent() {
                 <button
                   onClick={() => setIsRejectModalOpen(true)}
                   disabled={actionLoading}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-rose-950/60 hover:bg-rose-900/60 border border-rose-800 text-rose-300 text-xs font-medium transition disabled:opacity-50"
                 >
                   <XCircle className="w-3.5 h-3.5" />
-                  Reject
+                  <span>Reject</span>
                 </button>
                 <button
                   onClick={() => handleStatusChange('APPROVED')}
                   disabled={actionLoading}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-lg shadow-emerald-600/20 transition disabled:opacity-50 cursor-pointer"
+                  className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition disabled:opacity-50"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Approve Scope
+                  <span>Approve Scope</span>
                 </button>
               </div>
             )}
 
             {project.status === 'UNDER_REVIEW' && !isAdmin && (
-              <span className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl font-medium">
-                ⏳ Under Technical Review by Administrator
+              <span className="text-xs text-amber-400 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded-md font-medium">
+                Under Review by Administrator
               </span>
             )}
 
@@ -392,20 +368,21 @@ function ProjectWorkspaceContent() {
               <button
                 onClick={() => handleStatusChange('UNDER_REVIEW')}
                 disabled={actionLoading || project.totalHours === 0}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition"
               >
-                <RefreshCw className="w-3.5 h-3.5" /> Resubmit for Review
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Resubmit for Review</span>
               </button>
             )}
           </div>
         </div>
 
-        {/* Summary KPI Strip (4 cards) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Summary Metric Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           <KpiCard
             label="Total Estimated Cost"
             value={project.finalTotalCost.toLocaleString()}
-            icon={<DollarSign className="w-5 h-5 -mr-1" />}
+            icon={<DollarSign className="w-4 h-4 -mr-1" />}
             valueClassName="text-emerald-400"
             subtitle={`Base: $${project.baseCost.toLocaleString()} + Buffer: $${project.riskBufferAmount.toLocaleString()}`}
           />
@@ -413,75 +390,73 @@ function ProjectWorkspaceContent() {
           <KpiCard
             label="Total Effort"
             value={`${project.totalHours} hrs`}
-            icon={<Clock className="w-5 h-5" />}
-            valueClassName="text-sky-400"
+            icon={<Clock className="w-4 h-4" />}
+            valueClassName="text-zinc-200"
             subtitle="Active features only"
           />
 
           <KpiCard
             label="Estimated Timeline"
             value={`${project.estimatedWeeks} Weeks`}
-            icon={<Calendar className="w-5 h-5 text-indigo-400" />}
-            valueClassName="text-gray-100"
+            icon={<Calendar className="w-4 h-4 text-zinc-400" />}
+            valueClassName="text-zinc-200"
             subtitle="Based on 30 hrs/week"
           />
 
           <KpiCard
             label="Risk Profile"
             value={<StatusBadge risk={project.riskLevel} />}
-            valueClassName="text-lg"
+            valueClassName="text-base"
             subtitle={
-              <span className="flex items-center gap-1 text-gray-400">
-                <ShieldCheck className="w-3.5 h-3.5 text-indigo-400" />
-                AI Confidence: {project.aiConfidenceScore}%
+              <span className="flex items-center gap-1 text-zinc-400">
+                <ShieldCheck className="w-3.5 h-3.5 text-zinc-400" />
+                Confidence: {project.aiConfidenceScore}%
               </span>
             }
           />
         </div>
 
-        {/* Visual Architecture Effort & Cost Distribution Bar */}
+        {/* Effort & Cost Distribution by Component */}
         <CategoryAnalytics features={project.features} hourlyRate={project.hourlyRate} />
 
         {/* 2-Column Workspace Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: AI Summary + Feature Table (8 Columns) */}
+          {/* Left Column: Summary + Feature Table (8 Columns) */}
           <div className="lg:col-span-8 space-y-6">
-            {/* AI Executive Summary & Recommended Tech Stack */}
-            <div className="rounded-2xl border border-violet-500/30 bg-[#111827] p-6 relative overflow-hidden shadow-xl">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            {/* Scope Summary & Architecture */}
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-violet-400" />
-                  <h3 className="font-semibold text-sm text-gray-50">AI Executive Summary</h3>
+                  <h3 className="font-semibold text-xs text-zinc-200 uppercase tracking-wider">
+                    Scope Summary &amp; Architecture
+                  </h3>
                   <button
                     onClick={() => setIsEvalModalOpen(true)}
-                    className="text-[11px] font-medium text-violet-400 hover:text-violet-300 underline underline-offset-2 ml-1 cursor-pointer"
+                    className="text-[11px] text-zinc-400 hover:text-zinc-200 underline ml-1"
                   >
-                    (View AI Specs &amp; Limitations)
+                    (Specs &amp; Limitations)
                   </button>
                 </div>
                 {project.isFallbackUsed && (
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" /> Rule Engine Fallback
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
+                    Rule Engine Fallback
                   </span>
                 )}
               </div>
 
-              <p className="text-xs text-gray-300 leading-relaxed">
+              <p className="text-xs text-zinc-300 leading-relaxed">
                 {project.executiveSummary}
               </p>
 
-              {/* Recommended Stack Chips */}
               {project.recommendedStack && project.recommendedStack.length > 0 && (
-                <div className="mt-4 pt-3 border-t border-gray-800/80 flex flex-wrap items-center gap-2">
-                  <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-                    Recommended Tech Stack:
+                <div className="pt-2 border-t border-zinc-800 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">
+                    Stack:
                   </span>
                   {project.recommendedStack.map((tech, idx) => (
                     <span
                       key={idx}
-                      className="px-2.5 py-0.5 rounded-md text-[11px] font-mono bg-violet-500/10 text-violet-300 border border-violet-500/20"
+                      className="px-2 py-0.5 rounded text-[11px] font-mono bg-zinc-950 text-zinc-300 border border-zinc-800"
                     >
                       {tech}
                     </span>
@@ -490,63 +465,61 @@ function ProjectWorkspaceContent() {
               )}
             </div>
 
-            {/* Interactive Feature Breakdown Table */}
-            <div className="rounded-2xl border border-gray-800 bg-[#111827] p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-gray-800">
+            {/* Feature Table Card */}
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800">
                 <div>
-                  <h3 className="font-bold text-sm text-gray-50 flex items-center gap-2">
-                    <span>Feature Breakdown &amp; Effort Allocation</span>
-                    <span className="text-[11px] font-mono text-gray-400">
+                  <h3 className="font-semibold text-sm text-zinc-100 flex items-center gap-2">
+                    <span>Feature Breakdown</span>
+                    <span className="text-xs font-mono text-zinc-500">
                       ({filteredFeatures.length} of {project.features.length})
                     </span>
                   </h3>
-                  <p className="text-xs text-gray-400">
-                    Toggle inclusion checkbox or use steppers to calibrate hours in real-time.
+                  <p className="text-xs text-zinc-400">
+                    Adjust hours or toggle checkboxes to update project totals.
                   </p>
                 </div>
 
                 {!isApproved && (
                   <button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-lg shadow-indigo-600/20 transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>Add Custom Feature</span>
+                    <span>Add Feature</span>
                   </button>
                 )}
               </div>
 
-              {/* Search & Category Filter Tabs */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-                {/* Category Pills */}
-                <div className="flex flex-wrap items-center gap-1.5 text-xs">
+              {/* Filters & Search */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-0.5">
+                <div className="flex flex-wrap items-center gap-1 text-xs">
                   {['ALL', 'FRONTEND', 'BACKEND', 'DATABASE', 'INTEGRATION', 'AI'].map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setCategoryFilter(cat)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition cursor-pointer flex items-center gap-1 ${
+                      className={`px-2 py-0.5 rounded text-[11px] font-medium transition ${
                         categoryFilter === cat
-                          ? 'bg-indigo-600 text-white shadow-sm'
-                          : 'bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-gray-200 border border-gray-800'
+                          ? 'bg-zinc-700 text-zinc-100'
+                          : 'bg-zinc-950 hover:bg-zinc-800 text-zinc-400 border border-zinc-800'
                       }`}
                     >
                       <span>{cat}</span>
-                      <span className="text-[10px] opacity-70 font-mono">
+                      <span className="text-[10px] opacity-70 font-mono ml-0.5">
                         ({categoryCounts[cat] || 0})
                       </span>
                     </button>
                   ))}
                 </div>
 
-                {/* Table Search */}
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={featureSearch}
                     onChange={(e) => setFeatureSearch(e.target.value)}
-                    placeholder="Search features..."
-                    className="pl-8 pr-3 py-1 rounded-xl bg-gray-900 border border-gray-800 text-xs text-gray-300 placeholder:text-gray-500 focus:outline-none focus:border-indigo-500 transition w-full sm:w-44"
+                    placeholder="Filter features..."
+                    className="pl-8 pr-3 py-1 rounded-md bg-zinc-950 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-emerald-500 transition w-full sm:w-40"
                   />
                 </div>
               </div>
@@ -554,38 +527,38 @@ function ProjectWorkspaceContent() {
               {/* Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#090D16] text-gray-400 font-mono uppercase text-[10px] border-b border-gray-800">
+                  <thead className="bg-zinc-950 text-zinc-400 font-mono uppercase text-[10px] border-b border-zinc-800">
                     <tr>
-                      <th className="py-3 px-3 w-12 text-center">Inc</th>
-                      <th className="py-3 px-4">Feature Name</th>
-                      <th className="py-3 px-3">Category</th>
-                      <th className="py-3 px-3">Complexity</th>
-                      <th className="py-3 px-4 text-center">Hours</th>
-                      <th className="py-3 px-4 text-right">Subtotal</th>
-                      <th className="py-3 px-3 w-12 text-center">Action</th>
+                      <th className="py-2.5 px-2.5 w-10 text-center">Inc</th>
+                      <th className="py-2.5 px-3">Feature Name</th>
+                      <th className="py-2.5 px-2.5">Category</th>
+                      <th className="py-2.5 px-2.5">Complexity</th>
+                      <th className="py-2.5 px-3 text-center">Hours</th>
+                      <th className="py-2.5 px-3 text-right">Subtotal</th>
+                      <th className="py-2.5 px-2.5 w-10 text-center">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-800/60 font-mono">
+                  <tbody className="divide-y divide-zinc-800/60 font-mono">
                     {filteredFeatures.map((f) => (
                       <tr
                         key={f.id}
-                        className={`hover:bg-gray-800/40 transition ${
-                          !f.isIncluded ? 'opacity-40 bg-gray-950/40 line-through text-gray-500' : ''
+                        className={`hover:bg-zinc-800/30 transition ${
+                          !f.isIncluded ? 'opacity-40 bg-zinc-950/40 line-through text-zinc-500' : ''
                         }`}
                       >
                         {/* Checkbox */}
-                        <td className="py-3 px-3 text-center">
+                        <td className="py-2 px-2.5 text-center">
                           <input
                             type="checkbox"
                             checked={f.isIncluded}
                             disabled={isApproved}
                             onChange={() => handleToggleInclude(f)}
-                            className="w-4 h-4 rounded border-gray-700 bg-gray-900 text-indigo-600 focus:ring-0 cursor-pointer disabled:cursor-not-allowed"
+                            className="w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-emerald-600 focus:ring-0 cursor-pointer disabled:cursor-not-allowed"
                           />
                         </td>
 
-                        {/* Title with Inline Edit */}
-                        <td className="py-3 px-4 font-sans font-medium text-gray-100 text-xs">
+                        {/* Title */}
+                        <td className="py-2 px-3 font-sans font-medium text-zinc-100 text-xs">
                           {editingFeatureId === f.id ? (
                             <div className="flex items-center gap-1.5">
                               <input
@@ -594,21 +567,21 @@ function ProjectWorkspaceContent() {
                                 onChange={(e) => setEditingTitle(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle(f.id)}
                                 autoFocus
-                                className="px-2 py-1 rounded bg-[#090D16] border border-indigo-500 text-white text-xs w-full focus:outline-none"
+                                className="px-2 py-0.5 rounded bg-zinc-950 border border-emerald-500 text-zinc-100 text-xs w-full focus:outline-none"
                               />
                               <button
                                 onClick={() => handleSaveTitle(f.id)}
-                                className="p-1 rounded bg-indigo-600 text-white hover:bg-indigo-500 cursor-pointer"
+                                className="p-1 rounded bg-emerald-600 text-white hover:bg-emerald-500"
                                 title="Save"
                               >
-                                <Check className="w-3.5 h-3.5" />
+                                <Check className="w-3 h-3" />
                               </button>
                               <button
                                 onClick={() => setEditingFeatureId(null)}
-                                className="p-1 rounded bg-gray-800 text-gray-400 hover:text-white cursor-pointer"
+                                className="p-1 rounded bg-zinc-800 text-zinc-400 hover:text-zinc-200"
                                 title="Cancel"
                               >
-                                <X className="w-3.5 h-3.5" />
+                                <X className="w-3 h-3" />
                               </button>
                             </div>
                           ) : (
@@ -620,8 +593,8 @@ function ProjectWorkspaceContent() {
                                     setEditingFeatureId(f.id);
                                     setEditingTitle(f.title);
                                   }}
-                                  className="opacity-0 group-hover/title:opacity-100 text-gray-500 hover:text-indigo-400 transition cursor-pointer"
-                                  title="Edit feature title"
+                                  className="opacity-0 group-hover/title:opacity-100 text-zinc-500 hover:text-emerald-400 transition"
+                                  title="Edit title"
                                 >
                                   <Edit2 className="w-3 h-3" />
                                 </button>
@@ -631,89 +604,71 @@ function ProjectWorkspaceContent() {
                         </td>
 
                         {/* Category */}
-                        <td className="py-3 px-3 font-sans">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-gray-800 text-gray-300">
+                        <td className="py-2 px-2.5 font-sans">
+                          <span className="px-1.5 py-0.2 rounded text-[10px] font-medium bg-zinc-950 border border-zinc-800 text-zinc-300">
                             {f.category}
                           </span>
                         </td>
 
                         {/* Complexity */}
-                        <td className="py-3 px-3 font-sans">
+                        <td className="py-2 px-2.5 font-sans">
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
+                            className={`px-1.5 py-0.2 rounded text-[10px] font-medium ${
                               f.complexity === 'HIGH'
-                                ? 'text-rose-400 bg-rose-500/10'
+                                ? 'text-rose-400 bg-rose-950/40'
                                 : f.complexity === 'MEDIUM'
-                                ? 'text-amber-400 bg-amber-500/10'
-                                : 'text-emerald-400 bg-emerald-500/10'
+                                ? 'text-amber-400 bg-amber-950/40'
+                                : 'text-emerald-400 bg-emerald-950/40'
                             }`}
                           >
                             {f.complexity}
                           </span>
                         </td>
 
-                        {/* Hours Steppers (-5 / -1 / Hours / +1 / +5) */}
-                        <td className="py-3 px-4 text-center">
-                          <div className="inline-flex items-center gap-1 bg-[#090D16] border border-gray-800 px-2 py-1 rounded-lg">
+                        {/* Stepper */}
+                        <td className="py-2 px-3 text-center">
+                          <div className="inline-flex items-center gap-1 bg-zinc-950 border border-zinc-800 px-1.5 py-0.5 rounded">
                             {!isApproved && (
-                              <>
-                                <button
-                                  onClick={() => handleAdjustHours(f, -5)}
-                                  className="text-gray-500 hover:text-white px-1 text-[10px] font-mono cursor-pointer"
-                                  title="-5 hours"
-                                >
-                                  -5
-                                </button>
-                                <button
-                                  onClick={() => handleAdjustHours(f, -1)}
-                                  className="text-gray-400 hover:text-white px-1 font-bold text-xs cursor-pointer"
-                                  title="-1 hour"
-                                >
-                                  -
-                                </button>
-                              </>
+                              <button
+                                onClick={() => handleAdjustHours(f, -2)}
+                                className="text-zinc-400 hover:text-zinc-100 px-1 font-bold text-xs"
+                                title="-2 hours"
+                              >
+                                -
+                              </button>
                             )}
-                            <span className="font-bold text-gray-100 text-xs min-w-8">
+                            <span className="font-semibold text-zinc-100 text-xs min-w-7">
                               {f.estimatedHours}h
                             </span>
                             {!isApproved && (
-                              <>
-                                <button
-                                  onClick={() => handleAdjustHours(f, 1)}
-                                  className="text-gray-400 hover:text-white px-1 font-bold text-xs cursor-pointer"
-                                  title="+1 hour"
-                                >
-                                  +
-                                </button>
-                                <button
-                                  onClick={() => handleAdjustHours(f, 5)}
-                                  className="text-gray-500 hover:text-white px-1 text-[10px] font-mono cursor-pointer"
-                                  title="+5 hours"
-                                >
-                                  +5
-                                </button>
-                              </>
+                              <button
+                                onClick={() => handleAdjustHours(f, 2)}
+                                className="text-zinc-400 hover:text-zinc-100 px-1 font-bold text-xs"
+                                title="+2 hours"
+                              >
+                                +
+                              </button>
                             )}
                           </div>
                         </td>
 
-                        {/* Subtotal ($) */}
-                        <td className="py-3 px-4 text-right font-bold text-emerald-400">
+                        {/* Subtotal */}
+                        <td className="py-2 px-3 text-right font-semibold text-emerald-400">
                           ${(f.estimatedHours * project.hourlyRate).toLocaleString()}
                         </td>
 
-                        {/* Delete Action */}
-                        <td className="py-3 px-3 text-center">
+                        {/* Delete */}
+                        <td className="py-2 px-2.5 text-center">
                           {!isApproved ? (
                             <button
                               onClick={() => handleDeleteFeature(f.id)}
-                              className="text-gray-500 hover:text-rose-400 p-1 transition cursor-pointer"
+                              className="text-zinc-500 hover:text-rose-400 p-1 transition"
                               title="Delete feature"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           ) : (
-                            <Lock className="w-3.5 h-3.5 text-gray-600 mx-auto" />
+                            <Lock className="w-3.5 h-3.5 text-zinc-600 mx-auto" />
                           )}
                         </td>
                       </tr>
@@ -724,48 +679,52 @@ function ProjectWorkspaceContent() {
             </div>
           </div>
 
-          {/* Right Column: Milestones, Hourly Rate, Status & Audit (4 Columns) */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Payment Milestone Breakdown Card (30% - 40% - 30%) */}
-            <div className="rounded-2xl border border-gray-800 bg-[#111827] p-6 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-gray-800">
-                <h3 className="font-bold text-sm text-gray-50">Milestone Breakdown</h3>
-                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400">
+          {/* Right Column: Milestones & Rates (4 Columns) */}
+          <div className="lg:col-span-4 space-y-5">
+            {/* Milestone Breakdown */}
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+                <h3 className="font-semibold text-xs text-zinc-200 uppercase tracking-wider">
+                  Milestone Breakdown
+                </h3>
+                <span className="text-[10px] font-mono text-zinc-400 bg-zinc-950 px-1.5 py-0.5 rounded border border-zinc-800">
                   30% • 40% • 30%
                 </span>
               </div>
 
-              <div className="space-y-4 font-mono text-xs">
+              <div className="space-y-3 font-mono text-xs">
                 {[
-                  { label: 'Milestone 1 (Kickoff & UI - 30%)', amount: project.milestone1Amount, width: '30%', color: 'bg-indigo-500' },
-                  { label: 'Milestone 2 (Core MVP & APIs - 40%)', amount: project.milestone2Amount, width: '40%', color: 'bg-sky-500' },
-                  { label: 'Milestone 3 (QA & Deploy - 30%)', amount: project.milestone3Amount, width: '30%', color: 'bg-emerald-500' },
+                  { label: 'Milestone 1 (Kickoff - 30%)', amount: project.milestone1Amount, width: '30%', color: 'bg-emerald-500' },
+                  { label: 'Milestone 2 (Core MVP - 40%)', amount: project.milestone2Amount, width: '40%', color: 'bg-blue-500' },
+                  { label: 'Milestone 3 (QA & Deploy - 30%)', amount: project.milestone3Amount, width: '30%', color: 'bg-teal-500' },
                 ].map((ms, idx) => (
-                  <div key={idx} className="space-y-1.5">
-                    <div className="flex justify-between items-center text-gray-300 font-sans">
-                      <span className="font-medium">{ms.label}</span>
-                      <span className="font-mono font-bold text-gray-50">
+                  <div key={idx} className="space-y-1">
+                    <div className="flex justify-between items-center text-zinc-300 font-sans">
+                      <span className="font-medium text-xs">{ms.label}</span>
+                      <span className="font-mono font-semibold text-zinc-100">
                         ${ms.amount.toLocaleString()}
                       </span>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-gray-800 overflow-hidden">
-                      <div className={`h-full ${ms.color} rounded-full`} style={{ width: ms.width }}></div>
+                    <div className="w-full h-1.5 rounded-full bg-zinc-950 overflow-hidden border border-zinc-800">
+                      <div className={`h-full ${ms.color}`} style={{ width: ms.width }}></div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Hourly Rate Adjuster Card */}
-            <div className="rounded-2xl border border-gray-800 bg-[#111827] p-6 space-y-4">
-              <h3 className="font-bold text-sm text-gray-50">Hourly Rate Adjuster</h3>
-              <p className="text-xs text-gray-400">
-                Adjust base hourly rate to recalculate total quote and milestone deliverables.
+            {/* Hourly Rate */}
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 space-y-3">
+              <h3 className="font-semibold text-xs text-zinc-200 uppercase tracking-wider">
+                Hourly Rate Adjuster
+              </h3>
+              <p className="text-xs text-zinc-400">
+                Adjust rate to recalculate total estimate and deliverables.
               </p>
 
-              <form onSubmit={handleUpdateRate} className="space-y-3">
+              <form onSubmit={handleUpdateRate} className="space-y-2.5">
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-mono">$</span>
                   <input
                     type="number"
                     min={5}
@@ -773,7 +732,7 @@ function ProjectWorkspaceContent() {
                     disabled={isApproved || updatingRate}
                     value={newRate}
                     onChange={(e) => setNewRate(Number(e.target.value))}
-                    className="w-full pl-8 pr-4 py-2.5 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-sm font-mono focus:outline-none focus:border-indigo-500 transition disabled:opacity-50"
+                    className="w-full pl-6 pr-3 py-1.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-mono focus:outline-none focus:border-emerald-500 transition disabled:opacity-50"
                   />
                 </div>
 
@@ -781,39 +740,40 @@ function ProjectWorkspaceContent() {
                   <button
                     type="submit"
                     disabled={updatingRate || newRate === project.hourlyRate}
-                    className="w-full py-2.5 px-4 rounded-xl bg-gray-800 hover:bg-gray-700 text-xs font-semibold text-gray-200 transition disabled:opacity-40 flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-1.5 px-3 rounded-md bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-200 transition disabled:opacity-40 flex items-center justify-center gap-1.5"
                   >
-                    {updatingRate ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                    Recalculate Cost
+                    {updatingRate ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                    <span>Recalculate</span>
                   </button>
                 )}
               </form>
             </div>
 
-            {/* Status & Audit Info Card */}
-            <div className="rounded-2xl border border-gray-800 bg-[#111827] p-6 space-y-3 text-xs">
-              <h3 className="font-bold text-sm text-gray-50">Status &amp; Audit Trail</h3>
+            {/* Audit Trail */}
+            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 space-y-2.5 text-xs">
+              <h3 className="font-semibold text-xs text-zinc-200 uppercase tracking-wider">
+                Audit Trail
+              </h3>
 
-              <div className="space-y-2 text-gray-400">
-                <div className="flex justify-between py-1 border-b border-gray-800/80">
+              <div className="space-y-1.5 text-zinc-400">
+                <div className="flex justify-between py-1 border-b border-zinc-800">
                   <span>Created By:</span>
-                  <span className="text-gray-200 font-medium">{project.createdBy?.name || 'Estimator'}</span>
+                  <span className="text-zinc-200 font-medium">{project.createdBy?.name || 'Estimator'}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-gray-800/80">
+                <div className="flex justify-between py-1 border-b border-zinc-800">
                   <span>Created Date:</span>
-                  <span className="text-gray-200 font-mono">{new Date(project.createdAt).toLocaleDateString()}</span>
+                  <span className="text-zinc-200 font-mono">{new Date(project.createdAt).toLocaleDateString()}</span>
                 </div>
                 {project.reviewedBy && (
-                  <div className="flex justify-between py-1 border-b border-gray-800/80">
+                  <div className="flex justify-between py-1 border-b border-zinc-800">
                     <span>Reviewed By:</span>
-                    <span className="text-gray-200 font-medium">{project.reviewedBy.name}</span>
+                    <span className="text-zinc-200 font-medium">{project.reviewedBy.name}</span>
                   </div>
                 )}
               </div>
 
-              {/* Rejection Reason Alert if rejected */}
               {project.status === 'REJECTED' && project.rejectionReason && (
-                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 space-y-1">
+                <div className="p-2.5 rounded bg-rose-950/40 border border-rose-800 text-rose-300 space-y-1">
                   <span className="text-[10px] uppercase font-bold tracking-wider text-rose-400 block">
                     Rejection Feedback:
                   </span>
@@ -829,28 +789,28 @@ function ProjectWorkspaceContent() {
       <Modal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        title="Add Custom Feature"
+        title="Add Feature"
       >
-        <form onSubmit={handleAddFeatureSubmit} className="space-y-3.5">
+        <form onSubmit={handleAddFeatureSubmit} className="space-y-3">
           <div>
-            <label className="block text-xs font-semibold text-gray-300 mb-1">Feature Name</label>
+            <label className="block text-xs font-medium text-zinc-300 mb-1">Feature Name</label>
             <input
               type="text"
               required
               value={featureTitle}
               onChange={(e) => setFeatureTitle(e.target.value)}
-              placeholder="e.g. Stripe Webhook & Automated Invoicing"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-indigo-500 transition"
+              placeholder="e.g. bKash Webhook Callback Handler"
+              className="w-full px-3 py-1.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1">Category</label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">Category</label>
               <select
                 value={featureCategory}
                 onChange={(e) => setFeatureCategory(e.target.value as FeatureCategory)}
-                className="w-full px-3 py-2 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-indigo-500 transition"
+                className="w-full px-2.5 py-1.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition"
               >
                 <option value="FRONTEND">FRONTEND</option>
                 <option value="BACKEND">BACKEND</option>
@@ -861,11 +821,11 @@ function ProjectWorkspaceContent() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1">Complexity</label>
+              <label className="block text-xs font-medium text-zinc-300 mb-1">Complexity</label>
               <select
                 value={featureComplexity}
                 onChange={(e) => setFeatureComplexity(e.target.value as FeatureComplexity)}
-                className="w-full px-3 py-2 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-indigo-500 transition"
+                className="w-full px-2.5 py-1.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition"
               >
                 <option value="LOW">LOW</option>
                 <option value="MEDIUM">MEDIUM</option>
@@ -875,7 +835,7 @@ function ProjectWorkspaceContent() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-300 mb-1">Estimated Hours</label>
+            <label className="block text-xs font-medium text-zinc-300 mb-1">Estimated Hours</label>
             <input
               type="number"
               min={1}
@@ -883,25 +843,25 @@ function ProjectWorkspaceContent() {
               required
               value={featureHours}
               onChange={(e) => setFeatureHours(Number(e.target.value))}
-              className="w-full px-3.5 py-2 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs font-mono focus:outline-none focus:border-indigo-500 transition"
+              className="w-full px-3 py-1.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-mono focus:outline-none focus:border-emerald-500 transition"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 pt-1">
             <button
               type="button"
               onClick={() => setIsAddModalOpen(false)}
-              className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300 hover:bg-gray-700 cursor-pointer"
+              className="px-3 py-1.5 rounded-md bg-zinc-800 text-xs font-medium text-zinc-300 hover:bg-zinc-700"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={addingFeature}
-              className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 text-xs font-medium text-white flex items-center gap-1.5"
             >
               {addingFeature && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Add Feature
+              <span>Add Feature</span>
             </button>
           </div>
         </form>
@@ -911,30 +871,25 @@ function ProjectWorkspaceContent() {
       <Modal
         isOpen={isRejectModalOpen}
         onClose={() => setIsRejectModalOpen(false)}
-        title={
-          <div className="flex items-center gap-2 text-rose-400">
-            <XCircle className="w-5 h-5" />
-            <span>Reject Project Scope</span>
-          </div>
-        }
+        title="Reject Scope"
       >
-        <p className="text-xs text-gray-400">
-          Please state why this estimate was rejected so the estimator can revise the scope (minimum 10 characters required).
+        <p className="text-xs text-zinc-400">
+          State reason for rejection (minimum 10 characters).
         </p>
 
         <textarea
-          rows={4}
+          rows={3}
           value={rejectionReason}
           onChange={(e) => setRejectionReason(e.target.value)}
-          placeholder="e.g. Scope buffer seems insufficient for payment gateway, or hours estimated for real-time tracking are too high..."
-          className="w-full px-3.5 py-2.5 rounded-xl bg-[#090D16] border border-gray-800 text-gray-50 text-xs focus:outline-none focus:border-rose-500 transition resize-none"
+          placeholder="e.g. Scope buffer seems low for payment integration, or hours estimated are insufficient..."
+          className="w-full px-3 py-2 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-rose-500 transition resize-none"
         />
 
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="flex justify-end gap-2 pt-1">
           <button
             type="button"
             onClick={() => setIsRejectModalOpen(false)}
-            className="px-3.5 py-2 rounded-xl bg-gray-800 text-xs font-semibold text-gray-300 cursor-pointer"
+            className="px-3 py-1.5 rounded-md bg-zinc-800 text-xs font-medium text-zinc-300"
           >
             Cancel
           </button>
@@ -942,87 +897,62 @@ function ProjectWorkspaceContent() {
             type="button"
             disabled={actionLoading || rejectionReason.trim().length < 10}
             onClick={() => handleStatusChange('REJECTED', rejectionReason)}
-            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
+            className="px-3.5 py-1.5 rounded-md bg-rose-600 hover:bg-rose-500 text-xs font-medium text-white flex items-center gap-1.5 disabled:opacity-50"
           >
             {actionLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            Confirm Rejection
+            <span>Confirm Rejection</span>
           </button>
         </div>
       </Modal>
 
-      {/* AI Transparency, Limitations & Evaluation Modal */}
+      {/* Architecture Specs Modal */}
       <Modal
         isOpen={isEvalModalOpen}
         onClose={() => setIsEvalModalOpen(false)}
-        maxWidth="max-w-2xl"
-        title={
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-violet-400" />
-            <span>AI Scoping Engine — Architecture, Inputs, Outputs &amp; Limitations</span>
-          </div>
-        }
+        maxWidth="max-w-xl"
+        title="Scoping Engine - Specifications & Limitations"
       >
-        <div className="space-y-4 text-xs leading-relaxed text-gray-300">
-          {/* Section 1: Inputs */}
-          <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
-            <span className="font-bold text-indigo-400 uppercase tracking-wider block mb-1">
+        <div className="space-y-3 text-xs leading-relaxed text-zinc-300">
+          <div className="p-3 rounded bg-zinc-950 border border-zinc-800">
+            <span className="font-semibold text-zinc-200 block mb-1">
               1. Input Parameters
             </span>
-            <p>
-              • <strong>Project Title:</strong> Concept identifier defining the primary domain (e.g. E-Commerce, Logistics, Healthcare).<br />
-              • <strong>Raw Requirements Text:</strong> Natural language project description detailing user roles, workflows, third-party integrations, and performance expectations.<br />
-              • <strong>Hourly Rate ($):</strong> Financial baseline used by the calculation engine to project cost deliverables.
+            <p className="text-zinc-400">
+              Project title, raw natural language description, and financial hourly rate baseline.
             </p>
           </div>
 
-          {/* Section 2: Outputs */}
-          <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
-            <span className="font-bold text-emerald-400 uppercase tracking-wider block mb-1">
+          <div className="p-3 rounded bg-zinc-950 border border-zinc-800">
+            <span className="font-semibold text-zinc-200 block mb-1">
               2. Generated Outputs &amp; Metrics
             </span>
-            <p>
-              • <strong>Risk Classification:</strong> Automated assessment into <code className="text-emerald-300">LOW (5%)</code>, <code className="text-amber-300">MEDIUM (12%)</code>, or <code className="text-rose-300">HIGH (20%)</code> buffer tiers.<br />
-              • <strong>Domain Feature Breakdown:</strong> Structured feature modules categorized by <code className="text-indigo-300">FRONTEND</code>, <code className="text-sky-300">BACKEND</code>, <code className="text-teal-300">DATABASE</code>, <code className="text-purple-300">INTEGRATION</code>, and <code className="text-pink-300">AI</code> with granular hour projections.<br />
-              • <strong>Tech Stack Recommendations:</strong> Curated modern production libraries tailored to project complexity.<br />
-              • <strong>Milestone Schedules:</strong> Rounding-safe 30% / 40% / 30% milestone cost breakdown with zero cent drift.
+            <p className="text-zinc-400">
+              Automated risk tiers (LOW 5%, MEDIUM 12%, HIGH 20%), module breakdown with hours, curated tech stack, and rounding-safe 30%-40%-30% milestones.
             </p>
           </div>
 
-          {/* Section 3: Limitations */}
-          <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
-            <span className="font-bold text-amber-400 uppercase tracking-wider block mb-1">
-              3. Known Limitations
+          <div className="p-3 rounded bg-zinc-950 border border-zinc-800">
+            <span className="font-semibold text-zinc-200 block mb-1">
+              3. Limitations &amp; Fallback
             </span>
-            <p>
-              • Estimates provide an initial high-fidelity architectural baseline. Unspecified legacy system integrations, proprietary on-premise hardware, or compliance audits (e.g., HIPAA / SOC 2) may require manual scope adjustments.<br />
-              • The engine enforces human-in-the-loop governance: final scopes must be reviewed and approved by an authorized Administrator before contract finalization.
-            </p>
-          </div>
-
-          {/* Section 4: Evaluation */}
-          <div className="p-3.5 rounded-xl bg-[#090D16] border border-gray-800">
-            <span className="font-bold text-sky-400 uppercase tracking-wider block mb-1">
-              4. Usefulness Evaluation &amp; Fallback Resilience
-            </span>
-            <p>
-              • <strong>Zero-Downtime Fallback:</strong> If third-party AI APIs (Gemini/OpenAI) encounter rate limits or network degradation, the engine seamlessly triggers a deterministic, keyword-aware Rule Engine with 100% uptime.<br />
-              • <strong>Validation Benchmark:</strong> The scoping model was calibrated against standard real-world deliverables from software agencies, reducing proposal preparation time from 4 hours to under 30 seconds.
+            <p className="text-zinc-400">
+              Provides architectural baseline; proprietary on-premise hardware or compliance audits may require manual scoping. System includes an offline deterministic rule engine fallback for zero downtime.
             </p>
           </div>
         </div>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-end pt-1">
           <button
             type="button"
             onClick={() => setIsEvalModalOpen(false)}
-            className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition cursor-pointer"
+            className="px-3 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-200"
           >
-            Close Technical Overview
+            Close
           </button>
         </div>
       </Modal>
 
-      {/* SOW Commercial Proposal Export Modal */}
+      {/* Statement of Work Proposal Modal */}
       <ProposalModal
         isOpen={isProposalModalOpen}
         onClose={() => setIsProposalModalOpen(false)}
@@ -1036,8 +966,8 @@ export default function ProjectWorkspacePage() {
   return (
     <React.Suspense
       fallback={
-        <div className="min-h-screen bg-[#090D16] flex items-center justify-center text-gray-400">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">
+          <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
         </div>
       }
     >

@@ -17,9 +17,8 @@ const monoFont = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ScopeAI — Intelligent Software Scoping, Costing & Milestone Engine',
-  description:
-    'AI-powered scoping engine that breaks requirements into structured feature breakdown, risk calculations, and milestone budgets.',
+  title: 'ScopeAI - Project Scoping & Milestone Cost Engine',
+  description: 'Software scoping tool for calculating engineering hours, risk contingency, and milestone deliverables.',
 };
 
 export default function RootLayout({
@@ -30,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${sansFont.variable} ${monoFont.variable} font-sans bg-[#090D16] text-[#F9FAFB] min-h-screen antialiased selection:bg-indigo-500 selection:text-white`}
+        className={`${sansFont.variable} ${monoFont.variable} font-sans bg-zinc-950 text-zinc-50 min-h-screen antialiased`}
       >
         <AuthProvider>
           <ToastProvider>{children}</ToastProvider>

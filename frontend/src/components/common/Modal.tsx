@@ -18,7 +18,6 @@ export const Modal: React.FC<ModalProps> = ({
   maxWidth = 'max-w-md',
   children,
 }) => {
-  // Close on Escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -33,20 +32,20 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
-        className={`w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-2xl border border-gray-800 bg-[#111827] p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200`}
+        className={`w-full ${maxWidth} max-h-[90vh] overflow-y-auto rounded-lg border border-zinc-800 bg-zinc-900 p-5 space-y-4`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-gray-800">
-          <div className="font-bold text-base text-gray-50 flex items-center gap-2">
+        <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+          <div className="font-semibold text-sm text-zinc-100 flex items-center gap-2">
             {title}
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-gray-800 transition"
+            className="text-zinc-400 hover:text-zinc-100 p-1 rounded hover:bg-zinc-800 transition"
           >
             <X className="w-4 h-4" />
           </button>

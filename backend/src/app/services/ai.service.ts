@@ -25,27 +25,25 @@ export class AIService {
     title: string,
     rawRequirement: string
   ): Promise<IAIEstimateResult> {
-    // 1. If Gemini API key is configured, try Gemini API
     if (config.ai.gemini_api_key) {
       try {
         const geminiResult = await this.callGeminiAPI(title, rawRequirement);
         if (geminiResult) return geminiResult;
       } catch (err) {
-        console.warn('⚠️ Gemini AI API error, falling back to Rule Engine:', err);
+        console.warn('[AIService] Gemini API error, falling back to rule engine:', err);
       }
     }
 
-    // 2. If OpenAI API key is configured, try OpenAI API
     if (config.ai.openai_api_key) {
       try {
         const openaiResult = await this.callOpenAI(title, rawRequirement);
         if (openaiResult) return openaiResult;
       } catch (err) {
-        console.warn('⚠️ OpenAI API error, falling back to Rule Engine:', err);
+        console.warn('[AIService] OpenAI API error, falling back to rule engine:', err);
       }
     }
 
-    // 3. Fallback Engine (Guaranteed 100% uptime, zero crashes)
+    // Default offline deterministic estimation engine
     return this.generateFallbackEstimate(title, rawRequirement);
   }
 
