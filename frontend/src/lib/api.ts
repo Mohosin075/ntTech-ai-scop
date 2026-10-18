@@ -8,15 +8,25 @@ export async function fetchApi<T = unknown>(
 ): Promise<ApiResponse<T>> {
   const url = `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
-  const defaultHeaders: HeadersInit = {
+  // Read auth token from localStorage if in client environment
+  let token: string | null = null;
+  if (typeof window !== 'undefined') {
+    token = localStorage.getItem('scopeai_token');
+  }
+
+  const defaultHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
   };
+
+  if (token) {
+    defaultHeaders['Authorization'] = `Bearer ${token}`;
+  }
 
   const response = await fetch(url, {
     ...options,
     headers: {
       ...defaultHeaders,
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     },
   });
 
@@ -28,3 +38,5 @@ export async function fetchApi<T = unknown>(
 
   return data;
 }
+
+export default fetchApi;

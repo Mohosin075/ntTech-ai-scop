@@ -9,6 +9,8 @@
     "build:backend": "npm --prefix backend run build",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
+    "test:backend": "npm --prefix backend test",
+    "seed": "npm --prefix backend run prisma:seed",
     "prisma:studio": "npm --prefix backend run prisma:studio",
     "prisma:migrate": "npm --prefix backend run prisma:migrate",
     "prisma:generate": "npm --prefix backend run prisma:generate"

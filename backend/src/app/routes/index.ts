@@ -1,20 +1,13 @@
 import { Router } from 'express';
-import { TaskRoutes } from '../modules/task/task.routes';
-import { UserRoutes } from '../modules/user/user.routes';
+import { AuthRoutes } from '../modules/auth/auth.routes';
+import { FeatureRoutes } from '../modules/feature/feature.routes';
+import { ProjectRoutes } from '../modules/project/project.routes';
 
 const router = Router();
 
-const moduleRoutes = [
-  {
-    path: '/users',
-    route: UserRoutes,
-  },
-  {
-    path: '/tasks',
-    route: TaskRoutes,
-  },
-];
-
-moduleRoutes.forEach((route) => router.use(route.path, route.route));
+// Module routes registry
+router.use('/auth', AuthRoutes);
+router.use('/projects', ProjectRoutes);
+router.use('/projects/:id/features', FeatureRoutes);
 
 export default router;

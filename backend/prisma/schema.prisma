@@ -1,5 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ScopeAI Prisma Database Schema
 
 generator client {
   provider = "prisma-client-js"
@@ -11,40 +10,105 @@ datasource db {
 }
 
 enum Role {
-  USER
+  ESTIMATOR
   ADMIN
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  role      Role     @default(USER)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+enum ProjectStatus {
+  AI_ESTIMATED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
 
-  tasks Task[]
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum FeatureCategory {
+  FRONTEND
+  BACKEND
+  DATABASE
+  INTEGRATION
+  AI
+}
+
+enum FeatureComplexity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(ESTIMATOR)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  projects         Project[] @relation("CreatedProjects")
+  reviewedProjects Project[] @relation("ReviewedProjects")
 
   @@map("users")
 }
 
-enum TaskStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
+model Project {
+  id                String        @id @default(uuid())
+  createdById       String        @map("created_by_id")
+  title             String
+  rawRequirement    String        @db.Text @map("raw_requirement")
+  hourlyRate        Float         @default(25) @map("hourly_rate")
+  status            ProjectStatus @default(AI_ESTIMATED)
+  executiveSummary  String        @db.Text @map("executive_summary")
+  riskLevel         RiskLevel     @default(MEDIUM) @map("risk_level")
+  recommendedStack  String[]      @map("recommended_stack")
+  aiConfidenceScore Float         @default(85) @map("ai_confidence_score")
+  isFallbackUsed    Boolean       @default(false) @map("is_fallback_used")
+
+  // Calculated Metrics
+  totalHours        Float         @default(0) @map("total_hours")
+  baseCost          Float         @default(0) @map("base_cost")
+  riskBufferPercent Float         @default(12) @map("risk_buffer_percent")
+  riskBufferAmount  Float         @default(0) @map("risk_buffer_amount")
+  finalTotalCost    Float         @default(0) @map("final_total_cost")
+  estimatedWeeks    Int           @default(1) @map("estimated_weeks")
+
+  // 30% - 40% - 30% Milestones
+  milestone1Amount  Float         @default(0) @map("milestone_1_amount")
+  milestone2Amount  Float         @default(0) @map("milestone_2_amount")
+  milestone3Amount  Float         @default(0) @map("milestone_3_amount")
+
+  rejectionReason   String?       @db.Text @map("rejection_reason")
+  reviewedById      String?       @map("reviewed_by_id")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  createdBy         User          @relation("CreatedProjects", fields: [createdById], references: [id], onDelete: Cascade)
+  reviewedBy        User?         @relation("ReviewedProjects", fields: [reviewedById], references: [id], onDelete: SetNull)
+  features          Feature[]
+
+  @@index([createdById])
+  @@index([status])
+  @@map("projects")
 }
 
-model Task {
-  id          String     @id @default(uuid())
-  title       String
-  description String?
-  status      TaskStatus @default(PENDING)
-  userId      String     @map("user_id")
-  createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
+model Feature {
+  id             String            @id @default(uuid())
+  projectId      String            @map("project_id")
+  title          String
+  category       FeatureCategory   @default(BACKEND)
+  complexity     FeatureComplexity @default(MEDIUM)
+  estimatedHours Float             @map("estimated_hours")
+  isIncluded     Boolean           @default(true) @map("is_included")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project        Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@map("tasks")
+  @@index([projectId])
+  @@map("features")
 }
