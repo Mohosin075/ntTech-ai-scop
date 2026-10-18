@@ -6,7 +6,21 @@ import { useAuth } from '@/context/AuthContext';
 import { LogOut, User as UserIcon } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, switchRole } = useAuth();
+  const [switching, setSwitching] = React.useState(false);
+
+  const handleRoleToggle = async () => {
+    if (!user || switching) return;
+    setSwitching(true);
+    try {
+      const targetRole = user.role === 'ADMIN' ? 'ESTIMATOR' : 'ADMIN';
+      await switchRole(targetRole);
+    } catch (err) {
+      console.error('Failed to toggle role:', err);
+    } finally {
+      setSwitching(false);
+    }
+  };
 
   return (
     <header className="border-b border-[#27272A] bg-[#0A0A0B]/95 backdrop-blur-sm sticky top-0 z-50">
@@ -24,10 +38,23 @@ export const Navbar: React.FC = () => {
         </Link>
 
         {user ? (
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            {/* Quick Role Switcher for Assessment Evaluation */}
+            <button
+              onClick={handleRoleToggle}
+              disabled={switching}
+              title={`Click to switch to ${user.role === 'ADMIN' ? 'Estimator' : 'Admin'} view`}
+              className="px-2.5 py-1 text-xs font-mono rounded-md bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-zinc-300 hover:text-white transition-colors hidden sm:inline-flex items-center gap-1.5"
+            >
+              <span className="text-zinc-500 font-sans">Switch:</span>
+              <span className="font-semibold text-emerald-400">
+                {user.role === 'ADMIN' ? 'Estimator' : 'Admin'}
+              </span>
+            </button>
+
             <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-[#121214] border border-[#27272A] text-xs">
               <UserIcon className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="text-zinc-200 font-medium hidden sm:inline">{user.name}</span>
+              <span className="text-zinc-200 font-medium hidden md:inline">{user.name}</span>
               <span
                 className={`text-xs font-mono px-1.5 py-0.5 rounded border ${
                   user.role === 'ADMIN'

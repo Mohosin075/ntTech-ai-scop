@@ -12,6 +12,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   demoLogin: (role: 'ESTIMATOR' | 'ADMIN') => Promise<void>;
+  switchRole: (role: 'ESTIMATOR' | 'ADMIN') => Promise<void>;
   logout: () => void;
 }
 
@@ -98,6 +99,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await login(credentials.email, credentials.password);
   };
 
+  const switchRole = async (targetRole: 'ESTIMATOR' | 'ADMIN') => {
+    const credentials =
+      targetRole === 'ADMIN'
+        ? { email: 'admin@scopeai.dev', password: 'Admin123!' }
+        : { email: 'estimator@scopeai.dev', password: 'Estimator123!' };
+
+    const res = await fetchApi<AuthResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email: credentials.email, password: credentials.password }),
+    });
+
+    if (res.success && res.data) {
+      setUser(res.data.user);
+      setToken(res.data.token);
+      localStorage.setItem('scopeai_token', res.data.token);
+      localStorage.setItem('scopeai_user', JSON.stringify(res.data.user));
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('scopeai_token');
     localStorage.removeItem('scopeai_user');
@@ -115,6 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         register,
         demoLogin,
+        switchRole,
         logout,
       }}
     >

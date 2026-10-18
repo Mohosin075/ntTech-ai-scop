@@ -20,8 +20,8 @@ export default function RootPage() {
   }, [user, isLoading, router]);
 
   return (
-    <div className="min-h-screen bg-[#090D16] flex items-center justify-center text-gray-400">
-      <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+    <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center text-zinc-400">
+      <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
     </div>
   );
 }

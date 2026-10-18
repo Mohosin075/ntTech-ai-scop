@@ -61,8 +61,7 @@ export default function DashboardPage() {
 
     async function fetchProjectList() {
       try {
-        const query = statusFilter && statusFilter !== 'ALL' ? `?status=${statusFilter}` : '';
-        const res = await fetchApi<Project[]>(`/projects${query}`);
+        const res = await fetchApi<Project[]>('/projects');
         if (!isCancelled && res.success && res.data) {
           setProjects(res.data);
         }
@@ -80,7 +79,7 @@ export default function DashboardPage() {
     return () => {
       isCancelled = true;
     };
-  }, [user, statusFilter]);
+  }, [user]);
 
   const stats = useMemo(() => {
     const totalPipeline = projects.reduce((acc, p) => acc + (p.finalTotalCost || 0), 0);
@@ -95,15 +94,29 @@ export default function DashboardPage() {
     };
   }, [projects]);
 
+  const statusCounts = useMemo(() => {
+    return {
+      ALL: projects.length,
+      AI_ESTIMATED: projects.filter((p) => p.status === 'AI_ESTIMATED').length,
+      UNDER_REVIEW: projects.filter((p) => p.status === 'UNDER_REVIEW').length,
+      APPROVED: projects.filter((p) => p.status === 'APPROVED').length,
+      REJECTED: projects.filter((p) => p.status === 'REJECTED').length,
+    };
+  }, [projects]);
+
   const filteredProjects = useMemo(() => {
-    if (!searchQuery.trim()) return projects;
-    const q = searchQuery.toLowerCase();
-    return projects.filter(
-      (p) =>
+    return projects.filter((p) => {
+      const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
+      if (!matchesStatus) return false;
+
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return (
         p.title.toLowerCase().includes(q) ||
         p.executiveSummary?.toLowerCase().includes(q)
-    );
-  }, [projects, searchQuery]);
+      );
+    });
+  }, [projects, statusFilter, searchQuery]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -144,6 +157,7 @@ export default function DashboardPage() {
     setHourlyRate(sample.rate);
     setRawRequirement(sample.text);
     setGenError(null);
+    toast.info(`Loaded blueprint: ${sample.title}`);
   };
 
   if (isLoading || !user) {
@@ -179,7 +193,13 @@ export default function DashboardPage() {
 
           <span className="hidden md:inline text-zinc-700">•</span>
 
-          <div className="flex items-center gap-2">
+          <button
+            onClick={() => setStatusFilter(statusFilter === 'UNDER_REVIEW' ? 'ALL' : 'UNDER_REVIEW')}
+            title="Click to filter by Pending Review"
+            className={`flex items-center gap-2 px-2 py-1 rounded transition-colors ${
+              statusFilter === 'UNDER_REVIEW' ? 'bg-[#18181B] border border-[#27272A]' : 'hover:opacity-80'
+            }`}
+          >
             <span className="text-zinc-500 font-sans">Pending Review:</span>
             <span
               className={`font-mono font-medium ${
@@ -188,7 +208,7 @@ export default function DashboardPage() {
             >
               {stats.pendingReviews}
             </span>
-          </div>
+          </button>
 
           <span className="hidden md:inline text-zinc-700">•</span>
 
@@ -333,11 +353,11 @@ export default function DashboardPage() {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="px-2.5 py-1.5 rounded-md bg-[#121214] border border-[#27272A] text-xs text-zinc-300 focus:outline-none focus:border-zinc-500 transition-colors font-sans"
                 >
-                  <option value="ALL">All statuses</option>
-                  <option value="AI_ESTIMATED">AI estimated</option>
-                  <option value="UNDER_REVIEW">Under review</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="REJECTED">Rejected</option>
+                  <option value="ALL">All statuses ({statusCounts.ALL})</option>
+                  <option value="AI_ESTIMATED">AI estimated ({statusCounts.AI_ESTIMATED})</option>
+                  <option value="UNDER_REVIEW">Under review ({statusCounts.UNDER_REVIEW})</option>
+                  <option value="APPROVED">Approved ({statusCounts.APPROVED})</option>
+                  <option value="REJECTED">Rejected ({statusCounts.REJECTED})</option>
                 </select>
               </div>
             </div>
@@ -349,13 +369,25 @@ export default function DashboardPage() {
               <span className="text-xs font-sans">Loading estimates...</span>
             </div>
           ) : filteredProjects.length === 0 ? (
-            <div className="p-8 text-center rounded-lg border border-[#27272A] bg-[#121214] text-zinc-400 space-y-1">
-              <p className="text-xs font-medium text-zinc-300">No project estimates found.</p>
+            <div className="p-8 text-center rounded-lg border border-[#27272A] bg-[#121214] text-zinc-400 space-y-3">
+              <p className="text-xs font-medium text-zinc-200">No project estimates found.</p>
               <p className="text-xs text-zinc-500 font-sans">
-                {searchQuery
-                  ? 'No estimates match your search query.'
+                {searchQuery || statusFilter !== 'ALL'
+                  ? 'No estimates match your active search or status filter.'
                   : 'Use the form above to calculate your first project scope.'}
               </p>
+              {(searchQuery || statusFilter !== 'ALL') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setStatusFilter('ALL');
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-zinc-200 transition-colors"
+                >
+                  <span>Reset all filters</span>
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

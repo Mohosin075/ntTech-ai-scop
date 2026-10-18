@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Project } from '@/types';
 import Modal from '@/components/common/Modal';
 import StatusBadge from '@/components/common/StatusBadge';
-import { Printer, FileCheck2, Building2 } from 'lucide-react';
+import { useToast } from '@/context/ToastContext';
+import { Printer, FileCheck2, Copy, Check } from 'lucide-react';
 
 interface ProposalModalProps {
   isOpen: boolean;
@@ -17,11 +18,60 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
   onClose,
   project,
 }) => {
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
+
   const handlePrint = () => {
     window.print();
   };
 
   const activeFeatures = project.features.filter((f) => f.isIncluded);
+
+  const handleCopyMarkdown = async () => {
+    const text = `# Statement of Work: ${project.title}
+Ref: PRJ-${project.id.slice(0, 8).toUpperCase()} | Date: ${new Date(project.createdAt).toLocaleDateString()}
+Status: ${project.status}
+
+## Executive Summary
+${project.executiveSummary}
+
+## Requirements Baseline
+"${project.rawRequirement}"
+
+## Target Stack
+${project.recommendedStack?.join(', ') || 'N/A'}
+
+## Deliverables (${activeFeatures.length} Modules)
+${activeFeatures
+  .map(
+    (f) =>
+      `- [x] **${f.title}** (${f.category} - ${f.complexity}): ${f.estimatedHours}h = $${(
+        f.estimatedHours * project.hourlyRate
+      ).toLocaleString()}`
+  )
+  .join('\n')}
+
+## Commercial Quotation
+- Total Effort: ${project.totalHours} Hours @ $${project.hourlyRate}/hr
+- Base Engineering: $${project.baseCost.toLocaleString()}
+- Contingency Buffer (${project.riskBufferPercent}%): +$${project.riskBufferAmount.toLocaleString()}
+- **Final Commercial Total: $${project.finalTotalCost.toLocaleString()}**
+
+## Milestone Schedule
+- M1 (Kickoff - 30%): $${project.milestone1Amount.toLocaleString()}
+- M2 (Core MVP - 40%): $${project.milestone2Amount.toLocaleString()}
+- M3 (QA & Handover - 30%): $${project.milestone3Amount.toLocaleString()}
+`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast.success('SOW Markdown copied to clipboard');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('Failed to copy to clipboard');
+    }
+  };
 
   return (
     <Modal
@@ -37,22 +87,32 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
     >
       <div className="space-y-4 text-xs text-zinc-300">
         {/* Action Header */}
-        <div className="flex items-center justify-between p-3 rounded-md bg-[#0A0A0B] border border-[#27272A] border-l-2 border-l-emerald-500 print:hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-md bg-[#0A0A0B] border border-[#27272A] border-l-2 border-l-emerald-500 print:hidden">
           <div className="space-y-0.5">
             <span className="font-medium text-zinc-200 block">
               Commercial Statement of Work (SOW)
             </span>
             <span className="text-zinc-500 text-xs">
-              Executive architectural proposal ready for client sign-off or PDF export.
+              Executive architectural proposal ready for client sign-off, clipboard copy, or PDF export.
             </span>
           </div>
-          <button
-            onClick={handlePrint}
-            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-md flex items-center gap-1.5 transition-colors text-xs shrink-0"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Print SOW</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleCopyMarkdown}
+              className="px-3 py-1.5 bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-zinc-200 font-medium rounded-md flex items-center gap-1.5 transition-colors text-xs"
+              title="Copy SOW to clipboard in Markdown format"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-zinc-400" />}
+              <span>{copied ? 'Copied' : 'Copy SOW'}</span>
+            </button>
+            <button
+              onClick={handlePrint}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-md flex items-center gap-1.5 transition-colors text-xs"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Print SOW</span>
+            </button>
+          </div>
         </div>
 
         {/* SOW Document Sheet */}

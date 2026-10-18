@@ -38,7 +38,7 @@ function ProjectWorkspaceContent() {
   const routeParams = useParams();
   const projectId = routeParams?.id as string;
 
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, switchRole } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -67,6 +67,9 @@ function ProjectWorkspaceContent() {
 
   const [editingFeatureId, setEditingFeatureId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
+
+  const [editingHoursId, setEditingHoursId] = useState<string | null>(null);
+  const [editingHoursValue, setEditingHoursValue] = useState<number>(0);
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -205,6 +208,26 @@ function ProjectWorkspaceContent() {
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to save title');
+    }
+  };
+
+  const handleSaveHours = async (featureId: string) => {
+    const targetHours = Math.max(1, Math.min(200, Number(editingHoursValue) || 1));
+    setEditingHoursId(null);
+    try {
+      const res = await fetchApi<{ feature: Feature; project: Project }>(
+        `/projects/${projectId}/features/${featureId}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ estimatedHours: targetHours }),
+        }
+      );
+      if (res.success && res.data) {
+        setProject(res.data.project);
+        toast.success('Hours updated');
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update hours');
     }
   };
 
@@ -368,9 +391,19 @@ function ProjectWorkspaceContent() {
             )}
 
             {project.status === 'UNDER_REVIEW' && !isAdmin && (
-              <span className="text-xs text-amber-400 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded-md font-medium">
-                Under Review by Administrator
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-amber-400 bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded-md font-medium flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  Under Review by Administrator
+                </span>
+                <button
+                  onClick={() => switchRole('ADMIN')}
+                  className="px-2.5 py-1 text-xs font-mono rounded-md bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-zinc-300 hover:text-white transition-colors"
+                  title="Switch to Admin role to approve or reject this scope"
+                >
+                  Review as Admin
+                </button>
+              </div>
             )}
 
             {project.status === 'REJECTED' && (
@@ -548,7 +581,28 @@ function ProjectWorkspaceContent() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#27272A] font-mono">
-                    {filteredFeatures.map((f) => (
+                    {filteredFeatures.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-8 text-center text-zinc-400 font-sans text-xs">
+                          <p className="font-medium text-zinc-300">No features found.</p>
+                          <p className="text-zinc-500 mt-0.5">
+                            No deliverables match category &quot;{categoryFilter}&quot;
+                            {featureSearch ? ` and search "${featureSearch}"` : ''}.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCategoryFilter('ALL');
+                              setFeatureSearch('');
+                            }}
+                            className="mt-2 text-xs text-emerald-400 hover:text-emerald-300 underline font-medium"
+                          >
+                            Reset filters
+                          </button>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredFeatures.map((f) => (
                       <tr
                         key={f.id}
                         className={`hover:bg-[#18181B]/40 transition ${
@@ -634,7 +688,7 @@ function ProjectWorkspaceContent() {
                           </span>
                         </td>
 
-                        {/* Stepper */}
+                        {/* Stepper / Direct Input */}
                         <td className="py-2 px-3 text-center">
                           <div className="inline-flex items-center gap-1 bg-[#0A0A0B] border border-[#27272A] px-1.5 py-0.5 rounded-md">
                             {!isApproved && (
@@ -646,9 +700,38 @@ function ProjectWorkspaceContent() {
                                 -
                               </button>
                             )}
-                            <span className="font-semibold text-zinc-100 text-xs min-w-7">
-                              {f.estimatedHours}h
-                            </span>
+
+                            {editingHoursId === f.id ? (
+                              <input
+                                type="number"
+                                min={1}
+                                max={200}
+                                value={editingHoursValue}
+                                onChange={(e) => setEditingHoursValue(Number(e.target.value))}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSaveHours(f.id)}
+                                onBlur={() => handleSaveHours(f.id)}
+                                autoFocus
+                                className="w-12 text-center bg-[#121214] border border-emerald-500 rounded px-1 text-xs text-zinc-100 font-mono focus:outline-none"
+                              />
+                            ) : (
+                              <button
+                                type="button"
+                                disabled={isApproved}
+                                onClick={() => {
+                                  if (!isApproved) {
+                                    setEditingHoursId(f.id);
+                                    setEditingHoursValue(f.estimatedHours);
+                                  }
+                                }}
+                                title={isApproved ? undefined : 'Click to type exact hours'}
+                                className={`font-semibold text-zinc-100 text-xs min-w-7 px-1 rounded ${
+                                  !isApproved ? 'hover:bg-[#18181B] hover:text-emerald-400 transition cursor-pointer' : ''
+                                }`}
+                              >
+                                {f.estimatedHours}h
+                              </button>
+                            )}
+
                             {!isApproved && (
                               <button
                                 onClick={() => handleAdjustHours(f, 2)}
@@ -681,7 +764,8 @@ function ProjectWorkspaceContent() {
                           )}
                         </td>
                       </tr>
-                    ))}
+                    ))
+                  )}
                   </tbody>
                 </table>
               </div>
@@ -745,6 +829,23 @@ function ProjectWorkspaceContent() {
                   />
                 </div>
 
+                {newRate !== project.hourlyRate && newRate > 0 && (
+                  <div className="p-2.5 rounded-md bg-[#0A0A0B] border border-[#27272A] text-xs font-mono space-y-1">
+                    <div className="flex justify-between items-center text-zinc-300">
+                      <span className="font-sans text-zinc-500">Projected Total:</span>
+                      <span className="text-emerald-400 font-semibold">
+                        ${(
+                          project.totalHours * newRate +
+                          Math.round(project.totalHours * newRate * (project.riskBufferPercent / 100))
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="text-xs text-zinc-500 font-sans">
+                      Click Recalculate to apply new rate to scope deliverables.
+                    </div>
+                  </div>
+                )}
+
                 {!isApproved && (
                   <button
                     type="submit"
@@ -752,7 +853,7 @@ function ProjectWorkspaceContent() {
                     className="w-full py-1.5 px-3 rounded-md bg-[#18181B] hover:bg-zinc-800 text-xs font-medium text-zinc-200 border border-[#27272A] transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5"
                   >
                     {updatingRate ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                    <span>Recalculate</span>
+                    <span>Recalculate deliverables</span>
                   </button>
                 )}
               </form>
