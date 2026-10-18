@@ -102,7 +102,7 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
             className="p-2.5 rounded-md bg-zinc-950/70 border border-zinc-800/80 space-y-1 font-mono text-xs"
           >
             <div className="flex items-center justify-between">
-              <span className={`px-1.5 py-0.5 rounded text-[11px] font-medium border ${item.colors.badge}`}>
+              <span className={`px-1.5 py-0.5 rounded text-xs font-medium border ${item.colors.badge}`}>
                 {item.category}
               </span>
               <span className="font-semibold text-zinc-300 text-xs">

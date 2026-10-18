@@ -179,7 +179,7 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
                 <span className="text-zinc-600 font-sans">M3 (QA &amp; Handover - 30%):</span>
                 <span className="font-bold text-zinc-900">${project.milestone3Amount.toLocaleString()}</span>
               </div>
-              <div className="text-[10px] text-zinc-500 font-sans pt-0.5">
+              <div className="text-xs text-zinc-500 font-sans pt-0.5">
                 Zero rounding drift verified across deliverables.
               </div>
             </div>
@@ -189,14 +189,14 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
             <div className="space-y-4">
               <div className="text-xs font-bold text-zinc-800">Authorized Vendor Signature:</div>
               <div className="border-b border-zinc-400 w-3/4"></div>
-              <div className="text-[10px] text-zinc-500">
+              <div className="text-xs text-zinc-500">
                 Prepared by: {project.createdBy?.name || 'Tanvir Hasan (Lead Estimator)'}
               </div>
             </div>
             <div className="space-y-4">
               <div className="text-xs font-bold text-zinc-800">Client Acceptance Signature:</div>
               <div className="border-b border-zinc-400 w-3/4"></div>
-              <div className="text-[10px] text-zinc-500">
+              <div className="text-xs text-zinc-500">
                 Date: ________________________
               </div>
             </div>

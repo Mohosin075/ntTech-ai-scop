@@ -315,7 +315,7 @@ function ProjectWorkspaceContent() {
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
             </Link>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-xl font-bold tracking-tight text-zinc-100">{project.title}</h1>
+              <h1 className="text-xl font-semibold tracking-tight text-zinc-100">{project.title}</h1>
               <StatusBadge status={project.status} />
               {isApproved && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
@@ -514,7 +514,7 @@ function ProjectWorkspaceContent() {
                       }`}
                     >
                       <span>{cat === 'ALL' ? 'All' : cat}</span>
-                      <span className="text-[11px] opacity-70 font-mono ml-1">
+                      <span className="text-xs opacity-70 font-mono ml-1">
                         ({categoryCounts[cat] || 0})
                       </span>
                     </button>
@@ -614,7 +614,7 @@ function ProjectWorkspaceContent() {
 
                         {/* Category */}
                         <td className="py-2 px-2.5 font-sans">
-                          <span className="px-1.5 py-0.5 rounded-md text-[11px] font-medium bg-zinc-950/80 border border-zinc-800 text-zinc-300">
+                          <span className="px-1.5 py-0.5 rounded-md text-xs font-medium bg-zinc-950/80 border border-zinc-800 text-zinc-300">
                             {f.category}
                           </span>
                         </td>
@@ -622,7 +622,7 @@ function ProjectWorkspaceContent() {
                         {/* Complexity */}
                         <td className="py-2 px-2.5 font-sans">
                           <span
-                            className={`px-1.5 py-0.5 rounded-md text-[11px] font-medium border ${
+                            className={`px-1.5 py-0.5 rounded-md text-xs font-medium border ${
                               f.complexity === 'HIGH'
                                 ? 'text-rose-400 bg-rose-950/40 border-rose-800/50'
                                 : f.complexity === 'MEDIUM'

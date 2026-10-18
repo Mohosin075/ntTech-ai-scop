@@ -17,7 +17,7 @@ export const Navbar: React.FC = () => {
           </div>
           <div className="flex items-center gap-2">
             <span className="font-semibold text-sm tracking-tight text-zinc-100">ScopeAI</span>
-            <span className="text-[11px] font-mono text-zinc-400 pl-2 border-l border-zinc-800">
+            <span className="text-xs font-mono text-zinc-400 pl-2 border-l border-zinc-800">
               v1.0
             </span>
           </div>
@@ -29,7 +29,7 @@ export const Navbar: React.FC = () => {
               <UserIcon className="w-3.5 h-3.5 text-zinc-400" />
               <span className="text-zinc-200 font-medium hidden sm:inline">{user.name}</span>
               <span
-                className={`text-[11px] font-mono px-1.5 py-0.2 rounded border ${
+                className={`text-xs font-mono px-1.5 py-0.5 rounded border ${
                   user.role === 'ADMIN'
                     ? 'text-rose-400 border-rose-800/60 bg-rose-950/40'
                     : 'text-emerald-400 border-emerald-800/60 bg-emerald-950/40'

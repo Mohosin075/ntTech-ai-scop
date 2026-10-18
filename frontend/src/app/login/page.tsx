@@ -52,7 +52,7 @@ export default function LoginPage() {
           <div className="inline-flex h-8 w-8 rounded-md bg-emerald-600 items-center justify-center font-bold text-white text-xs mb-1">
             S
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-zinc-100">ScopeAI</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-100">ScopeAI</h1>
           <p className="text-xs text-zinc-400">Software scoping &amp; milestone cost engine</p>
         </div>
 
