@@ -35,7 +35,7 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
       }
     >
       <div className="space-y-4 text-xs text-zinc-300">
-        <div className="flex items-center justify-between p-2.5 border-l-2 border-l-emerald-500 bg-zinc-950 border-y border-r border-zinc-800 print:hidden">
+        <div className="flex items-center justify-between p-2.5 border-l-2 border-l-emerald-500 bg-[#0A0A0B] border border-[#27272A] rounded-md print:hidden">
           <span className="text-zinc-400">
             Commercial proposal ready for client sign-off or PDF print.
           </span>

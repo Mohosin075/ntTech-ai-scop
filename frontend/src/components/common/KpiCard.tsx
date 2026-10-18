@@ -18,7 +18,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`rounded-lg border border-zinc-800/80 bg-zinc-900/60 p-4 transition-all hover:border-zinc-700/80 ${className}`}>
+    <div className={`rounded-lg border border-[#27272A] bg-[#121214] p-4 transition-all hover:border-zinc-700/80 ${className}`}>
       <div className="flex items-center justify-between text-xs text-zinc-400 font-sans mb-2">
         <span>{label}</span>
         {icon && <span className="text-zinc-500">{icon}</span>}

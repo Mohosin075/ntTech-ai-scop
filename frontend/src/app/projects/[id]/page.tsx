@@ -280,7 +280,7 @@ function ProjectWorkspaceContent() {
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">
+      <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center text-zinc-400">
         <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
       </div>
     );
@@ -288,9 +288,9 @@ function ProjectWorkspaceContent() {
 
   if (!project) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-6 text-center">
+      <div className="min-h-screen bg-[#0A0A0B] flex flex-col items-center justify-center p-6 text-center">
         <p className="text-rose-400 text-xs mb-3">Project not found or accessible.</p>
-        <Link href="/dashboard" className="px-3 py-1.5 rounded-md bg-zinc-800 text-zinc-200 text-xs">
+        <Link href="/dashboard" className="px-3 py-1.5 rounded-md bg-[#18181B] border border-[#27272A] text-zinc-200 text-xs">
           Return to Dashboard
         </Link>
       </div>
@@ -301,12 +301,12 @@ function ProjectWorkspaceContent() {
   const isAdmin = user?.role === 'ADMIN';
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#0A0A0B] text-zinc-100 flex flex-col font-sans">
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Header Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-zinc-800">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#27272A]">
           <div className="space-y-1">
             <Link
               href="/dashboard"
@@ -315,10 +315,10 @@ function ProjectWorkspaceContent() {
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
             </Link>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-xl font-semibold tracking-tight text-zinc-100">{project.title}</h1>
+              <h1 className="text-xl font-semibold tracking-tight text-white">{project.title}</h1>
               <StatusBadge status={project.status} />
               {isApproved && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-[#18181B] text-zinc-300 border border-[#27272A]">
                   <Lock className="w-3 h-3 text-amber-400" /> Locked Scope
                 </span>
               )}
@@ -328,7 +328,7 @@ function ProjectWorkspaceContent() {
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setIsProposalModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 text-xs font-medium transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#18181B] hover:bg-zinc-800 border border-[#27272A] text-zinc-200 text-xs font-medium transition"
               title="Preview and print Statement of Work"
             >
               <FileText className="w-3.5 h-3.5 text-zinc-400" />
@@ -433,7 +433,7 @@ function ProjectWorkspaceContent() {
           {/* Left Column: Summary + Feature Table (8 Columns) */}
           <div className="lg:col-span-8 space-y-6">
             {/* Scope Summary & Architecture */}
-            <div className="rounded-lg border border-zinc-800/80 bg-zinc-900/60 p-5 space-y-3">
+            <div className="rounded-lg border border-[#27272A] bg-[#121214] p-5 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <h3 className="font-medium text-xs text-zinc-200">
@@ -447,7 +447,7 @@ function ProjectWorkspaceContent() {
                   </button>
                 </div>
                 {project.isFallbackUsed && (
-                  <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-zinc-950 text-zinc-400 border border-zinc-800">
+                  <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[#0A0A0B] text-zinc-400 border border-[#27272A]">
                     Rule engine fallback
                   </span>
                 )}
@@ -458,14 +458,14 @@ function ProjectWorkspaceContent() {
               </p>
 
               {project.recommendedStack && project.recommendedStack.length > 0 && (
-                <div className="pt-2 border-t border-zinc-800/80 flex flex-wrap items-center gap-1.5">
+                <div className="pt-2 border-t border-[#27272A] flex flex-wrap items-center gap-1.5">
                   <span className="text-xs text-zinc-500 font-sans">
                     Stack:
                   </span>
                   {project.recommendedStack.map((tech, idx) => (
                     <span
                       key={idx}
-                      className="px-2 py-0.5 rounded-md text-xs font-mono bg-zinc-950 text-zinc-300 border border-zinc-800"
+                      className="px-2 py-0.5 rounded-md text-xs font-mono bg-[#0A0A0B] text-zinc-300 border border-[#27272A]"
                     >
                       {tech}
                     </span>
@@ -475,8 +475,8 @@ function ProjectWorkspaceContent() {
             </div>
 
             {/* Feature Table Card */}
-            <div className="rounded-lg border border-zinc-800/80 bg-zinc-900/60 p-5 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-zinc-800/80">
+            <div className="rounded-lg border border-[#27272A] bg-[#121214] p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#27272A]">
                 <div>
                   <h3 className="font-medium text-sm text-zinc-100 flex items-center gap-2">
                     <span>Feature breakdown</span>
@@ -509,8 +509,8 @@ function ProjectWorkspaceContent() {
                       onClick={() => setCategoryFilter(cat)}
                       className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
                         categoryFilter === cat
-                          ? 'bg-zinc-800 text-zinc-100 border border-zinc-700'
-                          : 'bg-zinc-950/80 hover:bg-zinc-900 text-zinc-400 border border-zinc-800'
+                          ? 'bg-[#18181B] text-zinc-100 border border-[#27272A]'
+                          : 'bg-[#0A0A0B] hover:bg-[#18181B] text-zinc-400 border border-[#27272A]'
                       }`}
                     >
                       <span>{cat === 'ALL' ? 'All' : cat}</span>
@@ -528,7 +528,7 @@ function ProjectWorkspaceContent() {
                     value={featureSearch}
                     onChange={(e) => setFeatureSearch(e.target.value)}
                     placeholder="Filter features..."
-                    className="pl-8 pr-3 py-1.5 rounded-md bg-zinc-950/80 border border-zinc-800 text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-600 transition-colors w-full sm:w-44"
+                    className="pl-8 pr-3 py-1.5 rounded-md bg-[#0A0A0B] border border-[#27272A] text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors w-full sm:w-44"
                   />
                 </div>
               </div>
@@ -536,7 +536,7 @@ function ProjectWorkspaceContent() {
               {/* Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-zinc-950/60 text-zinc-400 font-sans text-xs border-b border-zinc-800">
+                  <thead className="bg-[#0A0A0B] text-zinc-400 font-sans text-xs border-b border-[#27272A]">
                     <tr>
                       <th className="py-2.5 px-2.5 w-10 text-center font-medium">Inc</th>
                       <th className="py-2.5 px-3 font-medium">Feature</th>
@@ -547,12 +547,12 @@ function ProjectWorkspaceContent() {
                       <th className="py-2.5 px-2.5 w-10 text-center font-medium">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-zinc-800/60 font-mono">
+                  <tbody className="divide-y divide-[#27272A] font-mono">
                     {filteredFeatures.map((f) => (
                       <tr
                         key={f.id}
-                        className={`hover:bg-zinc-800/30 transition ${
-                          !f.isIncluded ? 'opacity-40 bg-zinc-950/40 line-through text-zinc-500' : ''
+                        className={`hover:bg-[#18181B]/40 transition ${
+                          !f.isIncluded ? 'opacity-40 bg-[#0A0A0B]/40 line-through text-zinc-500' : ''
                         }`}
                       >
                         {/* Checkbox */}
@@ -562,7 +562,7 @@ function ProjectWorkspaceContent() {
                             checked={f.isIncluded}
                             disabled={isApproved}
                             onChange={() => handleToggleInclude(f)}
-                            className="w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-emerald-600 focus:ring-0 cursor-pointer disabled:cursor-not-allowed"
+                            className="w-3.5 h-3.5 rounded border-[#27272A] bg-[#0A0A0B] text-emerald-600 focus:ring-0 cursor-pointer disabled:cursor-not-allowed"
                           />
                         </td>
 
@@ -576,7 +576,7 @@ function ProjectWorkspaceContent() {
                                 onChange={(e) => setEditingTitle(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSaveTitle(f.id)}
                                 autoFocus
-                                className="px-2 py-0.5 rounded-md bg-zinc-950 border border-emerald-500 text-zinc-100 text-xs w-full focus:outline-none"
+                                className="px-2 py-0.5 rounded-md bg-[#0A0A0B] border border-emerald-500 text-zinc-100 text-xs w-full focus:outline-none"
                               />
                               <button
                                 onClick={() => handleSaveTitle(f.id)}
@@ -587,7 +587,7 @@ function ProjectWorkspaceContent() {
                               </button>
                               <button
                                 onClick={() => setEditingFeatureId(null)}
-                                className="p-1 rounded-md bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+                                className="p-1 rounded-md bg-[#18181B] text-zinc-400 hover:text-zinc-200 border border-[#27272A]"
                                 title="Cancel"
                               >
                                 <X className="w-3 h-3" />
@@ -614,7 +614,7 @@ function ProjectWorkspaceContent() {
 
                         {/* Category */}
                         <td className="py-2 px-2.5 font-sans">
-                          <span className="px-1.5 py-0.5 rounded-md text-xs font-medium bg-zinc-950/80 border border-zinc-800 text-zinc-300">
+                          <span className="px-1.5 py-0.5 rounded-md text-xs font-medium bg-[#0A0A0B] border border-[#27272A] text-zinc-300">
                             {f.category}
                           </span>
                         </td>
@@ -636,7 +636,7 @@ function ProjectWorkspaceContent() {
 
                         {/* Stepper */}
                         <td className="py-2 px-3 text-center">
-                          <div className="inline-flex items-center gap-1 bg-zinc-950/80 border border-zinc-800 px-1.5 py-0.5 rounded-md">
+                          <div className="inline-flex items-center gap-1 bg-[#0A0A0B] border border-[#27272A] px-1.5 py-0.5 rounded-md">
                             {!isApproved && (
                               <button
                                 onClick={() => handleAdjustHours(f, -2)}
@@ -691,12 +691,12 @@ function ProjectWorkspaceContent() {
           {/* Right Column: Milestones & Rates (4 Columns) */}
           <div className="lg:col-span-4 space-y-5">
             {/* Milestone Breakdown */}
-            <div className="rounded-lg border border-zinc-800/80 bg-zinc-900/60 p-4 space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+            <div className="rounded-lg border border-[#27272A] bg-[#121214] p-4 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-[#27272A]">
                 <h3 className="font-medium text-xs text-zinc-200">
                   Milestone breakdown
                 </h3>
-                <span className="text-xs font-mono text-zinc-400 bg-zinc-950/80 px-2 py-0.5 rounded-md border border-zinc-800">
+                <span className="text-xs font-mono text-zinc-400 bg-[#0A0A0B] px-2 py-0.5 rounded-md border border-[#27272A]">
                   30% • 40% • 30%
                 </span>
               </div>
@@ -714,7 +714,7 @@ function ProjectWorkspaceContent() {
                         ${ms.amount.toLocaleString()}
                       </span>
                     </div>
-                    <div className="w-full h-1.5 rounded-md bg-zinc-950 overflow-hidden border border-zinc-800/80">
+                    <div className="w-full h-1.5 rounded-md bg-[#0A0A0B] overflow-hidden border border-[#27272A]">
                       <div className={`h-full ${ms.color}`} style={{ width: ms.width }}></div>
                     </div>
                   </div>
@@ -723,7 +723,7 @@ function ProjectWorkspaceContent() {
             </div>
 
             {/* Hourly Rate */}
-            <div className="rounded-lg border border-zinc-800/80 bg-zinc-900/60 p-4 space-y-3">
+            <div className="rounded-lg border border-[#27272A] bg-[#121214] p-4 space-y-3">
               <h3 className="font-medium text-xs text-zinc-200">
                 Hourly rate adjuster
               </h3>
@@ -741,7 +741,7 @@ function ProjectWorkspaceContent() {
                     disabled={isApproved || updatingRate}
                     value={newRate}
                     onChange={(e) => setNewRate(Number(e.target.value))}
-                    className="w-full pl-6 pr-3 py-1.5 rounded-md bg-zinc-950/80 border border-zinc-800 text-zinc-100 text-xs font-mono focus:outline-none focus:border-zinc-600 transition-colors disabled:opacity-50"
+                    className="w-full pl-6 pr-3 py-1.5 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs font-mono focus:outline-none focus:border-zinc-500 transition-colors disabled:opacity-50"
                   />
                 </div>
 
@@ -749,7 +749,7 @@ function ProjectWorkspaceContent() {
                   <button
                     type="submit"
                     disabled={updatingRate || newRate === project.hourlyRate}
-                    className="w-full py-1.5 px-3 rounded-md bg-zinc-800/80 hover:bg-zinc-800 text-xs font-medium text-zinc-200 border border-zinc-700/80 transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5"
+                    className="w-full py-1.5 px-3 rounded-md bg-[#18181B] hover:bg-zinc-800 text-xs font-medium text-zinc-200 border border-[#27272A] transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5"
                   >
                     {updatingRate ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                     <span>Recalculate</span>
@@ -759,22 +759,22 @@ function ProjectWorkspaceContent() {
             </div>
 
             {/* Audit Trail */}
-            <div className="rounded-lg border border-zinc-800/80 bg-zinc-900/60 p-4 space-y-2.5 text-xs">
+            <div className="rounded-lg border border-[#27272A] bg-[#121214] p-4 space-y-2.5 text-xs">
               <h3 className="font-medium text-xs text-zinc-200">
                 Audit trail
               </h3>
 
               <div className="space-y-1.5 text-zinc-400 font-sans">
-                <div className="flex justify-between py-1 border-b border-zinc-800/80">
+                <div className="flex justify-between py-1 border-b border-[#27272A]">
                   <span>Created by:</span>
                   <span className="text-zinc-200 font-medium">{project.createdBy?.name || 'Estimator'}</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-zinc-800/80">
+                <div className="flex justify-between py-1 border-b border-[#27272A]">
                   <span>Created date:</span>
                   <span className="text-zinc-200 font-mono">{new Date(project.createdAt).toLocaleDateString()}</span>
                 </div>
                 {project.reviewedBy && (
-                  <div className="flex justify-between py-1 border-b border-zinc-800/80">
+                  <div className="flex justify-between py-1 border-b border-[#27272A]">
                     <span>Reviewed by:</span>
                     <span className="text-zinc-200 font-medium">{project.reviewedBy.name}</span>
                   </div>
@@ -809,7 +809,7 @@ function ProjectWorkspaceContent() {
               value={featureTitle}
               onChange={(e) => setFeatureTitle(e.target.value)}
               placeholder="e.g. bKash Webhook Callback Handler"
-              className="w-full px-3 py-1.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition"
+              className="w-full px-3 py-1.5 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition"
             />
           </div>
 
@@ -819,7 +819,7 @@ function ProjectWorkspaceContent() {
               <select
                 value={featureCategory}
                 onChange={(e) => setFeatureCategory(e.target.value as FeatureCategory)}
-                className="w-full px-2.5 py-1.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition"
+                className="w-full px-2.5 py-1.5 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition"
               >
                 <option value="FRONTEND">FRONTEND</option>
                 <option value="BACKEND">BACKEND</option>
@@ -834,7 +834,7 @@ function ProjectWorkspaceContent() {
               <select
                 value={featureComplexity}
                 onChange={(e) => setFeatureComplexity(e.target.value as FeatureComplexity)}
-                className="w-full px-2.5 py-1.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition"
+                className="w-full px-2.5 py-1.5 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs focus:outline-none focus:border-emerald-500 transition"
               >
                 <option value="LOW">LOW</option>
                 <option value="MEDIUM">MEDIUM</option>
@@ -852,7 +852,7 @@ function ProjectWorkspaceContent() {
               required
               value={featureHours}
               onChange={(e) => setFeatureHours(Number(e.target.value))}
-              className="w-full px-3 py-1.5 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs font-mono focus:outline-none focus:border-emerald-500 transition"
+              className="w-full px-3 py-1.5 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs font-mono focus:outline-none focus:border-emerald-500 transition"
             />
           </div>
 
@@ -860,7 +860,7 @@ function ProjectWorkspaceContent() {
             <button
               type="button"
               onClick={() => setIsAddModalOpen(false)}
-              className="px-3 py-1.5 rounded-md bg-zinc-800 text-xs font-medium text-zinc-300 hover:bg-zinc-700"
+              className="px-3 py-1.5 rounded-md bg-[#18181B] border border-[#27272A] text-xs font-medium text-zinc-300 hover:bg-zinc-800"
             >
               Cancel
             </button>
@@ -891,14 +891,14 @@ function ProjectWorkspaceContent() {
           value={rejectionReason}
           onChange={(e) => setRejectionReason(e.target.value)}
           placeholder="e.g. Scope buffer seems low for payment integration, or hours estimated are insufficient..."
-          className="w-full px-3 py-2 rounded-md bg-zinc-950 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-rose-500 transition resize-none"
+          className="w-full px-3 py-2 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs focus:outline-none focus:border-rose-500 transition resize-none"
         />
 
         <div className="flex justify-end gap-2 pt-1">
           <button
             type="button"
             onClick={() => setIsRejectModalOpen(false)}
-            className="px-3 py-1.5 rounded-md bg-zinc-800 text-xs font-medium text-zinc-300"
+            className="px-3 py-1.5 rounded-md bg-[#18181B] border border-[#27272A] text-xs font-medium text-zinc-300"
           >
             Cancel
           </button>
@@ -922,7 +922,7 @@ function ProjectWorkspaceContent() {
         title="Scoping Engine - Specifications & Limitations"
       >
         <div className="space-y-3 text-xs leading-relaxed text-zinc-300">
-          <div className="p-3 rounded bg-zinc-950 border border-zinc-800">
+          <div className="p-3 rounded-md bg-[#0A0A0B] border border-[#27272A]">
             <span className="font-semibold text-zinc-200 block mb-1">
               1. Input Parameters
             </span>
@@ -931,7 +931,7 @@ function ProjectWorkspaceContent() {
             </p>
           </div>
 
-          <div className="p-3 rounded bg-zinc-950 border border-zinc-800">
+          <div className="p-3 rounded-md bg-[#0A0A0B] border border-[#27272A]">
             <span className="font-semibold text-zinc-200 block mb-1">
               2. Generated Outputs &amp; Metrics
             </span>
@@ -940,7 +940,7 @@ function ProjectWorkspaceContent() {
             </p>
           </div>
 
-          <div className="p-3 rounded bg-zinc-950 border border-zinc-800">
+          <div className="p-3 rounded-md bg-[#0A0A0B] border border-[#27272A]">
             <span className="font-semibold text-zinc-200 block mb-1">
               3. Limitations &amp; Fallback
             </span>
@@ -954,7 +954,7 @@ function ProjectWorkspaceContent() {
           <button
             type="button"
             onClick={() => setIsEvalModalOpen(false)}
-            className="px-3 py-1.5 rounded-md bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-200"
+            className="px-3 py-1.5 rounded-md bg-[#18181B] hover:bg-zinc-800 border border-[#27272A] text-xs font-medium text-zinc-200"
           >
             Close
           </button>
@@ -975,7 +975,7 @@ export default function ProjectWorkspacePage() {
   return (
     <React.Suspense
       fallback={
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">
+        <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center text-zinc-400">
           <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
         </div>
       }

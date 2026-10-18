@@ -46,7 +46,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col justify-center items-center px-4 py-8">
+    <div className="min-h-screen bg-[#0A0A0B] flex flex-col justify-center items-center px-4 py-8">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6 space-y-1">
           <div className="inline-flex h-8 w-8 rounded-md bg-emerald-600 items-center justify-center font-bold text-white text-xs mb-1">
@@ -56,8 +56,8 @@ export default function LoginPage() {
           <p className="text-xs text-zinc-400">Software scoping &amp; milestone cost engine</p>
         </div>
 
-        <div className="rounded-lg border border-zinc-800/80 bg-zinc-900/60 p-6 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-zinc-800/80">
+        <div className="rounded-lg border border-[#27272A] bg-[#121214] p-6 space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
             <h2 className="text-sm font-semibold text-zinc-100">
               {isRegister ? 'Create account' : 'Sign in'}
             </h2>
@@ -90,7 +90,7 @@ export default function LoginPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Tanvir Hasan"
-                  className="w-full px-3 py-2 rounded-md bg-zinc-950/80 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600"
+                  className="w-full px-3 py-2 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600"
                 />
               </div>
             )}
@@ -103,7 +103,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tanvir@scopeai.dev"
-                className="w-full px-3 py-2 rounded-md bg-zinc-950/80 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600"
+                className="w-full px-3 py-2 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600"
               />
             </div>
 
@@ -115,7 +115,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 rounded-md bg-zinc-950/80 border border-zinc-800 text-zinc-100 text-xs focus:outline-none focus:border-zinc-600 transition-colors placeholder:text-zinc-600 font-mono"
+                className="w-full px-3 py-2 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600 font-mono"
               />
             </div>
 
@@ -130,7 +130,7 @@ export default function LoginPage() {
           </form>
 
           {/* Quick Demo Access */}
-          <div className="pt-3 border-t border-zinc-800/80">
+          <div className="pt-3 border-t border-[#27272A]">
             <span className="block text-xs text-zinc-500 mb-2 text-center font-sans">
               Quick demo access
             </span>
@@ -139,7 +139,7 @@ export default function LoginPage() {
                 type="button"
                 disabled={demoLoading !== null}
                 onClick={() => handleDemo('ESTIMATOR')}
-                className="py-1.5 px-2 rounded-md bg-zinc-950/80 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                className="py-1.5 px-2 rounded-md bg-[#0A0A0B] hover:bg-[#18181B] border border-[#27272A] text-zinc-200 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
                 {demoLoading === 'ESTIMATOR' ? (
                   <Loader2 className="w-3 h-3 animate-spin" />
@@ -153,7 +153,7 @@ export default function LoginPage() {
                 type="button"
                 disabled={demoLoading !== null}
                 onClick={() => handleDemo('ADMIN')}
-                className="py-1.5 px-2 rounded-md bg-zinc-950/80 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                className="py-1.5 px-2 rounded-md bg-[#0A0A0B] hover:bg-[#18181B] border border-[#27272A] text-zinc-200 text-xs font-medium transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
                 {demoLoading === 'ADMIN' ? (
                   <Loader2 className="w-3 h-3 animate-spin" />
@@ -163,7 +163,7 @@ export default function LoginPage() {
                 <span>As Admin</span>
               </button>
             </div>
-            <p className="text-xs text-zinc-500 text-center mt-2">
+            <p className="text-xs text-zinc-500 text-center mt-2 font-mono">
               Tanvir Hasan (Estimator) • Farhan Ahmed (Admin)
             </p>
           </div>

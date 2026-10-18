@@ -32,20 +32,20 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
-        className={`w-full ${maxWidth} max-h-[90vh] overflow-y-auto border border-zinc-700 bg-zinc-950 p-5 space-y-4`}
+        className={`w-full ${maxWidth} max-h-[90vh] overflow-y-auto border border-[#27272A] bg-[#121214] rounded-lg p-5 space-y-4 shadow-2xl`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+        <div className="flex items-center justify-between pb-3 border-b border-[#27272A]">
           <div className="font-semibold text-sm text-zinc-100 flex items-center gap-2">
             {title}
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-100 p-1 rounded hover:bg-zinc-800 transition"
+            className="text-zinc-400 hover:text-zinc-100 p-1 rounded hover:bg-[#18181B] transition"
           >
             <X className="w-4 h-4" />
           </button>

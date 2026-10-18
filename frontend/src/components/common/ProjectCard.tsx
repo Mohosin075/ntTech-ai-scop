@@ -9,39 +9,45 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+  const statusBorderColor =
+    project.status === 'APPROVED'
+      ? 'border-l-emerald-500'
+      : project.status === 'UNDER_REVIEW'
+      ? 'border-l-amber-500'
+      : project.status === 'REJECTED'
+      ? 'border-l-rose-500'
+      : 'border-l-blue-500';
+
   return (
-    <div className="rounded-lg border border-zinc-800/80 bg-zinc-900/50 p-4 flex flex-col justify-between hover:border-zinc-700/80 hover:bg-zinc-900/80 transition-all group">
-      <div className="space-y-3">
+    <div
+      className={`rounded-lg bg-[#121214] hover:bg-[#18181B] border border-[#27272A] border-l-2 ${statusBorderColor} p-4 flex flex-col justify-between transition-colors group`}
+    >
+      <div className="space-y-2.5">
+        {/* Top Row: Title + Status Badge */}
         <div className="flex items-start justify-between gap-2">
-          <h4 className="font-medium text-sm text-zinc-100 group-hover:text-emerald-400 transition-colors line-clamp-1">
+          <h4 className="font-medium text-sm text-white group-hover:text-emerald-400 transition-colors line-clamp-1">
             {project.title}
           </h4>
           <StatusBadge status={project.status} />
         </div>
 
-        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed font-sans">
+        {/* Middle: 1-line description */}
+        <p className="text-zinc-400 text-xs line-clamp-1 leading-relaxed font-sans">
           {project.executiveSummary}
         </p>
 
-        <div className="pt-2 flex items-center justify-between border-t border-zinc-800/60 text-xs">
-          <StatusBadge risk={project.riskLevel} />
-          <span className="text-zinc-500 font-mono text-xs flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-zinc-500" />
-            {new Date(project.createdAt).toLocaleDateString()}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-xs">
-          <div className="p-2.5 rounded-md bg-zinc-950/70 border border-zinc-800/80">
-            <span className="text-xs text-zinc-500 block font-sans">Quote</span>
-            <span className="font-semibold text-emerald-400 flex items-center text-sm mt-0.5">
-              <DollarSign className="w-3.5 h-3.5 -mr-0.5" />
-              {project.finalTotalCost.toLocaleString()}
+        {/* Bottom Metrics: Flex in one line */}
+        <div className="pt-2 border-t border-[#27272A] flex items-center justify-between text-xs">
+          <div className="flex items-center gap-1.5">
+            <span className="text-zinc-500 font-sans">Quote:</span>
+            <span className="font-mono text-emerald-400 font-medium">
+              ${project.finalTotalCost.toLocaleString()}
             </span>
           </div>
-          <div className="p-2.5 rounded-md bg-zinc-950/70 border border-zinc-800/80">
-            <span className="text-xs text-zinc-500 block font-sans">Timeline</span>
-            <span className="font-medium text-zinc-300 flex items-center gap-1 text-xs mt-0.5">
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-zinc-500 font-sans">Timeline:</span>
+            <span className="font-mono text-zinc-300 font-medium flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-zinc-500" />
               {project.totalHours}h ({project.estimatedWeeks}w)
             </span>
@@ -49,10 +55,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
         </div>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-zinc-800/60">
+      <div className="mt-3.5 pt-2.5 border-t border-[#27272A]">
         <Link
           href={`/projects/${project.id}`}
-          className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-zinc-800/70 hover:bg-zinc-800 hover:text-white border border-zinc-700/60 text-xs font-medium text-zinc-300 transition-colors"
+          className="w-full inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-md bg-[#18181B] hover:bg-[#27272A] hover:text-white border border-[#27272A] text-xs font-medium text-zinc-300 transition-colors"
         >
           <span>Open workspace</span>
           <ArrowRight className="w-3.5 h-3.5" />
