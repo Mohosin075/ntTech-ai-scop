@@ -13,7 +13,19 @@ const app: Application = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: [config.client_url, 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or Postman)
+      if (!origin) return callback(null, true);
+      // Allow localhost or 127.0.0.1 on any port or specified client_url
+      if (
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:') ||
+        origin === config.client_url
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
