@@ -198,8 +198,8 @@ ${activeFeatures
               </span>
             </div>
 
-            <div className="border border-[#d5deda] rounded-md overflow-hidden">
-              <table className="w-full text-left text-xs">
+            <div className="overflow-x-auto rounded-md border border-[#d5deda]">
+              <table className="w-full min-w-[520px] text-left text-xs">
                 <thead className="bg-[#edf1ef] text-[#526270] font-sans text-xs border-b border-[#d5deda]">
                   <tr>
                     <th className="py-2.5 px-3 font-medium">Deliverable</th>

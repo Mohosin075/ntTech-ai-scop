@@ -151,7 +151,7 @@ export default function AnalysisPage() {
           </section>
         ) : (
           <>
-            <section aria-label="Project summary" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <section aria-label="Project summary" className="grid grid-cols-2 gap-2.5 max-[359px]:grid-cols-1 sm:gap-3 xl:grid-cols-4">
               <MetricCard icon={<DollarSign className="h-4 w-4" />} label="Active project value" value={money(analytics.totalValue)} detail="Excludes projects returned for changes" accent="teal" />
               <MetricCard icon={<BriefcaseBusiness className="h-4 w-4" />} label="Active projects" value={analytics.activeProjects.length.toLocaleString()} detail={`${projects.length} total estimates`} />
               <MetricCard icon={<Clock3 className="h-4 w-4" />} label="Planned effort" value={`${analytics.totalEffort.toLocaleString()} hrs`} detail="Included features across active work" />
@@ -274,10 +274,10 @@ export default function AnalysisPage() {
 function MetricCard({ icon, label, value, detail, accent = 'default' }: { icon: React.ReactNode; label: string; value: string; detail: string; accent?: 'default' | 'teal' | 'amber' }) {
   const iconTone = accent === 'teal' ? 'bg-[#e7f2ef] text-[#126b67]' : accent === 'amber' ? 'bg-[#fff2d8] text-[#a7610a]' : 'bg-[#edf1ff] text-[#4d6db5]';
   return (
-    <article className="min-w-0 rounded-2xl border border-[#d5deda] bg-white p-5 shadow-sm shadow-[#173f52]/[0.04]">
-      <div className="flex items-center gap-2.5"><span className={`flex h-8 w-8 items-center justify-center rounded-lg ${iconTone}`}>{icon}</span><p className="text-sm font-medium text-[#65717a]">{label}</p></div>
-      <p className="mt-4 truncate text-3xl font-semibold tracking-tight text-[#182b39]">{value}</p>
-      <p className="mt-1.5 text-xs leading-5 text-[#7b898f]">{detail}</p>
+    <article className="min-w-0 rounded-2xl border border-[#d5deda] bg-white p-3.5 shadow-sm shadow-[#173f52]/[0.04] sm:p-5">
+      <div className="flex min-w-0 items-center gap-2"><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${iconTone}`}>{icon}</span><p className="min-w-0 text-xs font-medium leading-4 text-[#65717a] sm:text-sm">{label}</p></div>
+      <p className="mt-3 truncate text-2xl font-semibold tracking-tight text-[#182b39] sm:mt-4 sm:text-3xl">{value}</p>
+      <p className="mt-1.5 text-xs leading-4 text-[#7b898f]">{detail}</p>
     </article>
   );
 }

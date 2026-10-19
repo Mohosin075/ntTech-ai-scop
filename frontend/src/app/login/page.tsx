@@ -54,8 +54,8 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex justify-center items-center px-3 py-0 sm:px-8 sm:py-6 bg-[#f7f7f4]">
-      <section className="w-full max-w-6xl grid lg:grid-cols-[1.05fr_0.95fr] rounded-[28px] overflow-hidden border border-[#d5deda] bg-white shadow-2xl shadow-[#173f52]/10 lg:min-h-[min(700px,calc(100svh-3rem))]">
+    <main className="flex min-h-screen items-start justify-center bg-[#f7f7f4] px-3 py-4 sm:items-center sm:px-8 sm:py-6">
+      <section className="grid w-full max-w-6xl overflow-hidden rounded-2xl border border-[#d5deda] bg-white shadow-xl shadow-[#173f52]/10 sm:rounded-[28px] lg:grid-cols-[1.05fr_0.95fr] lg:min-h-[min(700px,calc(100svh-3rem))]">
         <aside className="relative hidden lg:flex flex-col justify-between overflow-hidden p-10 sm:p-12 bg-[#173f52] text-white">
           <div className="pointer-events-none absolute -right-32 -top-36 h-96 w-96 rounded-full border border-white/10" />
           <div className="pointer-events-none absolute -right-16 -top-20 h-64 w-64 rounded-full border border-white/10" />
@@ -71,7 +71,7 @@ export default function LoginPage() {
             </div>
           </div>
         </aside>
-        <div className="w-full max-w-xl mx-auto flex flex-col justify-center px-4 py-3 sm:px-10 sm:py-6 lg:px-14">
+        <div className="mx-auto flex w-full max-w-xl flex-col justify-center px-4 py-5 sm:px-10 sm:py-8 lg:px-14">
           <div className="mb-2 flex items-center gap-3 lg:hidden">
           <div className="inline-flex h-10 w-10 rounded-xl bg-[#173f52] items-center justify-center text-[#8ed0c5] mb-1"><Layers3 className="h-5 w-5" strokeWidth={1.8} /></div>
           <div className="text-left"><h1 className="text-lg font-bold leading-5 tracking-tight text-[#182b39]">ScopeAI</h1><p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#65717a]">Project studio</p></div>

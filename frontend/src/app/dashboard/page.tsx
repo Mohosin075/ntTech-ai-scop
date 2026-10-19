@@ -13,8 +13,7 @@ import ProjectCard from '@/components/common/ProjectCard';
 import {
   Loader2,
   AlertCircle,
-  ShieldCheck,
-  ClipboardCheck,
+  ArrowRight,
 } from 'lucide-react';
 
 const SAMPLE_PROMPTS = [
@@ -151,33 +150,20 @@ export default function DashboardPage() {
       <Navbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
-        <section className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <section>
           <div>
             <p className="text-sm font-medium text-[#126b67]">Your workspace</p>
             <h1 className="mt-2 text-3xl sm:text-4xl font-semibold tracking-tight text-[#182b39]">Welcome back, {user.name.split(' ')[0]}</h1>
             <p className="mt-2 text-base text-[#526270]">Plan, price, and review your projects.</p>
           </div>
-          <div className="flex w-full items-start gap-3 rounded-2xl border border-[#d5deda] bg-white p-4 shadow-sm shadow-[#173f52]/[0.04] sm:w-[340px]">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#edf4f2] text-[#126b67]">
-              {user.role === 'ADMIN' ? <ShieldCheck className="h-5 w-5" /> : <ClipboardCheck className="h-5 w-5" />}
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#65717a]">Your role</p>
-              <p className="mt-0.5 text-base font-semibold text-[#182b39]">{user.role === 'ADMIN' ? 'Administrator' : 'Estimator'}</p>
-              <p className="mt-1 text-sm leading-5 text-[#526270]">
-                {user.role === 'ADMIN'
-                  ? 'Review team estimates, approve them, or return them with feedback.'
-                  : 'Create and refine estimates, then submit them for review.'}
-              </p>
-            </div>
-          </div>
         </section>
         {/* Project Scoping Generator Section */}
-        <section className="rounded-2xl border border-[#d5deda] bg-[#ffffff]/95 p-5 sm:p-7 space-y-5 shadow-sm shadow-slate-900/5">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-[#182b39]">Describe your project</h2>
-            <p className="text-base text-[#526270] mt-1 font-sans">
-              Turn your brief into a fixed project quote, scoped deliverables, and milestone plan. Effort stays as internal planning guidance.
+        <section className="space-y-5 rounded-3xl border border-[#e1e8e4] bg-gradient-to-b from-white to-[#fbfcfa] p-4 shadow-[0_18px_50px_-38px_rgba(23,63,82,0.28)] sm:p-7">
+          <div className="max-w-3xl">
+            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#126b67]">New project quote</p>
+            <h2 className="text-2xl font-semibold tracking-tight text-[#182b39] sm:text-3xl">Describe your project</h2>
+            <p className="mt-1.5 font-sans text-sm leading-6 text-[#526270] sm:text-base">
+              Share the outcome and key requirements. We’ll shape the scope and fixed quote.
             </p>
           </div>
 
@@ -190,14 +176,14 @@ export default function DashboardPage() {
 
           <form onSubmit={handleGenerate} className="space-y-3.5">
             <div>
-              <div className="flex items-center justify-between mb-1">
-                <label htmlFor="project-brief" className="block text-base font-semibold text-[#263d4a] font-sans">
+              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                <label htmlFor="project-brief" className="block font-sans text-sm font-semibold text-[#263d4a] sm:text-base">
                   Project brief <span className="text-rose-900">*</span>
                 </label>
                 <span
                   id="brief-help"
                   aria-live="polite"
-                  className={`text-sm font-semibold ${briefLength >= 20 ? 'text-emerald-900' : 'text-[#526270]'}`}
+                  className={`text-xs font-medium sm:text-sm ${briefLength >= 20 ? 'text-emerald-900' : 'text-[#65717a]'}`}
                 >
                   {briefLength >= 20 ? 'Ready to generate' : `${20 - briefLength} more characters needed`}
                 </span>
@@ -212,32 +198,32 @@ export default function DashboardPage() {
                 value={rawRequirement}
                 onChange={(e) => setRawRequirement(e.target.value)}
                 placeholder="What should this project deliver? Include key features, users, integrations, and constraints."
-                className="w-full px-4 py-4 rounded-lg bg-[#f7f7f4] border border-[#d5deda] text-[#182b39] text-lg focus:outline-none focus:border-[#168780]/60 transition-colors placeholder:text-[#65717a] resize-y min-h-36 leading-relaxed font-sans"
+                className="min-h-36 w-full resize-y rounded-xl border border-[#dce5e0] bg-white px-4 py-3.5 font-sans text-base leading-7 text-[#182b39] shadow-[0_2px_8px_-6px_rgba(23,63,82,0.25)] transition placeholder:text-[#82908c] focus:border-[#168780] focus:outline-none focus:ring-4 focus:ring-[#168780]/10 sm:px-5 sm:py-4 sm:text-lg"
               />
 
               {/* Sample Blueprints */}
-              <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                <span className="text-sm text-[#65717a] font-sans">
-                  Example briefs:
-                </span>
-                {SAMPLE_PROMPTS.map((p) => (
-                  <button
-                    key={p.label}
-                    type="button"
-                    onClick={() => applySamplePrompt(p)}
-                    className="text-sm px-3 py-2 rounded-md bg-white hover:bg-[#e3ebe8] border border-[#d5deda] text-[#304756] hover:text-[#182b39] transition-colors font-sans"
-                  >
-                    {p.label}
-                  </button>
-                ))}
+              <div className="mt-4 space-y-2.5">
+                <span className="block font-sans text-xs font-medium text-[#65717a] sm:text-sm">Need a starting point? Try an example</span>
+                <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                  {SAMPLE_PROMPTS.map((p, index) => (
+                    <button
+                      key={p.label}
+                      type="button"
+                      onClick={() => applySamplePrompt(p)}
+                      className={`flex min-h-11 items-center justify-center rounded-xl border border-[#e1e8e4] bg-[#fbfcfa] px-2.5 py-2 text-center font-sans text-xs font-medium leading-4 text-[#304756] transition hover:border-[#a9c9be] hover:bg-[#f1f7f4] hover:text-[#173f52] sm:min-h-10 sm:whitespace-nowrap sm:px-3 sm:text-sm ${index === SAMPLE_PROMPTS.length - 1 && SAMPLE_PROMPTS.length % 2 === 1 ? 'col-span-2 sm:col-span-1' : ''}`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="flex justify-end pt-1">
+            <div className="pt-1">
               <button
                 type="submit"
                 disabled={generating || briefLength < 20}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-semibold text-base bg-[#173f52] hover:bg-[#102f3e] text-white shadow-sm shadow-emerald-800/15 transition-colors disabled:opacity-60"
+                className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#173f52] px-6 py-3 font-semibold text-sm text-white shadow-[0_8px_18px_-12px_rgba(23,63,82,0.75)] transition hover:bg-[#102f3e] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#168780]/20 disabled:cursor-not-allowed disabled:bg-[#e8eeeb] disabled:text-[#71817d] disabled:shadow-none sm:w-auto sm:text-base"
               >
                 {generating ? (
                   <>
@@ -245,7 +231,10 @@ export default function DashboardPage() {
                     <span>Preparing project quote…</span>
                   </>
                 ) : (
-                  <span>Build project quote</span>
+                  <>
+                    <span>Build project quote</span>
+                    <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </>
                 )}
               </button>
             </div>

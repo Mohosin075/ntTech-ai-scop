@@ -453,7 +453,7 @@ function ProjectWorkspaceContent() {
         </div>
 
         {/* Summary Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-2 max-[359px]:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
           <KpiCard
             label="Fixed Project Quote"
             value={project.finalTotalCost.toLocaleString()}
@@ -499,7 +499,7 @@ function ProjectWorkspaceContent() {
         {/* 2-Column Workspace Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: Summary + Feature Table (8 Columns) */}
-          <div className="lg:col-span-8 space-y-6">
+          <div className="min-w-0 space-y-6 lg:col-span-8">
             {/* Scope Summary & Architecture */}
             <div className="rounded-lg border border-[#d5deda] bg-[#ffffff] p-5 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -543,7 +543,7 @@ function ProjectWorkspaceContent() {
             </div>
 
             {/* Feature Table Card */}
-            <div className="rounded-lg border border-[#d5deda] bg-[#ffffff] p-5 space-y-4">
+            <div className="rounded-2xl border border-[#d5deda] bg-[#ffffff] p-4 sm:p-5 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#d5deda]">
                 <div>
                   <h3 className="font-semibold text-lg text-[#182b39] flex items-center gap-2">
@@ -603,8 +603,9 @@ function ProjectWorkspaceContent() {
               </div>
 
               {/* Table */}
+              <p className="text-xs text-[#65717a] sm:hidden">Swipe horizontally to view all feature details.</p>
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
+                <table className="w-full min-w-[680px] text-left text-sm">
                   <thead className="bg-[#f7f7f4] text-[#526270] font-sans text-xs border-b border-[#d5deda]">
                     <tr>
                       <th className="py-2.5 px-2.5 w-16 text-center font-medium">Include</th>
@@ -809,7 +810,7 @@ function ProjectWorkspaceContent() {
           </div>
 
           {/* Right Column: Milestones & Rates (4 Columns) */}
-          <div className="lg:col-span-4 space-y-5">
+          <div className="min-w-0 space-y-5 lg:col-span-4">
             {/* Milestone Breakdown */}
             <div className="rounded-lg border border-[#d5deda] bg-[#ffffff] p-4 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-[#d5deda]">
