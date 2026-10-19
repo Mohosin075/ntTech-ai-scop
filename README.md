@@ -6,36 +6,67 @@
 ---
 
 ## 📑 Table of Contents
-1. [Project Overview & Problem Statement](#-project-overview--problem-statement)
-2. [Technology Stack](#-technology-stack)
-3. [Test Accounts & Demo Access](#-test-accounts--demo-access)
-4. [Database Schema & Architecture](#-database-schema--architecture)
-5. [Core Business Logic & Pricing Engine](#-core-business-logic--pricing-engine)
-6. [AI / ML Implementation & Fallback Strategy](#-ai--ml-implementation--fallback-strategy)
-7. [API Endpoints Reference](#-api-endpoints-reference)
-8. [Local Setup & Step-by-Step Execution](#-local-setup--step-by-step-execution)
-9. [Automated Testing](#-automated-testing)
-10. [Live Demo Walkthrough for Evaluators](#-live-demo-walkthrough-for-evaluators)
-11. [Security & Robustness Implementation](#-security--robustness-implementation)
+1. [Executive Summary (What is ScopeAI?)](#-executive-summary-what-is-scopeai)
+2. [How the Team Works (Role-Based Workflow Explained)](#-how-the-team-works-role-based-workflow-explained)
+3. [Technology Stack](#-technology-stack)
+4. [Test Accounts & Demo Access](#-test-accounts--demo-access)
+5. [Database Schema & Architecture](#-database-schema--architecture)
+6. [Core Business Logic & Pricing Engine](#-core-business-logic--pricing-engine)
+7. [AI / ML Implementation & Fallback Strategy](#-ai--ml-implementation--fallback-strategy)
+8. [API Endpoints Reference](#-api-endpoints-reference)
+9. [Local Setup & Step-by-Step Execution](#-local-setup--step-by-step-execution)
+10. [Automated Testing](#-automated-testing)
+11. [Live Demo Walkthrough for Evaluators](#-live-demo-walkthrough-for-evaluators)
+12. [Security & Robustness Implementation](#-security--robustness-implementation)
 
 ---
 
-## 💡 Project Overview & Problem Statement
+## 💡 Executive Summary (What is ScopeAI?)
 
-### 🔴 The Problem
-When software agencies, consultancies, or engineering studios receive unstructured project briefs from prospective clients, estimating the scope manually takes days. Estimators struggle with:
-- Breaking down conversational briefs into structured technical deliverables.
-- Inconsistent pricing and missed architectural dependencies (e.g., auth, migrations, webhooks).
-- Hallucinated or disconnected financial calculations.
-- Lack of formal review workflows between junior estimators and senior technical reviewers.
+**ScopeAI** is an intelligent project planning and commercial budgeting platform designed to help software agencies, IT consultancies, and engineering teams turn rough client ideas into polished, professional proposals in seconds.
 
-### 🟢 The ScopeAI Solution
-ScopeAI is an end-to-end commercial scoping engine:
-1. **Intelligent Decomposition:** Translates raw client requirements into categorized, complexity-ranked deliverables (`FRONTEND`, `BACKEND`, `DATABASE`, `INTEGRATION`, `AI`).
-2. **Fixed-Scope Valuation:** Calculates transparent, deliverable-based fixed project fees using weighted scope points and contingency risk buffers.
-3. **Structured Milestone Scheduling:** Automatically splits the fixed fee into a zero-drift **30% - 40% - 30%** payment roadmap.
-4. **Role-Based Workflow State Machine:** Enforces governance between `ESTIMATOR` creation, peer `ADMIN` reviews, rejection reasons, and approved immutability locks.
-5. **Client-Ready SOW Proposal:** Generates an executive Statement of Work (SOW) ready for printing or client signature.
+### The Real-World Problem It Solves:
+When prospective clients approach a software team with a new project, their requirements are usually unstructured and vague (e.g., *"I need an Uber-like healthcare app where patients can book doctors and pay online"*). Manually figuring out every technical deliverable, calculating accurate pricing, and creating a milestone payment roadmap normally takes 2–4 days of senior engineering time. Miscalculations lead to project delays, scope creep, and revenue loss.
+
+### The ScopeAI Solution:
+1. **Instant Clarity from Unstructured Ideas:** The user pastes a rough project brief, and ScopeAI uses smart AI to immediately decompose it into organized technical deliverables (Frontend, Backend, Database, Integrations, and AI).
+2. **Transparent, Fixed-Fee Costing:** Instead of unpredictable hourly billing, it calculates a clear, deliverable-based fixed project fee with built-in risk contingencies (5%, 12%, or 20%).
+3. **Structured 3-Phase Milestones:** Automatically divides the total project fee into a zero-drift **30% (Kickoff) — 40% (Core Build) — 30% (Handover)** payment schedule.
+4. **Client-Ready Statement of Work (SOW):** Generates an executive proposal modal ready for printing or client agreement signing.
+
+---
+
+## 👥 How the Team Works (Role-Based Workflow Explained)
+
+In any professional software agency, sending an unreviewed quote to a client poses a serious commercial risk. ScopeAI implements an intuitive **two-tier role system** that guarantees quality control and business governance:
+
+| Role | Real-World Workplace Persona | Key Responsibilities in ScopeAI | Business Impact |
+| :--- | :--- | :--- | :--- |
+| **Estimator** | *Sales Lead / Project Manager / Business Analyst* | • Enters the prospective client's rough project idea.<br>• Generates an instant, AI-assisted deliverable breakdown.<br>• Fine-tunes deliverable hours, toggles optional features on/off, or sets target project budgets.<br>• Submits the finalized scope to management for review. | Speeds up the sales cycle from days to minutes while preventing missed requirements. |
+| **Admin** | *Technical Director / Head of Engineering / Delivery Manager* | • Reviews submitted scopes in the centralized company queue.<br>• Audits proposed deliverables, technical risk profiles, and milestone payment terms.<br>• **Approves** valid scopes (which permanently locks the project against tampering).<br>• Or **Rejects** with required constructive feedback so the Estimator can adjust and resubmit. | Protects agency profit margins, ensures technical feasibility, and enforces quality control. |
+
+```mermaid
+flowchart LR
+    subgraph ESTIMATOR ["🧑‍💼 Estimator (Sales / Project Manager)"]
+        A[1. Input Rough Client Brief] --> B[2. AI Generates Technical Scope]
+        B --> C[3. Fine-Tune Deliverables & Budget]
+        C --> D[4. Submit Scope for Review]
+    end
+
+    subgraph ADMIN ["👨‍💼 Admin (Technical Director / QA Lead)"]
+        D --> E{5. Peer Review Audit Queue}
+        E -->|Needs Revision| F[6. Reject with Constructive Notes]
+        F -->|Resubmit| C
+        E -->|Approved| G[7. Approve & Permanent Lock]
+    end
+
+    G --> H[📄 8. Export Client SOW Proposal]
+```
+
+> **💼 Governance & Anti-Tampering Rules:**  
+> - **Separation of Duties:** An Administrator *cannot* approve a scope they personally authored. A peer review is always required.  
+> - **Mandatory Feedback:** An Admin cannot reject a scope without writing clear, constructive feedback (minimum 10 characters).  
+> - **Immutability Lock:** Once approved, all deliverables and budgets are permanently locked to ensure contract integrity.
 
 ---
 
