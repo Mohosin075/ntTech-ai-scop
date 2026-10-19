@@ -21,7 +21,7 @@ const assertProjectOwner = (createdById: string, userId: string): void => {
 const recalculateAndSyncProject = async (
   tx: Prisma.TransactionClient,
   projectId: string,
-  hourlyRate: number,
+  scopePointValue: number,
   riskLevel: RiskLevel
 ) => {
   const allFeatures = await tx.feature.findMany({
@@ -33,8 +33,10 @@ const recalculateAndSyncProject = async (
     allFeatures.map((f) => ({
       estimatedHours: f.estimatedHours,
       isIncluded: f.isIncluded,
+      category: f.category,
+      complexity: f.complexity,
     })),
-    hourlyRate,
+    scopePointValue,
     riskLevel
   );
 
@@ -88,7 +90,7 @@ const addFeatureToProject = async (
     const updatedProject = await recalculateAndSyncProject(
       tx,
       projectId,
-      project.hourlyRate,
+      project.scopePointValue,
       project.riskLevel
     );
 
@@ -139,7 +141,7 @@ const updateFeatureInProject = async (
     const updatedProject = await recalculateAndSyncProject(
       tx,
       projectId,
-      project.hourlyRate,
+      project.scopePointValue,
       project.riskLevel
     );
 
@@ -188,7 +190,7 @@ const deleteFeatureFromProject = async (
     const updatedProject = await recalculateAndSyncProject(
       tx,
       projectId,
-      project.hourlyRate,
+      project.scopePointValue,
       project.riskLevel
     );
 

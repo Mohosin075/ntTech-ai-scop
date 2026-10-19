@@ -14,7 +14,11 @@ router.post(
   ProjectControllers.generateProject
 );
 
-router.get('/', ProjectControllers.getAllProjects);
+router.get(
+  '/',
+  validateRequest(ProjectValidations.listProjectsValidationSchema),
+  ProjectControllers.getAllProjects
+);
 
 router.get(
   '/:id',
@@ -29,9 +33,9 @@ router.patch(
 );
 
 router.patch(
-  '/:id/rate',
-  validateRequest(ProjectValidations.updateHourlyRateValidationSchema),
-  ProjectControllers.updateHourlyRate
+  '/:id/fee',
+  validateRequest(ProjectValidations.updateProjectFeeValidationSchema),
+  ProjectControllers.updateProjectFee
 );
 
 router.delete(

@@ -152,10 +152,10 @@ export default function AnalysisPage() {
         ) : (
           <>
             <section aria-label="Project summary" className="grid grid-cols-2 gap-2 sm:gap-3 max-[359px]:grid-cols-1 xl:grid-cols-4">
-              <MetricCard icon={<DollarSign className="h-4 w-4" />} label="Active project value" value={money(analytics.totalValue)} detail="Excludes projects returned for changes" accent="teal" />
-              <MetricCard icon={<BriefcaseBusiness className="h-4 w-4" />} label="Active projects" value={analytics.activeProjects.length.toLocaleString()} detail={`${projects.length} total estimates`} />
-              <MetricCard icon={<Clock3 className="h-4 w-4" />} label="Planned effort" value={`${analytics.totalEffort.toLocaleString()} hrs`} detail="Included features across active work" />
-              <MetricCard icon={<Activity className="h-4 w-4" />} label="Pending review" value={analytics.pendingReviews.toLocaleString()} detail="Submitted and awaiting administrator" accent="amber" />
+              <MetricCard icon={<DollarSign className="h-4 w-4" />} label="Active project value" value={money(analytics.totalValue)} detail="Active estimates only" accent="teal" />
+              <MetricCard icon={<BriefcaseBusiness className="h-4 w-4" />} label="Active projects" value={analytics.activeProjects.length.toLocaleString()} detail={`${projects.length} estimates total`} />
+              <MetricCard icon={<Clock3 className="h-4 w-4" />} label="Planned effort" value={`${analytics.totalEffort.toLocaleString()} hrs`} detail="Across active projects" />
+              <MetricCard icon={<Activity className="h-4 w-4" />} label="Pending review" value={analytics.pendingReviews.toLocaleString()} detail="Awaiting admin review" accent="amber" />
             </section>
 
             <section className="grid gap-4 sm:gap-5 lg:grid-cols-2">
@@ -274,10 +274,13 @@ export default function AnalysisPage() {
 function MetricCard({ icon, label, value, detail, accent = 'default' }: { icon: React.ReactNode; label: string; value: string; detail: string; accent?: 'default' | 'teal' | 'amber' }) {
   const iconTone = accent === 'teal' ? 'bg-[#e7f2ef] text-[#126b67]' : accent === 'amber' ? 'bg-[#fff2d8] text-[#a7610a]' : 'bg-[#edf1ff] text-[#4d6db5]';
   return (
-    <article className="min-w-0 rounded-2xl border border-[#d5deda] bg-white p-3.5 shadow-sm shadow-[#173f52]/[0.04] sm:p-5">
-      <div className="flex min-w-0 items-center gap-2"><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${iconTone}`}>{icon}</span><p className="min-w-0 text-xs font-medium leading-4 text-[#65717a] sm:text-sm">{label}</p></div>
-      <p className="mt-3 truncate text-2xl font-semibold tracking-tight text-[#182b39] sm:mt-4 sm:text-3xl">{value}</p>
-      <p className="mt-1.5 text-xs leading-4 text-[#7b898f]">{detail}</p>
+    <article className="min-w-0 rounded-2xl border border-[#dce5df] bg-white p-3 shadow-[0_5px_18px_-16px_rgba(32,51,47,0.35)] sm:p-5">
+      <div className="flex min-h-4 min-w-0 items-center justify-between gap-2">
+        <p className="min-w-0 truncate text-xs font-medium leading-4 text-[#68766f] sm:text-sm">{label}</p>
+        <span className={`hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:flex ${iconTone}`}>{icon}</span>
+      </div>
+      <p className="mt-2 truncate text-[1.4rem] font-semibold leading-7 tracking-tight text-[#20332f] sm:mt-3 sm:text-3xl">{value}</p>
+      <p className="mt-0.5 line-clamp-1 text-xs leading-4 text-[#77857e] sm:mt-1.5 sm:line-clamp-2 sm:text-sm sm:leading-5">{detail}</p>
     </article>
   );
 }

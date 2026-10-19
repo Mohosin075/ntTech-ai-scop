@@ -3,7 +3,6 @@ import { ProjectStatus } from '@prisma/client';
 export interface IGenerateProjectInput {
   title: string;
   rawRequirement: string;
-  hourlyRate: number;
 }
 
 export interface IUpdateProjectStatusInput {
@@ -11,6 +10,6 @@ export interface IUpdateProjectStatusInput {
   rejectionReason?: string;
 }
 
-export interface IUpdateHourlyRateInput {
-  hourlyRate: number;
+export interface IUpdateProjectFeeInput {
+  finalTotalCost: number;
 }

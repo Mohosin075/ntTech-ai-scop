@@ -4,6 +4,10 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('The demo seed is for local development only and must not run in production.');
+  }
+
   console.log('Seeding initial system users and reference projects...');
 
   const salt = await bcrypt.genSalt(10);
@@ -51,7 +55,7 @@ async function main() {
         title: 'Pathao Courier COD Settlement Engine',
         rawRequirement:
           'Build an enterprise delivery logistics module for cash-on-delivery (COD) collection, automated rider payout balancing, merchant settlement reconciliation, and delivery confirmation OTP verification.',
-        hourlyRate: 35,
+        scopePointValue: 350,
         status: ProjectStatus.UNDER_REVIEW,
         executiveSummary:
           'Distributed courier logistics module with cash-on-delivery reconciliation ledgers, automated merchant disbursement queues, real-time rider payout balancing, and OTP-based parcel delivery verification.',
@@ -69,14 +73,15 @@ async function main() {
         aiConfidenceScore: 91,
         isFallbackUsed: false,
         totalHours: 142,
-        baseCost: 4970,
+        totalScopePoints: 31.575,
+        baseCost: 11051.25,
         riskBufferPercent: 20,
-        riskBufferAmount: 994,
-        finalTotalCost: 5964,
+        riskBufferAmount: 2210.25,
+        finalTotalCost: 13261.5,
         estimatedWeeks: 5,
-        milestone1Amount: 1789.2,
-        milestone2Amount: 2385.6,
-        milestone3Amount: 1789.2,
+        milestone1Amount: 3978.45,
+        milestone2Amount: 5304.6,
+        milestone3Amount: 3978.45,
         features: {
           create: [
             {

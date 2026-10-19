@@ -32,7 +32,7 @@ export interface Project {
   createdById: string;
   title: string;
   rawRequirement: string;
-  hourlyRate: number;
+  scopePointValue: number;
   status: ProjectStatus;
   executiveSummary: string;
   riskLevel: RiskLevel;
@@ -40,6 +40,7 @@ export interface Project {
   aiConfidenceScore: number;
   isFallbackUsed: boolean;
   totalHours: number;
+  totalScopePoints: number;
   baseCost: number;
   riskBufferPercent: number;
   riskBufferAmount: number;

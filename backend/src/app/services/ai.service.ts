@@ -48,18 +48,21 @@ export class AIService {
   }
 
   /**
-   * Gemini 1.5/2.0 API call
+   * Gemini API call
    */
   private static async callGeminiAPI(
     title: string,
     rawRequirement: string
   ): Promise<IAIEstimateResult | null> {
     const prompt = this.buildPrompt(title, rawRequirement);
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${config.ai.gemini_api_key}`;
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent';
 
     const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': config.ai.gemini_api_key,
+      },
       signal: AbortSignal.timeout(15000),
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],

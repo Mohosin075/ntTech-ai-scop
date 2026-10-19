@@ -69,14 +69,14 @@ const updateProjectStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const updateHourlyRate = catchAsync(async (req: Request, res: Response) => {
+const updateProjectFee = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ProjectServices.updateHourlyRate(id, req.user!.id, req.body);
+  const result = await ProjectServices.updateProjectFee(id, req.user!.id, req.body);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'Hourly rate updated and project metrics recalculated successfully',
+    message: 'Fixed project fee updated successfully',
     data: result,
   });
 });
@@ -98,6 +98,6 @@ export const ProjectControllers = {
   getAllProjects,
   getSingleProject,
   updateProjectStatus,
-  updateHourlyRate,
+  updateProjectFee,
   deleteProject,
 };

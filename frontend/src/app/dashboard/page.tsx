@@ -31,8 +31,6 @@ const SAMPLE_PROMPTS = [
   },
 ];
 
-const DEFAULT_HOURLY_RATE = 25;
-
 const createTitleFromBrief = (brief: string) => {
   const firstSentence = brief
     .trim()
@@ -112,7 +110,6 @@ export default function DashboardPage() {
         body: JSON.stringify({
           title: createTitleFromBrief(rawRequirement),
           rawRequirement,
-          hourlyRate: DEFAULT_HOURLY_RATE,
         }),
       });
 
@@ -162,7 +159,7 @@ export default function DashboardPage() {
           <div className="max-w-3xl">
             <h2 className="text-[1.4rem] font-semibold tracking-tight text-[#20332f] sm:text-3xl">Describe your project</h2>
             <p className="mt-2 font-sans text-[15px] leading-6 text-[#65736e] sm:text-base">
-              Tell us what you need built. We’ll turn the details into a clear scope and fixed price.
+              Describe the outcome. We’ll shape the scope and build a fixed USD quote for the agreed deliverables. Hours guide planning only.
             </p>
           </div>
 

@@ -135,11 +135,13 @@ export default function LoginPage() {
                 type="password"
                 autoComplete={isRegister ? 'new-password' : 'current-password'}
                 required
+                minLength={isRegister ? 8 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
                 className="w-full rounded-xl border border-[#d5deda] bg-[#fbfcfb] px-3.5 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-[#182b39] transition-colors placeholder:text-[#8a959c] focus:border-[#168780] focus:outline-none focus:ring-4 focus:ring-[#168780]/10"
               />
+              {isRegister && <p className="mt-1 text-xs text-[#65717a]">Use at least 8 characters.</p>}
             </div>
 
             <button
