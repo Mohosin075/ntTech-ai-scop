@@ -6,6 +6,15 @@ import CalculationService from '../../services/calculation.service';
 import WorkflowService from '../../services/workflow.service';
 import { ICreateFeatureInput, IUpdateFeatureInput } from './feature.interface';
 
+const assertProjectOwner = (createdById: string, userId: string): void => {
+  if (createdById !== userId) {
+    throw new AppError(
+      StatusCodes.FORBIDDEN,
+      'You can only change features in projects that you created.'
+    );
+  }
+};
+
 /**
  * Reusable helper to recalculate project metrics and persist state inside transaction
  */
@@ -47,6 +56,7 @@ const recalculateAndSyncProject = async (
  */
 const addFeatureToProject = async (
   projectId: string,
+  userId: string,
   payload: ICreateFeatureInput
 ) => {
   const project = await prisma.project.findUnique({
@@ -56,6 +66,7 @@ const addFeatureToProject = async (
   if (!project) {
     throw new AppError(StatusCodes.NOT_FOUND, 'Project not found!');
   }
+  assertProjectOwner(project.createdById, userId);
 
   // Guard 4: Immutability lock check
   WorkflowService.validateFeatureModification(project.status);
@@ -94,6 +105,7 @@ const addFeatureToProject = async (
 const updateFeatureInProject = async (
   projectId: string,
   featureId: string,
+  userId: string,
   payload: IUpdateFeatureInput
 ) => {
   const project = await prisma.project.findUnique({
@@ -103,6 +115,7 @@ const updateFeatureInProject = async (
   if (!project) {
     throw new AppError(StatusCodes.NOT_FOUND, 'Project not found!');
   }
+  assertProjectOwner(project.createdById, userId);
 
   // Guard 4: Immutability lock check
   WorkflowService.validateFeatureModification(project.status);
@@ -142,7 +155,8 @@ const updateFeatureInProject = async (
  */
 const deleteFeatureFromProject = async (
   projectId: string,
-  featureId: string
+  featureId: string,
+  userId: string
 ) => {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -151,6 +165,7 @@ const deleteFeatureFromProject = async (
   if (!project) {
     throw new AppError(StatusCodes.NOT_FOUND, 'Project not found!');
   }
+  assertProjectOwner(project.createdById, userId);
 
   // Guard 4: Immutability lock check
   WorkflowService.validateFeatureModification(project.status);

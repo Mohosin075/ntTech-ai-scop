@@ -14,19 +14,19 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   value,
   subtitle,
   icon,
-  valueClassName = 'text-zinc-100',
+  valueClassName = 'text-[#182b39]',
   className = '',
 }) => {
   return (
-    <div className={`rounded-lg border border-[#27272A] bg-[#121214] p-4 transition-all hover:border-zinc-700/80 ${className}`}>
-      <div className="flex items-center justify-between text-xs text-zinc-400 font-sans mb-2">
-        <span>{label}</span>
-        {icon && <span className="text-zinc-500">{icon}</span>}
+    <div className={`min-w-0 rounded-xl border border-[#d5deda] bg-white p-3 sm:p-4 transition-all hover:border-[#a9c1bb] ${className}`}>
+      <div className="flex items-center justify-between text-xs sm:text-sm text-[#526270] font-sans mb-1.5 sm:mb-2">
+        <span className="truncate">{label}</span>
+        {icon && <span className="text-[#65717a] shrink-0 ml-1">{icon}</span>}
       </div>
-      <div className={`text-xl font-semibold font-mono tracking-tight ${valueClassName}`}>
+      <div className={`text-xl sm:text-2xl lg:text-3xl font-semibold tracking-tight truncate ${valueClassName}`}>
         {value}
       </div>
-      {subtitle && <div className="text-xs text-zinc-500 mt-1.5 font-sans">{subtitle}</div>}
+      {subtitle && <div className="text-xs sm:text-sm text-[#65717a] mt-1 sm:mt-1.5 font-sans leading-tight">{subtitle}</div>}
     </div>
   );
 };

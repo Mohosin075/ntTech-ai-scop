@@ -86,13 +86,13 @@ describe('WorkflowService — State Machine & Guard Validation', () => {
       ).toThrow(AppError);
     });
 
-    it('should allow feature modification when project is AI_ESTIMATED, UNDER_REVIEW, or REJECTED', () => {
+    it('should allow feature modification when project is AI_ESTIMATED or REJECTED', () => {
       expect(() =>
         WorkflowService.validateFeatureModification(ProjectStatus.AI_ESTIMATED)
       ).not.toThrow();
       expect(() =>
         WorkflowService.validateFeatureModification(ProjectStatus.UNDER_REVIEW)
-      ).not.toThrow();
+      ).toThrow(AppError);
       expect(() =>
         WorkflowService.validateFeatureModification(ProjectStatus.REJECTED)
       ).not.toThrow();

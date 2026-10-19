@@ -9,11 +9,11 @@ interface CategoryAnalyticsProps {
 }
 
 const CATEGORY_COLORS: Record<FeatureCategory, { bar: string; badge: string }> = {
-  FRONTEND: { bar: 'bg-emerald-500', badge: 'bg-emerald-950/60 text-emerald-400 border-emerald-800/60' },
-  BACKEND: { bar: 'bg-blue-500', badge: 'bg-blue-950/60 text-blue-400 border-blue-800/60' },
-  DATABASE: { bar: 'bg-teal-500', badge: 'bg-teal-950/60 text-teal-400 border-teal-800/60' },
-  INTEGRATION: { bar: 'bg-amber-500', badge: 'bg-amber-950/60 text-amber-400 border-amber-800/60' },
-  AI: { bar: 'bg-purple-500', badge: 'bg-purple-950/60 text-purple-400 border-purple-800/60' },
+  FRONTEND: { bar: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+  BACKEND: { bar: 'bg-sky-500', badge: 'bg-sky-100 text-sky-900 border-sky-300' },
+  DATABASE: { bar: 'bg-teal-500', badge: 'bg-teal-100 text-teal-900 border-teal-300' },
+  INTEGRATION: { bar: 'bg-amber-500', badge: 'bg-amber-100 text-amber-900 border-amber-300' },
+  AI: { bar: 'bg-violet-500', badge: 'bg-violet-100 text-violet-900 border-violet-300' },
 };
 
 export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
@@ -67,23 +67,23 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
   if (totalActiveHours === 0) return null;
 
   return (
-    <div className="rounded-lg border border-[#27272A] bg-[#121214] p-4 space-y-3.5">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-[#27272A]">
+    <div className="rounded-xl border border-[#d5deda] bg-white p-4 space-y-3.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-[#d5deda]">
         <div>
-          <h3 className="font-medium text-xs text-zinc-200">
+          <h3 className="font-medium text-xs text-[#263d4a]">
             Effort and cost distribution
           </h3>
-          <p className="text-xs text-zinc-400 font-sans">
+          <p className="text-xs text-[#526270] font-sans">
             Workload distribution across architectural layers
           </p>
         </div>
-        <span className="text-xs font-mono text-zinc-400 bg-[#0A0A0B] border border-[#27272A] px-2 py-0.5 rounded-md">
+        <span className="text-xs text-[#526270] bg-[#f7f7f4] border border-[#d5deda] px-2 py-0.5 rounded-md">
           {activeFeatures.length} modules • {totalActiveHours}h total
         </span>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full h-2 rounded-md bg-[#0A0A0B] overflow-hidden flex border border-[#27272A]">
+      <div className="w-full h-2 rounded-md bg-[#f7f7f4] overflow-hidden flex border border-[#d5deda]">
         {distribution.map((item) => (
           <div
             key={item.category}
@@ -99,22 +99,22 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
         {distribution.map((item) => (
           <div
             key={item.category}
-            className="p-2.5 rounded-md bg-[#0A0A0B] border border-[#27272A] space-y-1 font-mono text-xs"
+            className="p-2.5 rounded-md bg-[#f7f7f4] border border-[#d5deda] space-y-1 text-xs"
           >
             <div className="flex items-center justify-between">
               <span className={`px-1.5 py-0.5 rounded text-xs font-medium border ${item.colors.badge}`}>
                 {item.category}
               </span>
-              <span className="font-semibold text-zinc-300 text-xs">
+              <span className="font-semibold text-[#304756] text-xs">
                 {item.percentage}%
               </span>
             </div>
 
             <div className="pt-0.5">
-              <div className="text-xs font-semibold text-zinc-100">
+              <div className="text-xs font-semibold text-[#182b39]">
                 ${item.cost.toLocaleString()}
               </div>
-              <div className="text-xs text-zinc-500 font-sans">
+              <div className="text-xs text-[#65717a] font-sans">
                 {item.hours}h ({item.count} {item.count === 1 ? 'task' : 'tasks'})
               </div>
             </div>
