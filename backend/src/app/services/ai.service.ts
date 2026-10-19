@@ -55,7 +55,7 @@ export class AIService {
     rawRequirement: string
   ): Promise<IAIEstimateResult | null> {
     const prompt = this.buildPrompt(title, rawRequirement);
-    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent';
+    const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
     const res = await fetch(url, {
       method: 'POST',
@@ -70,21 +70,32 @@ export class AIService {
       }),
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.warn(`[AIService] Gemini API error (${res.status}):`, errText);
+      return null;
+    }
     const data = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) return null;
 
-    const parsed = JSON.parse(text);
-    if (!this.isValidEstimate(parsed)) return null;
-    return {
-      executiveSummary: parsed.executiveSummary,
-      riskLevel: parsed.riskLevel as RiskLevel,
-      recommendedStack: parsed.recommendedStack,
-      aiConfidenceScore: Number(parsed.aiConfidenceScore) || 90,
-      isFallbackUsed: false,
-      features: parsed.features as IAIFeatureItem[],
-    };
+    try {
+      const parsed = JSON.parse(text);
+      if (!this.isValidEstimate(parsed)) {
+        console.warn('[AIService] Gemini response did not match estimate schema:', text);
+        return null;
+      }
+      return {
+        executiveSummary: parsed.executiveSummary,
+        riskLevel: parsed.riskLevel as RiskLevel,
+        recommendedStack: parsed.recommendedStack,
+        aiConfidenceScore: Number(parsed.aiConfidenceScore) || 90,
+        isFallbackUsed: false,
+        features: parsed.features as IAIFeatureItem[],
+      };
+    } catch {
+      return null;
+    }
   }
 
   /**
@@ -109,21 +120,32 @@ export class AIService {
       }),
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      console.warn(`[AIService] OpenAI API error (${res.status}):`, errText);
+      return null;
+    }
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content;
     if (!text) return null;
 
-    const parsed = JSON.parse(text);
-    if (!this.isValidEstimate(parsed)) return null;
-    return {
-      executiveSummary: parsed.executiveSummary,
-      riskLevel: parsed.riskLevel as RiskLevel,
-      recommendedStack: parsed.recommendedStack,
-      aiConfidenceScore: Number(parsed.aiConfidenceScore) || 92,
-      isFallbackUsed: false,
-      features: parsed.features as IAIFeatureItem[],
-    };
+    try {
+      const parsed = JSON.parse(text);
+      if (!this.isValidEstimate(parsed)) {
+        console.warn('[AIService] OpenAI response did not match estimate schema:', text);
+        return null;
+      }
+      return {
+        executiveSummary: parsed.executiveSummary,
+        riskLevel: parsed.riskLevel as RiskLevel,
+        recommendedStack: parsed.recommendedStack,
+        aiConfidenceScore: Number(parsed.aiConfidenceScore) || 92,
+        isFallbackUsed: false,
+        features: parsed.features as IAIFeatureItem[],
+      };
+    } catch {
+      return null;
+    }
   }
 
   private static isValidEstimate(value: unknown): boolean {
@@ -164,20 +186,40 @@ export class AIService {
   }
 
   private static buildPrompt(title: string, rawRequirement: string): string {
-    return `You are an expert software architect and scoping engine.
-Analyze this software project requirement and output valid JSON only:
-Title: "${title}"
-Requirement: "${rawRequirement}"
+    return `You are an elite software architect, tech lead, and commercial project scoping engine.
+Analyze this real-world client project requirement carefully:
+Project Title: "${title}"
+Client Requirement: "${rawRequirement}"
 
-JSON schema required:
+Evaluate the technical requirements and produce a highly realistic, professional, production-grade project scope in JSON format.
+
+Guidelines for realistic scoping:
+1. "executiveSummary": A concise 2-3 sentence executive summary explaining the target business problem, technical solution, architecture, and delivery path.
+2. "riskLevel":
+   - "LOW": Straightforward web portals, portfolios, basic CRUD tools with standard patterns (5% buffer).
+   - "MEDIUM": Standard commercial SaaS, marketplaces, e-commerce, booking systems, third-party API integrations (12% buffer).
+   - "HIGH": Mission-critical, compliance-heavy (HIPAA, PCI-DSS, GDPR), fintech/payments, high-concurrency real-time streaming, or distributed AI pipelines (20% buffer).
+3. "recommendedStack": 4 to 6 modern, production-grade technologies appropriate for this specific domain (e.g., Next.js 15, Node.js, PostgreSQL, Redis, Stripe, Tailwind CSS, etc.).
+4. "aiConfidenceScore": An integer between 80 and 98 reflecting requirement clarity.
+5. "features": Generate exactly 6 to 8 realistic, concrete deliverable modules.
+   For each feature:
+   - "title": Specific, professional deliverable name (avoid vague titles like "Frontend" or "Database"; use clear deliverable names like "Role-Based Authentication & Session Security", "Multi-Tenant Doctor Scheduling Engine", "Payment Gateway & Webhook Reconciliation").
+   - "category": Exact enum matching the primary workstream: "FRONTEND" | "BACKEND" | "DATABASE" | "INTEGRATION" | "AI".
+   - "complexity":
+     - "LOW": Simple presentation UI, contact/inquiry forms, standard data display (1.5 scope points).
+     - "MEDIUM": Core business logic workflows, CRUD APIs with validation, authenticated dashboards, relational DB models (3.0 scope points).
+     - "HIGH": Real-time WebSockets, payment orchestration, complex state machines, data encryption, AI inference integration (5.0 scope points).
+   - "estimatedHours": Realistic engineering effort hours (e.g., 10 to 45 hours per deliverable).
+
+Required JSON format:
 {
-  "executiveSummary": "2-3 sentence executive summary of scope, architecture, and delivery path",
+  "executiveSummary": "string",
   "riskLevel": "LOW" | "MEDIUM" | "HIGH",
   "recommendedStack": ["string", "string"],
-  "aiConfidenceScore": 85,
+  "aiConfidenceScore": 90,
   "features": [
     {
-      "title": "Feature Name",
+      "title": "Deliverable Name",
       "category": "FRONTEND" | "BACKEND" | "DATABASE" | "INTEGRATION" | "AI",
       "complexity": "LOW" | "MEDIUM" | "HIGH",
       "estimatedHours": 20
@@ -237,18 +279,23 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
     }
 
     // 3. Domain feature selection
+    const isSimpleProject = hasAny('blog', 'landing', 'portfolio', 'simple', 'showcase', 'brochure');
     const features: IAIFeatureItem[] = [
       {
-        title: 'Authentication & Role-Based Access Control (RBAC)',
+        title: isSimpleProject
+          ? 'Admin Authentication & Session Protection'
+          : 'Authentication & Role-Based Access Control (RBAC)',
         category: FeatureCategory.BACKEND,
-        complexity: FeatureComplexity.MEDIUM,
-        estimatedHours: 18,
+        complexity: isSimpleProject ? FeatureComplexity.LOW : FeatureComplexity.MEDIUM,
+        estimatedHours: isSimpleProject ? 10 : 18,
       },
       {
-        title: 'Database Schema Design & Migration Pipeline',
+        title: isSimpleProject
+          ? 'Relational Database Schema & Content Models'
+          : 'Database Schema Design & Migration Pipeline',
         category: FeatureCategory.DATABASE,
-        complexity: FeatureComplexity.MEDIUM,
-        estimatedHours: 14,
+        complexity: isSimpleProject ? FeatureComplexity.LOW : FeatureComplexity.MEDIUM,
+        estimatedHours: isSimpleProject ? 8 : 14,
       },
     ];
 
@@ -387,6 +434,33 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
           estimatedHours: 26,
         }
       );
+    } else if (isSimpleProject) {
+      features.push(
+        {
+          title: 'Hero Showcase, Brand Story & Interactive Portfolio Gallery',
+          category: FeatureCategory.FRONTEND,
+          complexity: FeatureComplexity.LOW,
+          estimatedHours: 14,
+        },
+        {
+          title: 'Contact Form & Client Inquiry Notification Pipeline',
+          category: FeatureCategory.INTEGRATION,
+          complexity: FeatureComplexity.LOW,
+          estimatedHours: 10,
+        },
+        {
+          title: 'Content Section Publishing & Headless API Connector',
+          category: FeatureCategory.BACKEND,
+          complexity: FeatureComplexity.LOW,
+          estimatedHours: 12,
+        },
+        {
+          title: 'Responsive Cross-Device Layout & Core Web Vitals Optimization',
+          category: FeatureCategory.FRONTEND,
+          complexity: FeatureComplexity.LOW,
+          estimatedHours: 10,
+        }
+      );
     } else {
       // Default modern SaaS application features
       features.push(
@@ -427,10 +501,12 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
       });
     } else {
       features.push({
-        title: 'Analytical KPI Metrics & Performance Summary Cards',
+        title: isSimpleProject
+          ? 'Visitor Analytics & SEO Performance Tracking'
+          : 'Analytical KPI Metrics & Performance Summary Cards',
         category: FeatureCategory.FRONTEND,
         complexity: FeatureComplexity.LOW,
-        estimatedHours: 12,
+        estimatedHours: isSimpleProject ? 8 : 12,
       });
     }
 
