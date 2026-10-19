@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { fetchApi } from '@/lib/api';
+import { formatProjectTitle } from '@/lib/formatProjectTitle';
 import { Project } from '@/types';
 import Navbar from '@/components/common/Navbar';
 import ProjectCard from '@/components/common/ProjectCard';
@@ -38,12 +39,11 @@ const createTitleFromBrief = (brief: string) => {
   const firstSentence = brief
     .trim()
     .split(/[.!?\n]/, 1)[0]
-    .replace(/^(please\s+)?(build|create|design|develop|make|we need|i need|i want)\s+/i, '')
-    .replace(/^[\p{Extended_Pictographic}\s]+/u, '')
-    .replace(/^(?:project|estimate)\s*[:—-]\s*/i, '')
+    .replace(/^(please\s+)?(build|create|design|develop|make|we need|i need|i want)\s+/i, '');
+  const cleanedFirstSentence = formatProjectTitle(firstSentence)
     .replace(/\s+/g, ' ')
     .trim();
-  const words = firstSentence.split(' ').filter(Boolean);
+  const words = cleanedFirstSentence.split(' ').filter(Boolean);
   const title = words.slice(0, 8).join(' ');
   if (title.length < 3) return 'Project estimate';
   return `${title.charAt(0).toUpperCase()}${title.slice(1)}${words.length > 8 ? '…' : ''}`;
@@ -211,44 +211,54 @@ export default function DashboardPage() {
             </div>
           </div>
         </section>
-        {/* Minimal Stat Strip */}
-        <section className="bg-[#ffffff]/90 border border-[#d5deda] rounded-2xl px-5 py-4 sm:px-6 sm:py-5 grid grid-cols-2 lg:grid-cols-4 gap-4 text-xs shadow-sm shadow-slate-900/5">
-          <div className="flex flex-col gap-2">
-            <span className="text-[#65717a] font-sans">Project value</span>
-            <span className="text-2xl sm:text-3xl font-semibold text-[#126b67]">
+        <section aria-label="Workspace overview" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="min-w-0 rounded-2xl border border-[#d5deda] bg-white p-5 shadow-sm shadow-[#173f52]/[0.04]">
+            <p className="text-sm font-medium text-[#65717a]">Project value</p>
+            <p className="mt-3 text-3xl font-semibold tracking-tight text-[#126b67] sm:text-[2rem]">
               ${stats.totalPipeline.toLocaleString()}
-            </span>
+            </p>
+            <p className="mt-2 text-sm text-[#65717a]">Across active projects</p>
           </div>
 
-          <div className="flex flex-col gap-2 border-l border-[#d5deda] pl-4">
-            <span className="text-[#65717a] font-sans">Estimated effort</span>
-            <span className="text-2xl sm:text-3xl font-semibold text-[#182b39]">
-              {stats.totalDevHours.toLocaleString()}h
-            </span>
+          <div className="min-w-0 rounded-2xl border border-[#d5deda] bg-white p-5 shadow-sm shadow-[#173f52]/[0.04]">
+            <p className="text-sm font-medium text-[#65717a]">Estimated effort</p>
+            <p className="mt-3 text-3xl font-semibold tracking-tight text-[#182b39] sm:text-[2rem]">
+              {stats.totalDevHours.toLocaleString()}<span className="ml-1 text-xl font-medium text-[#526270]">hrs</span>
+            </p>
+            <p className="mt-2 text-sm text-[#65717a]">For delivery planning</p>
           </div>
 
           <button
-            onClick={() => setStatusFilter(statusFilter === 'UNDER_REVIEW' ? 'ALL' : 'UNDER_REVIEW')}
-            title="Click to filter by Pending Review"
-            className={`flex flex-col items-start gap-2 rounded-lg text-left transition-colors ${
-              statusFilter === 'UNDER_REVIEW' ? 'bg-amber-100 ring-1 ring-amber-300' : 'hover:bg-[#edf1ef]'
+            type="button"
+            aria-pressed={statusFilter === 'UNDER_REVIEW'}
+            onClick={() => {
+              setStatusFilter(statusFilter === 'UNDER_REVIEW' ? 'ALL' : 'UNDER_REVIEW');
+              document.getElementById('project-estimates')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }}
+            className={`group min-w-0 rounded-2xl border p-5 text-left shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#168780] focus-visible:ring-offset-2 ${
+              statusFilter === 'UNDER_REVIEW'
+                ? 'border-[#9bc9bf] bg-[#f2f8f6] shadow-[#173f52]/[0.06]'
+                : 'border-[#e5dcc7] bg-[#fffdfa] hover:-translate-y-0.5 hover:border-[#d3bc8e] hover:shadow-md'
             }`}
           >
-            <span className="text-[#65717a] font-sans">Pending review</span>
-            <span
-              className={`text-2xl sm:text-3xl font-semibold ${
-                stats.pendingReviews > 0 ? 'text-amber-900' : 'text-[#304756]'
-              }`}
-            >
+            <div className="flex items-center gap-2">
+              <span className={`h-2 w-2 rounded-full ${stats.pendingReviews > 0 ? 'bg-amber-500' : 'bg-[#a8b4ae]'}`} />
+              <span className="text-sm font-medium text-[#65717a]">Pending review</span>
+            </div>
+            <p className="mt-3 text-3xl font-semibold tracking-tight text-[#182b39] sm:text-[2rem]">
               {stats.pendingReviews}
-            </span>
+            </p>
+            <p className="mt-2 text-sm font-medium text-[#126b67] group-hover:text-[#0d5754]">
+              View review queue <span aria-hidden="true">→</span>
+            </p>
           </button>
 
-          <div className="flex flex-col gap-2 border-l border-[#d5deda] pl-4">
-            <span className="text-[#65717a] font-sans">Average estimate</span>
-            <span className="text-2xl sm:text-3xl font-semibold text-[#182b39]">
+          <div className="min-w-0 rounded-2xl border border-[#d5deda] bg-white p-5 shadow-sm shadow-[#173f52]/[0.04]">
+            <p className="text-sm font-medium text-[#65717a]">Average project fee</p>
+            <p className="mt-3 text-3xl font-semibold tracking-tight text-[#182b39] sm:text-[2rem]">
               ${stats.avgCost.toLocaleString()}
-            </span>
+            </p>
+            <p className="mt-2 text-sm text-[#65717a]">Across active projects</p>
           </div>
         </section>
 
@@ -333,7 +343,7 @@ export default function DashboardPage() {
         </section>
 
         {/* Project Estimates Section */}
-        <section className="space-y-3.5">
+        <section id="project-estimates" className="scroll-mt-24 space-y-3.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-xl sm:text-2xl font-semibold text-[#182b39]">Estimates</h3>

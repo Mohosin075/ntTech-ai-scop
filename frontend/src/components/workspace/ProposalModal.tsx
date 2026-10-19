@@ -5,6 +5,7 @@ import { Project } from '@/types';
 import Modal from '@/components/common/Modal';
 import StatusBadge from '@/components/common/StatusBadge';
 import { useToast } from '@/context/ToastContext';
+import { formatProjectTitle } from '@/lib/formatProjectTitle';
 import { Printer, FileCheck2, Copy, Check, Layers3 } from 'lucide-react';
 
 interface ProposalModalProps {
@@ -28,7 +29,8 @@ export const ProposalModal: React.FC<ProposalModalProps> = ({
   const activeFeatures = project.features.filter((f) => f.isIncluded);
 
   const handleCopyMarkdown = async () => {
-    const text = `# Statement of Work: ${project.title}
+    const projectTitle = formatProjectTitle(project.title);
+    const text = `# Statement of Work: ${projectTitle}
 Ref: PRJ-${project.id.slice(0, 8).toUpperCase()} | Date: ${new Date(project.createdAt).toLocaleDateString()}
 Status: ${project.status}
 
@@ -149,7 +151,7 @@ ${activeFeatures
               Engagement Scope
             </div>
             <h3 className="text-lg font-semibold text-[#182b39] tracking-tight">
-              {project.title}
+              {formatProjectTitle(project.title)}
             </h3>
             <p className="text-xs text-[#304756] leading-relaxed font-sans">
               {project.executiveSummary}

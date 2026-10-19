@@ -2,24 +2,19 @@ import React from 'react';
 import Link from 'next/link';
 import { Project } from '@/types';
 import StatusBadge from '@/components/common/StatusBadge';
+import { formatProjectTitle } from '@/lib/formatProjectTitle';
 import { ArrowRight, Clock } from 'lucide-react';
 
-const cleanTitle = (title: string) =>
-  title
-    .replace(/^[\p{Extended_Pictographic}\s]+/u, '')
-    .replace(/^(?:project|estimate)\s*[:—-]\s*/i, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-
 const getDistinctSummary = (title: string, summary?: string) => {
-  const clean = (summary || '')
+  const clean = formatProjectTitle((summary || '')
     .replace(/^estimate\s+for\s+/i, '')
     .replace(/^["'“”]+|["'“”]+$/g, '')
     .replace(/^(?:the|a|an)\s+/i, '')
-    .trim();
-  if (!clean) return 'Open the estimate to review its scope and delivery plan.';
+    .trim());
+  if (!clean) return 'Open this estimate to review its scope and delivery plan.';
 
-  const titleWords = cleanTitle(title).toLowerCase().match(/[\p{L}\p{N}]+/gu) || [];
+  const normalizedTitle = formatProjectTitle(title).replace(/^(?:the|a|an)\s+/i, '');
+  const titleWords = normalizedTitle.toLowerCase().match(/[\p{L}\p{N}]+/gu) || [];
   const summaryWords = clean.toLowerCase().match(/[\p{L}\p{N}]+/gu) || [];
   let overlap = 0;
   while (overlap < titleWords.length && overlap < summaryWords.length && titleWords[overlap] === summaryWords[overlap]) {
@@ -28,10 +23,12 @@ const getDistinctSummary = (title: string, summary?: string) => {
 
   if (overlap >= 3) {
     const remaining = clean.split(/\s+/).slice(overlap).join(' ').replace(/^[\s:,.|—-]+/, '').trim();
-    return remaining || 'Review the detailed scope, features, and delivery plan.';
+    if (!remaining) return 'Review the detailed scope, features, and delivery plan.';
+    const concise = remaining.replace(/^is\s+(?=(?:designed|built|intended)\s+to\b)/i, '');
+    return concise.charAt(0).toUpperCase() + concise.slice(1);
   }
 
-  return clean;
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
 };
 
 interface ProjectCardProps {
@@ -39,17 +36,17 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
-  const title = cleanTitle(project.title);
+  const title = formatProjectTitle(project.title);
   const summary = getDistinctSummary(project.title, project.executiveSummary);
 
   return (
     <div
       className="rounded-2xl bg-white border border-[#d5deda] p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#a9c1bb] hover:shadow-lg hover:shadow-[#173f52]/[0.06] group"
     >
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {/* Top Row: Title + Status Badge */}
-        <div className="flex flex-col items-start gap-2">
-          <h4 className="min-h-14 font-semibold text-lg text-[#182b39] transition-colors line-clamp-2">
+        <div className="flex flex-col items-start gap-2.5">
+          <h4 className="min-h-14 font-semibold text-lg leading-7 text-[#182b39] transition-colors line-clamp-2">
             {title}
           </h4>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -58,22 +55,22 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           </div>
         </div>
 
-        {/* Middle: 1-line description */}
-        <p className="text-[#526270] text-base line-clamp-1 leading-relaxed font-sans">
+        {/* Distinct project summary */}
+        <p className="min-h-12 text-[#526270] text-base line-clamp-2 leading-6 font-sans">
           {summary}
         </p>
 
         {/* Bottom Metrics: Flex in one line */}
-        <div className="pt-3 border-t border-[#d5deda] flex items-center justify-between text-base">
+        <div className="pt-3 border-t border-[#d5deda] flex flex-col gap-2 text-base sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="text-[#65717a] font-sans">Estimate:</span>
+            <span className="text-[#65717a] font-sans">Project fee:</span>
             <span className="text-[#182b39] font-medium">
               ${project.finalTotalCost.toLocaleString()}
             </span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-[#65717a] font-sans">Timeline:</span>
+            <span className="text-[#65717a] font-sans">Effort:</span>
             <span className="text-[#304756] font-medium flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-[#65717a]" />
               {project.totalHours}h ({project.estimatedWeeks}w)

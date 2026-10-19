@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { fetchApi } from '@/lib/api';
+import { formatProjectTitle } from '@/lib/formatProjectTitle';
 import { Feature, FeatureCategory, FeatureComplexity, Project, ProjectStatus } from '@/types';
 import Navbar from '@/components/common/Navbar';
 import StatusBadge from '@/components/common/StatusBadge';
@@ -29,6 +30,7 @@ import {
   RefreshCw,
   FileText,
   Search,
+  Filter,
   Edit2,
   Check,
   X,
@@ -350,16 +352,18 @@ function ProjectWorkspaceContent() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Header Bar */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#d5deda]">
-          <div className="space-y-1">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto] items-start gap-4 pb-5 border-b border-[#d5deda]">
+          <div className="min-w-0">
             <Link
               href="/dashboard"
               className="inline-flex items-center gap-1.5 text-xs text-[#526270] hover:text-emerald-900 transition mb-0.5"
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
             </Link>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#182b39]">{project.title}</h1>
+            <h1 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight tracking-tight text-[#182b39] break-words">
+              {formatProjectTitle(project.title)}
+            </h1>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
               <StatusBadge status={project.status} />
               {isScopeLocked && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-[#edf1ef] text-[#304756] border border-[#d5deda]">
@@ -369,10 +373,10 @@ function ProjectWorkspaceContent() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
             <button
               onClick={() => setIsProposalModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#edf1ef] hover:bg-[#e3ebe8] border border-[#d5deda] text-[#263d4a] text-xs font-medium transition"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#edf1ef] hover:bg-[#e3ebe8] border border-[#d5deda] text-[#263d4a] text-sm font-medium transition"
               title="Preview and print Statement of Work"
             >
               <FileText className="w-3.5 h-3.5 text-[#526270]" />
@@ -383,7 +387,7 @@ function ProjectWorkspaceContent() {
               <button
                 onClick={() => handleStatusChange('UNDER_REVIEW')}
                 disabled={actionLoading || project.totalHours === 0}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-md bg-[#173f52] hover:bg-[#102f3e] text-white text-xs font-medium transition disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#173f52] hover:bg-[#102f3e] text-white text-sm font-medium transition disabled:opacity-60"
               >
                 {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                 <span>Send for review</span>
@@ -424,7 +428,7 @@ function ProjectWorkspaceContent() {
               <button
                 onClick={() => handleStatusChange('UNDER_REVIEW')}
                 disabled={actionLoading || project.totalHours === 0}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#173f52] hover:bg-[#102f3e] text-white text-xs font-medium transition"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#173f52] hover:bg-[#102f3e] text-white text-sm font-medium transition"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Send updated scope</span>
@@ -552,34 +556,31 @@ function ProjectWorkspaceContent() {
               </div>
 
               {/* Filters & Search */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-0.5">
-                <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                  {['ALL', 'FRONTEND', 'BACKEND', 'DATABASE', 'INTEGRATION', 'AI'].map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => setCategoryFilter(cat)}
-                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
-                        categoryFilter === cat
-                          ? 'bg-[#edf1ef] text-[#182b39] border border-[#d5deda]'
-                          : 'bg-[#f7f7f4] hover:bg-[#edf1ef] text-[#526270] border border-[#d5deda]'
-                      }`}
-                    >
-                      <span>{cat === 'ALL' ? 'All' : cat}</span>
-                      <span className="text-xs opacity-70 ml-1">
-                        ({categoryCounts[cat] || 0})
-                      </span>
-                    </button>
-                  ))}
+              <div className="grid grid-cols-1 gap-3 pt-0.5 sm:grid-cols-2">
+                <div className="relative min-w-0">
+                  <Filter className="w-4 h-4 text-[#65717a] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <select
+                    aria-label="Filter features by category"
+                    value={categoryFilter}
+                    onChange={(e) => setCategoryFilter(e.target.value)}
+                    className="w-full appearance-none pl-9 pr-3 py-2 rounded-lg bg-[#f7f7f4] border border-[#d5deda] text-sm text-[#263d4a] focus:outline-none focus:border-[#168780] focus:ring-2 focus:ring-[#168780]/10 transition-colors"
+                  >
+                    {['ALL', 'FRONTEND', 'BACKEND', 'DATABASE', 'INTEGRATION', 'AI'].map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat === 'ALL' ? 'All categories' : cat.charAt(0) + cat.slice(1).toLowerCase()} ({categoryCounts[cat] || 0})
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                <div className="relative">
-                  <Search className="w-3.5 h-3.5 text-[#65717a] absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <div className="relative min-w-0">
+                  <Search className="w-4 h-4 text-[#65717a] absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={featureSearch}
                     onChange={(e) => setFeatureSearch(e.target.value)}
                     placeholder="Filter features..."
-                    className="pl-8 pr-3 py-1.5 rounded-md bg-[#f7f7f4] border border-[#d5deda] text-xs text-[#263d4a] placeholder:text-[#65717a] focus:outline-none focus:border-slate-400 transition-colors w-full sm:w-44"
+                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-[#f7f7f4] border border-[#d5deda] text-sm text-[#263d4a] placeholder:text-[#65717a] focus:outline-none focus:border-[#168780] focus:ring-2 focus:ring-[#168780]/10 transition-colors"
                   />
                 </div>
               </div>
