@@ -8,25 +8,26 @@ import notFound from './app/middlewares/notFound';
 import router from './app/routes';
 
 const app: Application = express();
+const allowedOrigins = new Set(config.cors_origins);
 
 // Security and utility middlewares
 app.use(helmet());
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, or Postman)
+      // Allow non-browser clients such as curl and Postman.
       if (!origin) return callback(null, true);
-      // Allow localhost or 127.0.0.1 on any port or specified client_url
-      if (
-        origin.startsWith('http://localhost:') ||
-        origin.startsWith('http://127.0.0.1:') ||
-        origin === config.client_url
-      ) {
+
+      if (allowedOrigins.has(origin)) {
         return callback(null, true);
       }
-      return callback(null, true);
+
+      if (config.env === 'development' && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
     },
-    credentials: true,
   })
 );
 app.use(express.json());

@@ -76,7 +76,7 @@ button:disabled {
 @media print {
   body {
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #182b39 !important;
   }
 }
 

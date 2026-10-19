@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { Role } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import config from '../../../config';
@@ -29,7 +30,7 @@ const registerUser = async (payload: IRegisterInput): Promise<ILoginResponse> =>
       name: payload.name,
       email: payload.email.toLowerCase(),
       passwordHash,
-      role: payload.role || 'ESTIMATOR',
+      role: Role.ESTIMATOR,
     },
     select: {
       id: true,

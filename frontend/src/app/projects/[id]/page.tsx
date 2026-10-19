@@ -67,6 +67,7 @@ function ProjectWorkspaceContent() {
 
   const [isEvalModalOpen, setIsEvalModalOpen] = useState(false);
   const [isProposalModalOpen, setIsProposalModalOpen] = useState(false);
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(false);
 
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [featureSearch, setFeatureSearch] = useState('');
@@ -501,43 +502,54 @@ function ProjectWorkspaceContent() {
           {/* Left Column: Summary + Feature Table (8 Columns) */}
           <div className="min-w-0 space-y-6 lg:col-span-8">
             {/* Scope Summary & Architecture */}
-            <div className="rounded-2xl border border-[#d5deda] bg-[#ffffff] p-3.5 sm:p-5 space-y-2.5 sm:space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-base sm:text-lg text-[#182b39]">
-                    Scope summary and architecture
+            <div className="space-y-3 rounded-2xl border border-[#dce5df] bg-white p-4 sm:p-5">
+              <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <h3 className="font-semibold text-base leading-6 text-[#20332f] sm:text-lg">
+                    Scope &amp; architecture
                   </h3>
                   <button
                     onClick={() => setIsEvalModalOpen(true)}
-                    className="text-xs text-[#526270] hover:text-[#263d4a] underline ml-1"
+                    className="mt-1.5 inline-flex min-h-8 items-center gap-1.5 rounded-lg border border-[#dce7e1] bg-[#f7faf8] px-2.5 py-1 text-xs font-medium text-[#356b60] transition hover:border-[#b8d0c8] hover:bg-[#eef6f1]"
                   >
-                    (Specs &amp; limitations)
+                    <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+                    Specs &amp; limitations
                   </button>
                 </div>
                 {project.isFallbackUsed && (
-                  <span className="text-xs px-2 py-0.5 rounded-md bg-[#f7f7f4] text-[#526270] border border-[#d5deda]">
-                    Rule engine fallback
+                  <span className="inline-flex w-fit items-center rounded-full border border-[#e2e7df] bg-[#f7f8f4] px-2.5 py-1 text-xs font-medium text-[#69766d]">
+                    Rule-based estimate
                   </span>
                 )}
               </div>
 
-              <p className="text-sm sm:text-base text-[#304756] leading-relaxed font-sans">
+              <p className={`font-sans text-sm leading-6 text-[#40534c] sm:text-base sm:leading-7 ${isSummaryExpanded ? '' : 'line-clamp-6 sm:line-clamp-none'}`}>
                 {project.executiveSummary}
               </p>
+              {project.executiveSummary.length > 260 && (
+                <button
+                  type="button"
+                  onClick={() => setIsSummaryExpanded((expanded) => !expanded)}
+                  aria-expanded={isSummaryExpanded}
+                  className="text-xs font-semibold text-[#35776a] hover:text-[#205b51] sm:hidden"
+                >
+                  {isSummaryExpanded ? 'Show less' : 'Read full summary'}
+                </button>
+              )}
 
               {project.recommendedStack && project.recommendedStack.length > 0 && (
-                <div className="pt-2 border-t border-[#d5deda] flex flex-wrap items-center gap-1.5">
-                  <span className="text-xs text-[#65717a] font-sans">
-                    Stack:
-                  </span>
-                  {project.recommendedStack.map((tech, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 rounded-md text-xs bg-[#f7f7f4] text-[#304756] border border-[#d5deda]"
-                    >
-                      {tech}
-                    </span>
-                  ))}
+                <div className="space-y-2 border-t border-[#e5ebe7] pt-3">
+                  <span className="block font-sans text-xs font-medium text-[#77857e]">Built with</span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {project.recommendedStack.map((tech, idx) => (
+                      <span
+                        key={idx}
+                        className="rounded-lg border border-[#e1e7e2] bg-[#f8faf8] px-2.5 py-1 text-xs text-[#4b5d55]"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

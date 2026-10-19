@@ -4,6 +4,10 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('The demo seed is for local development only and must not run in production.');
+  }
+
   console.log('Seeding initial system users and reference projects...');
 
   const salt = await bcrypt.genSalt(10);

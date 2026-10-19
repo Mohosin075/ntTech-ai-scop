@@ -36,9 +36,16 @@ const projectIdParamValidationSchema = z.object({
   }),
 });
 
+const listProjectsValidationSchema = z.object({
+  query: z.object({
+    status: z.nativeEnum(ProjectStatus).optional(),
+  }),
+});
+
 export const ProjectValidations = {
   generateProjectValidationSchema,
   updateStatusValidationSchema,
   updateHourlyRateValidationSchema,
   projectIdParamValidationSchema,
+  listProjectsValidationSchema,
 };
