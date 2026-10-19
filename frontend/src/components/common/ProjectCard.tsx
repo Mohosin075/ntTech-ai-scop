@@ -33,9 +33,10 @@ const getDistinctSummary = (title: string, summary?: string) => {
 
 interface ProjectCardProps {
   project: Project;
+  showCreator?: boolean;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, showCreator = false }) => {
   const title = formatProjectTitle(project.title);
   const summary = getDistinctSummary(project.title, project.executiveSummary);
 
@@ -52,6 +53,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
           <div className="flex flex-wrap items-center gap-1.5">
             <StatusBadge status={project.status} />
             <StatusBadge risk={project.riskLevel} />
+            {showCreator && project.createdBy?.name && (
+              <span className="text-xs text-[#65717a]">By {project.createdBy.name}</span>
+            )}
           </div>
         </div>
 

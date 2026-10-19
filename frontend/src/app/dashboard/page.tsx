@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -10,10 +11,8 @@ import { Project } from '@/types';
 import Navbar from '@/components/common/Navbar';
 import ProjectCard from '@/components/common/ProjectCard';
 import {
-  Filter,
   Loader2,
   AlertCircle,
-  Search,
   ShieldCheck,
   ClipboardCheck,
 } from 'lucide-react';
@@ -60,8 +59,6 @@ export default function DashboardPage() {
   const [genError, setGenError] = useState<string | null>(null);
 
   const [projects, setProjects] = useState<Project[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
   const [fetchingProjects, setFetchingProjects] = useState(true);
 
   useEffect(() => {
@@ -96,43 +93,7 @@ export default function DashboardPage() {
     };
   }, [user]);
 
-  const stats = useMemo(() => {
-    const activeProjects = projects.filter((project) => project.status !== 'REJECTED');
-    const totalPipeline = activeProjects.reduce((acc, project) => acc + (project.finalTotalCost || 0), 0);
-    const totalDevHours = activeProjects.reduce((acc, project) => acc + (project.totalHours || 0), 0);
-    const pendingReviews = projects.filter((project) => project.status === 'UNDER_REVIEW').length;
-    const avgCost = activeProjects.length > 0 ? Math.round(totalPipeline / activeProjects.length) : 0;
-    return {
-      totalPipeline,
-      totalDevHours,
-      pendingReviews,
-      avgCost,
-    };
-  }, [projects]);
-
-  const statusCounts = useMemo(() => {
-    return {
-      ALL: projects.length,
-      AI_ESTIMATED: projects.filter((p) => p.status === 'AI_ESTIMATED').length,
-      UNDER_REVIEW: projects.filter((p) => p.status === 'UNDER_REVIEW').length,
-      APPROVED: projects.filter((p) => p.status === 'APPROVED').length,
-      REJECTED: projects.filter((p) => p.status === 'REJECTED').length,
-    };
-  }, [projects]);
-
-  const filteredProjects = useMemo(() => {
-    return projects.filter((p) => {
-      const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
-      if (!matchesStatus) return false;
-
-      if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase();
-      return (
-        p.title.toLowerCase().includes(q) ||
-        p.executiveSummary?.toLowerCase().includes(q)
-      );
-    });
-  }, [projects, statusFilter, searchQuery]);
+  const recentProjects = useMemo(() => projects.slice(0, 3), [projects]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -211,57 +172,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </section>
-        <section aria-label="Workspace overview" className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="min-w-0 rounded-2xl border border-[#d5deda] bg-white p-5 shadow-sm shadow-[#173f52]/[0.04]">
-            <p className="text-sm font-medium text-[#65717a]">Project value</p>
-            <p className="mt-3 text-3xl font-semibold tracking-tight text-[#126b67] sm:text-[2rem]">
-              ${stats.totalPipeline.toLocaleString()}
-            </p>
-            <p className="mt-2 text-sm text-[#65717a]">Across active projects</p>
-          </div>
-
-          <div className="min-w-0 rounded-2xl border border-[#d5deda] bg-white p-5 shadow-sm shadow-[#173f52]/[0.04]">
-            <p className="text-sm font-medium text-[#65717a]">Estimated effort</p>
-            <p className="mt-3 text-3xl font-semibold tracking-tight text-[#182b39] sm:text-[2rem]">
-              {stats.totalDevHours.toLocaleString()}<span className="ml-1 text-xl font-medium text-[#526270]">hrs</span>
-            </p>
-            <p className="mt-2 text-sm text-[#65717a]">For delivery planning</p>
-          </div>
-
-          <button
-            type="button"
-            aria-pressed={statusFilter === 'UNDER_REVIEW'}
-            onClick={() => {
-              setStatusFilter(statusFilter === 'UNDER_REVIEW' ? 'ALL' : 'UNDER_REVIEW');
-              document.getElementById('project-estimates')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }}
-            className={`group min-w-0 rounded-2xl border p-5 text-left shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#168780] focus-visible:ring-offset-2 ${
-              statusFilter === 'UNDER_REVIEW'
-                ? 'border-[#9bc9bf] bg-[#f2f8f6] shadow-[#173f52]/[0.06]'
-                : 'border-[#e5dcc7] bg-[#fffdfa] hover:-translate-y-0.5 hover:border-[#d3bc8e] hover:shadow-md'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <span className={`h-2 w-2 rounded-full ${stats.pendingReviews > 0 ? 'bg-amber-500' : 'bg-[#a8b4ae]'}`} />
-              <span className="text-sm font-medium text-[#65717a]">Pending review</span>
-            </div>
-            <p className="mt-3 text-3xl font-semibold tracking-tight text-[#182b39] sm:text-[2rem]">
-              {stats.pendingReviews}
-            </p>
-            <p className="mt-2 text-sm font-medium text-[#126b67] group-hover:text-[#0d5754]">
-              View review queue <span aria-hidden="true">→</span>
-            </p>
-          </button>
-
-          <div className="min-w-0 rounded-2xl border border-[#d5deda] bg-white p-5 shadow-sm shadow-[#173f52]/[0.04]">
-            <p className="text-sm font-medium text-[#65717a]">Average project fee</p>
-            <p className="mt-3 text-3xl font-semibold tracking-tight text-[#182b39] sm:text-[2rem]">
-              ${stats.avgCost.toLocaleString()}
-            </p>
-            <p className="mt-2 text-sm text-[#65717a]">Across active projects</p>
-          </div>
-        </section>
-
         {/* Project Scoping Generator Section */}
         <section className="rounded-2xl border border-[#d5deda] bg-[#ffffff]/95 p-5 sm:p-7 space-y-5 shadow-sm shadow-slate-900/5">
           <div>
@@ -343,39 +253,15 @@ export default function DashboardPage() {
         </section>
 
         {/* Project Estimates Section */}
-        <section id="project-estimates" className="scroll-mt-24 space-y-3.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <section id="project-estimates" className="scroll-mt-24 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
             <div>
-              <h3 className="text-xl sm:text-2xl font-semibold text-[#182b39]">Estimates</h3>
+              <h3 className="text-xl sm:text-2xl font-semibold text-[#182b39]">Recent estimates</h3>
+              <p className="mt-1 text-sm text-[#65717a]">Latest project quotes in your workspace</p>
             </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="relative">
-                <Search className="w-3.5 h-3.5 text-[#65717a] absolute left-2.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search estimates..."
-                  className="pl-8 pr-3 py-1.5 rounded-md bg-[#ffffff] border border-[#d5deda] text-xs text-[#263d4a] placeholder:text-[#65717a] focus:outline-none focus:border-[#168780] transition-colors w-44 sm:w-52"
-                />
-              </div>
-
-              <div className="flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-[#526270]" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-2.5 py-1.5 rounded-md bg-[#ffffff] border border-[#d5deda] text-xs text-[#304756] focus:outline-none focus:border-[#168780] transition-colors font-sans"
-                >
-                  <option value="ALL">All statuses ({statusCounts.ALL})</option>
-                  <option value="AI_ESTIMATED">AI estimated ({statusCounts.AI_ESTIMATED})</option>
-                  <option value="UNDER_REVIEW">Under review ({statusCounts.UNDER_REVIEW})</option>
-                  <option value="APPROVED">Approved ({statusCounts.APPROVED})</option>
-                  <option value="REJECTED">Rejected ({statusCounts.REJECTED})</option>
-                </select>
-              </div>
-            </div>
+            <Link href="/estimates" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#d5deda] bg-white px-4 py-2.5 text-sm font-semibold text-[#173f52] transition hover:border-[#a9c1bb] hover:bg-[#f5f8f6]">
+              View all estimates <span aria-hidden="true">→</span>
+            </Link>
           </div>
 
           {fetchingProjects ? (
@@ -383,31 +269,15 @@ export default function DashboardPage() {
               <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
               <span className="text-xs font-sans">Loading estimates...</span>
             </div>
-          ) : filteredProjects.length === 0 ? (
-            <div className="p-8 text-center rounded-lg border border-[#d5deda] bg-[#ffffff] text-[#526270] space-y-3">
-              <p className="text-xs font-medium text-[#263d4a]">No project estimates found.</p>
-              <p className="text-xs text-[#65717a] font-sans">
-                {searchQuery || statusFilter !== 'ALL'
-                  ? 'No estimates match your active search or status filter.'
-                  : 'Use the form above to calculate your first project scope.'}
-              </p>
-              {(searchQuery || statusFilter !== 'ALL') && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery('');
-                    setStatusFilter('ALL');
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-[#edf1ef] hover:bg-[#d5deda] border border-[#d5deda] text-[#263d4a] transition-colors"
-                >
-                  <span>Reset all filters</span>
-                </button>
-              )}
+          ) : recentProjects.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[#cbd8d2] bg-white px-6 py-12 text-center">
+              <p className="text-base font-semibold text-[#182b39]">Your estimates will appear here</p>
+              <p className="mt-1 text-sm text-[#65717a]">Describe a project above to create your first scope and fixed quote.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredProjects.map((proj) => (
-                <ProjectCard key={proj.id} project={proj} />
+              {recentProjects.map((proj) => (
+                <ProjectCard key={proj.id} project={proj} showCreator={user.role === 'ADMIN'} />
               ))}
             </div>
           )}

@@ -345,6 +345,8 @@ function ProjectWorkspaceContent() {
   const isApproved = project.status === 'APPROVED';
   const isScopeLocked = isApproved || project.status === 'UNDER_REVIEW';
   const isAdmin = user?.role === 'ADMIN';
+  const isProjectOwner = project.createdById === user?.id;
+  const isScopeEditable = isProjectOwner && !isScopeLocked;
 
   return (
     <div className="min-h-screen bg-[#f7f7f4] text-[#182b39] flex flex-col font-sans">
@@ -373,7 +375,8 @@ function ProjectWorkspaceContent() {
             </div>
           </div>
 
-          <div className="flex w-full flex-wrap items-center gap-2 lg:w-auto lg:justify-end">
+          <div className="flex w-full flex-col gap-2 lg:w-auto lg:items-end">
+            <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setIsProposalModalOpen(true)}
               className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#edf1ef] hover:bg-[#e3ebe8] border border-[#d5deda] text-[#263d4a] text-sm font-medium transition"
@@ -383,18 +386,18 @@ function ProjectWorkspaceContent() {
               <span>Export SOW</span>
             </button>
 
-            {project.status === 'AI_ESTIMATED' && (
+            {project.status === 'AI_ESTIMATED' && isProjectOwner && (
               <button
                 onClick={() => handleStatusChange('UNDER_REVIEW')}
                 disabled={actionLoading || project.totalHours === 0}
                 className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#173f52] hover:bg-[#102f3e] text-white text-sm font-medium transition disabled:opacity-60"
               >
                 {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                <span>Send for review</span>
+                <span>{isAdmin ? 'Send for peer review' : 'Send for review'}</span>
               </button>
             )}
 
-            {project.status === 'UNDER_REVIEW' && isAdmin && (
+            {project.status === 'UNDER_REVIEW' && isAdmin && !isProjectOwner && (
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsRejectModalOpen(true)}
@@ -424,7 +427,7 @@ function ProjectWorkspaceContent() {
               </div>
             )}
 
-            {project.status === 'REJECTED' && (
+            {project.status === 'REJECTED' && isProjectOwner && (
               <button
                 onClick={() => handleStatusChange('UNDER_REVIEW')}
                 disabled={actionLoading || project.totalHours === 0}
@@ -433,6 +436,18 @@ function ProjectWorkspaceContent() {
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Send updated scope</span>
               </button>
+            )}
+            </div>
+
+            {project.status === 'AI_ESTIMATED' && isAdmin && !isProjectOwner && (
+              <p className="max-w-sm text-right text-sm leading-5 text-[#65717a]">
+                The project owner must submit this draft for review.
+              </p>
+            )}
+            {project.status === 'UNDER_REVIEW' && isAdmin && isProjectOwner && (
+              <p className="max-w-sm text-right text-sm leading-5 text-[#65717a]">
+                Another administrator must review this project. You cannot approve your own scope.
+              </p>
             )}
           </div>
         </div>
@@ -539,12 +554,14 @@ function ProjectWorkspaceContent() {
                   </h3>
                     <p className="text-sm text-[#526270] font-sans">
                     {isScopeLocked
-                        ? 'Scope is locked during review and after approval.'
-                      : 'Adjust included features and estimated hours; the cost and milestones recalculate automatically.'}
+                      ? 'Scope is locked during review and after approval.'
+                      : isProjectOwner
+                        ? 'Adjust included features and effort; the project quote and milestones recalculate automatically.'
+                        : 'Only the project owner can change this draft before submitting it for review.'}
                   </p>
                 </div>
 
-                {!isScopeLocked && (
+                {isScopeEditable && (
                   <button
                     onClick={() => setIsAddModalOpen(true)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#173f52] hover:bg-[#102f3e] text-white text-xs font-medium transition-colors"
@@ -633,7 +650,7 @@ function ProjectWorkspaceContent() {
                           <input
                             type="checkbox"
                             checked={f.isIncluded}
-                    disabled={isScopeLocked}
+                    disabled={!isScopeEditable}
                             onChange={() => handleToggleInclude(f)}
                             className="w-3.5 h-3.5 rounded border-[#d5deda] bg-[#f7f7f4] text-emerald-600 focus:ring-0 cursor-pointer disabled:cursor-not-allowed"
                           />
@@ -669,7 +686,7 @@ function ProjectWorkspaceContent() {
                           ) : (
                             <div className="flex items-center gap-2 group/title">
                               <span>{f.title}</span>
-                              {!isScopeLocked && (
+                              {isScopeEditable && (
                                 <button
                                   onClick={() => {
                                     setEditingFeatureId(f.id);
@@ -710,7 +727,7 @@ function ProjectWorkspaceContent() {
                         {/* Stepper / Direct Input */}
                         <td className="py-2 px-3 text-center">
                           <div className="inline-flex items-center gap-1 bg-[#f7f7f4] border border-[#d5deda] px-1.5 py-0.5 rounded-md">
-                            {!isScopeLocked && (
+                            {isScopeEditable && (
                               <button
                                 onClick={() => handleAdjustHours(f, -2)}
                                 className="text-[#526270] hover:text-[#182b39] px-1 font-bold text-xs"
@@ -735,23 +752,23 @@ function ProjectWorkspaceContent() {
                             ) : (
                               <button
                                 type="button"
-                                disabled={isScopeLocked}
+                                disabled={!isScopeEditable}
                                 onClick={() => {
-                                  if (!isScopeLocked) {
+                                  if (isScopeEditable) {
                                     setEditingHoursId(f.id);
                                     setEditingHoursValue(f.estimatedHours);
                                   }
                                 }}
-                                title={isScopeLocked ? undefined : 'Click to type exact hours'}
+                                title={!isScopeEditable ? undefined : 'Click to type exact hours'}
                                 className={`font-semibold text-[#182b39] text-xs min-w-7 px-1 rounded ${
-                                  !isScopeLocked ? 'hover:bg-[#edf1ef] hover:text-[#126b67] transition cursor-pointer' : ''
+                                  isScopeEditable ? 'hover:bg-[#edf1ef] hover:text-[#126b67] transition cursor-pointer' : ''
                                 }`}
                               >
                                 {f.estimatedHours}h
                               </button>
                             )}
 
-                            {!isScopeLocked && (
+                            {isScopeEditable && (
                               <button
                                 onClick={() => handleAdjustHours(f, 2)}
                                 className="text-[#526270] hover:text-[#182b39] px-1 font-bold text-xs"
@@ -770,7 +787,7 @@ function ProjectWorkspaceContent() {
 
                         {/* Delete */}
                         <td className="py-2 px-2.5 text-center">
-                          {!isScopeLocked ? (
+                          {isScopeEditable ? (
                             <button
                               onClick={() => handleDeleteFeature(f.id)}
                               className="text-[#65717a] hover:text-rose-900 p-1 transition"
@@ -841,7 +858,7 @@ function ProjectWorkspaceContent() {
                     type="number"
                     min={1}
                     step="0.01"
-                    disabled={isScopeLocked || updatingProjectFee}
+                    disabled={!isScopeEditable || updatingProjectFee}
                     value={newProjectFee}
                     onChange={(e) => setNewProjectFee(Number(e.target.value))}
                     aria-label="Fixed project fee in US dollars"
@@ -863,7 +880,7 @@ function ProjectWorkspaceContent() {
                   </div>
                 )}
 
-                {!isScopeLocked && (
+                {isScopeEditable && (
                   <button
                     type="submit"
                     disabled={updatingProjectFee || newProjectFee === project.finalTotalCost || newProjectFee <= 0}

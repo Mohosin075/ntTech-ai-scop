@@ -1,15 +1,7 @@
 import type { Metadata } from 'next';
-import { Lato } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
-
-const sansFont = Lato({
-  subsets: ['latin'],
-  variable: '--font-source-sans',
-  weight: ['400', '700'],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'ScopeAI - Project Scoping & Milestone Cost Engine',
@@ -23,9 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${sansFont.variable} font-sans bg-[#f7f7f4] text-[#182b39] min-h-screen antialiased`}
-      >
+      <body className="font-sans min-h-screen bg-[#f7f7f4] text-[#182b39] antialiased">
         <AuthProvider>
           <ToastProvider>{children}</ToastProvider>
         </AuthProvider>
