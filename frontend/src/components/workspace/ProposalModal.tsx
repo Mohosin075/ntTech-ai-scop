@@ -6,6 +6,7 @@ import Modal from '@/components/common/Modal';
 import StatusBadge from '@/components/common/StatusBadge';
 import { useToast } from '@/context/ToastContext';
 import { formatProjectTitle } from '@/lib/formatProjectTitle';
+import { getFeatureAllocation } from '@/lib/scopePricing';
 import { Printer, FileCheck2, Copy, Check, Layers3 } from 'lucide-react';
 
 interface ProposalModalProps {
@@ -135,16 +136,14 @@ ${project.recommendedStack?.join(', ') || 'N/A'}
 ${activeFeatures
   .map(
     (f) =>
-      `- **${f.title}** (${f.category.toLowerCase()}, ${f.complexity.toLowerCase()}): $${(
-        f.estimatedHours * project.hourlyRate
-      ).toLocaleString()}`
+      `- **${f.title}** (${f.category.toLowerCase()}, ${f.complexity.toLowerCase()}): $${getFeatureAllocation(f, project.scopePointValue).toLocaleString('en-US', { maximumFractionDigits: 2 })}`
   )
   .join('\n')}
 
 ## Fixed Project Fee
 - Scoped deliverables: $${project.baseCost.toLocaleString()}
 - Scope contingency (${project.riskBufferPercent}%): +$${project.riskBufferAmount.toLocaleString()}
-- **Total project fee: $${project.finalTotalCost.toLocaleString()}**
+- **Fixed project fee (USD): $${project.finalTotalCost.toLocaleString()}**
 
 ## Milestone Schedule
 - M1 (Kickoff - 30%): $${project.milestone1Amount.toLocaleString()}
@@ -311,7 +310,7 @@ This proposal covers only the deliverables listed above. Any additional requirem
                       </td>
                       <td className="py-2 px-2.5 font-sans capitalize">{f.complexity.toLowerCase()}</td>
                       <td className="py-2 px-3 text-right font-semibold text-emerald-900">
-                        {money(f.estimatedHours * project.hourlyRate)}
+                        {money(getFeatureAllocation(f, project.scopePointValue))}
                       </td>
                     </tr>
                   ))}
@@ -324,7 +323,7 @@ This proposal covers only the deliverables listed above. Any additional requirem
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 pt-1">
             <div className="p-3 sm:p-4 rounded-xl bg-[#ffffff] border border-[#d5deda] space-y-2 text-xs">
               <span className="font-sans font-medium text-[#182b39] text-xs block border-b border-[#d5deda] pb-2">
-                Fixed Project Fee
+                Fixed Project Fee · USD
               </span>
               <div className="flex justify-between py-0.5">
                 <span className="text-[#65717a] font-sans">Scoped deliverables:</span>

@@ -1,64 +1,50 @@
 import { describe, expect, it } from 'vitest';
 import CalculationService, { IFeatureForCalculation } from '../calculation.service';
 
-describe('CalculationService — Mathematical Formula Verification', () => {
+describe('CalculationService — fixed-fee pricing', () => {
   it('should return correct risk buffer percentages', () => {
     expect(CalculationService.getRiskBufferPercent('LOW')).toBe(5);
     expect(CalculationService.getRiskBufferPercent('MEDIUM')).toBe(12);
     expect(CalculationService.getRiskBufferPercent('HIGH')).toBe(20);
   });
 
-  it('should calculate correct metrics for active features and exclude unchecked features', () => {
+  it('prices included features by complexity and workstream, independently of hours', () => {
     const features: IFeatureForCalculation[] = [
-      { estimatedHours: 20, isIncluded: true },
-      { estimatedHours: 30, isIncluded: true },
-      { estimatedHours: 50, isIncluded: false }, // Should be excluded!
+      { estimatedHours: 20, isIncluded: true, category: 'FRONTEND', complexity: 'HIGH' },
+      { estimatedHours: 30, isIncluded: true, category: 'BACKEND', complexity: 'MEDIUM' },
+      { estimatedHours: 50, isIncluded: false, category: 'AI', complexity: 'HIGH' },
     ];
-    const hourlyRate = 50;
-    const riskLevel = 'MEDIUM'; // 12%
+    const result = CalculationService.calculateMetrics(features, 300, 'MEDIUM');
 
-    const result = CalculationService.calculateMetrics(features, hourlyRate, riskLevel);
-
-    // Active hours = 20 + 30 = 50
     expect(result.totalHours).toBe(50);
-    // Base Cost = 50 * 50 = $2500
-    expect(result.baseCost).toBe(2500);
-    // Risk buffer = 12% of 2500 = $300
+    expect(result.totalScopePoints).toBeCloseTo(8.05);
+    expect(result.baseCost).toBe(2415);
     expect(result.riskBufferPercent).toBe(12);
-    expect(result.riskBufferAmount).toBe(300);
-    // Final Cost = 2500 + 300 = $2800
-    expect(result.finalTotalCost).toBe(2800);
-    // Weeks = ceil(50 / 30) = 2 weeks
+    expect(result.riskBufferAmount).toBe(289.8);
+    expect(result.finalTotalCost).toBe(2704.8);
     expect(result.estimatedWeeks).toBe(2);
-
-    // Milestone 1 (30%) = 840
-    expect(result.milestone1Amount).toBe(840);
-    // Milestone 2 (40%) = 1120
-    expect(result.milestone2Amount).toBe(1120);
-    // Milestone 3 (30%) = 840
-    expect(result.milestone3Amount).toBe(840);
-
-    // Exactly matching sum without any rounding discrepancy
     const sumMilestones =
       result.milestone1Amount + result.milestone2Amount + result.milestone3Amount;
     expect(sumMilestones).toBe(result.finalTotalCost);
+
+    const changedHours = features.map((feature) => ({ ...feature, estimatedHours: feature.estimatedHours * 2 }));
+    expect(CalculationService.calculateMetrics(changedHours, 300, 'MEDIUM').finalTotalCost)
+      .toBe(result.finalTotalCost);
   });
 
-  it('should handle decimal hours and guarantee 100% precision in milestone sum', () => {
+  it('reconciles a manually set fixed quote with risk and milestones', () => {
     const features: IFeatureForCalculation[] = [
-      { estimatedHours: 17.5, isIncluded: true },
-      { estimatedHours: 33.3, isIncluded: true },
+      { estimatedHours: 17.5, isIncluded: true, category: 'AI', complexity: 'HIGH' },
+      { estimatedHours: 33.3, isIncluded: true, category: 'DATABASE', complexity: 'MEDIUM' },
     ];
-    const hourlyRate = 27.5;
-    const riskLevel = 'HIGH'; // 20%
+    const result = CalculationService.calculateMetricsForFixedFee(features, 12000, 'HIGH');
 
-    const result = CalculationService.calculateMetrics(features, hourlyRate, riskLevel);
-
-    const sumMilestones = Math.round(
-      (result.milestone1Amount + result.milestone2Amount + result.milestone3Amount) * 100
-    ) / 100;
-
-    expect(sumMilestones).toBe(result.finalTotalCost);
+    expect(result.finalTotalCost).toBe(12000);
+    expect(result.baseCost).toBe(10000);
+    expect(result.riskBufferAmount).toBe(2000);
+    expect(result.scopePointValue * result.totalScopePoints).toBeCloseTo(result.baseCost);
+    expect(result.milestone1Amount + result.milestone2Amount + result.milestone3Amount)
+      .toBe(result.finalTotalCost);
   });
 
   it('should return 0 costs when all features are excluded', () => {
@@ -74,5 +60,6 @@ describe('CalculationService — Mathematical Formula Verification', () => {
     expect(result.milestone1Amount).toBe(0);
     expect(result.milestone2Amount).toBe(0);
     expect(result.milestone3Amount).toBe(0);
+    expect(result.totalScopePoints).toBe(0);
   });
 });

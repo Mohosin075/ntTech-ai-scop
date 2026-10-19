@@ -33,9 +33,9 @@ router.patch(
 );
 
 router.patch(
-  '/:id/rate',
-  validateRequest(ProjectValidations.updateHourlyRateValidationSchema),
-  ProjectControllers.updateHourlyRate
+  '/:id/fee',
+  validateRequest(ProjectValidations.updateProjectFeeValidationSchema),
+  ProjectControllers.updateProjectFee
 );
 
 router.delete(

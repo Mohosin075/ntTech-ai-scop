@@ -107,6 +107,10 @@ The AI receives the project title and written brief. It returns a 2–3 sentence
 
 Provider output is checked for the required fields, supported categories and complexity values, a 0–100 confidence range, and feature/hour limits. Automated tests cover sample domain fallback output, cost and contingency math, milestone rounding, empty scopes, role checks, rejection notes, and locked projects. This is structural and rule-level evaluation; the project has not been measured against a labeled dataset or real historical estimates. Confidence is not statistically calibrated, and generated hours, risk, and stack suggestions are planning inputs that a human estimator must review before approval.
 
+## Fixed project pricing
+
+Quotes are in USD and are priced from the included scope, not by multiplying estimated hours by an hourly rate. Each feature contributes weighted scope points based on its complexity and workstream (for example, integrations and AI work carry more weight). The South Asia studio baseline defaults to $350 per weighted scope point and can be calibrated with `SOUTH_ASIA_SCOPE_POINT_USD`; this all-in scope price covers normal delivery coordination and studio margin. The risk tier adds a 5%, 12%, or 20% scope contingency; 30/40/30 milestone payments split the final quote. Hours remain internal delivery-planning estimates and only inform the schedule. Estimators can set the final fixed quote directly; doing so recalibrates feature allocations so they still reconcile with the project subtotal. The baseline is a starting point, and quotes should be reviewed against the company's actual delivery costs and client scope.
+
 ## Security notes
 
 - Public registration always creates an `ESTIMATOR`; administrator accounts are provisioned through the seed or other trusted operations.

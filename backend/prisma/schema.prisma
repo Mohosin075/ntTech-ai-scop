@@ -60,36 +60,37 @@ model Project {
   id                String        @id @default(uuid())
   createdById       String        @map("created_by_id")
   title             String
-  rawRequirement    String        @db.Text @map("raw_requirement")
-  hourlyRate        Float         @default(25) @map("hourly_rate")
+  rawRequirement    String        @map("raw_requirement") @db.Text
+  scopePointValue   Float         @default(350) @map("scope_point_value")
   status            ProjectStatus @default(AI_ESTIMATED)
-  executiveSummary  String        @db.Text @map("executive_summary")
+  executiveSummary  String        @map("executive_summary") @db.Text
   riskLevel         RiskLevel     @default(MEDIUM) @map("risk_level")
   recommendedStack  String[]      @map("recommended_stack")
   aiConfidenceScore Float         @default(85) @map("ai_confidence_score")
   isFallbackUsed    Boolean       @default(false) @map("is_fallback_used")
 
   // Calculated Metrics
-  totalHours        Float         @default(0) @map("total_hours")
-  baseCost          Float         @default(0) @map("base_cost")
-  riskBufferPercent Float         @default(12) @map("risk_buffer_percent")
-  riskBufferAmount  Float         @default(0) @map("risk_buffer_amount")
-  finalTotalCost    Float         @default(0) @map("final_total_cost")
-  estimatedWeeks    Int           @default(1) @map("estimated_weeks")
+  totalScopePoints  Float @default(0) @map("total_scope_points")
+  totalHours        Float @default(0) @map("total_hours")
+  baseCost          Float @default(0) @map("base_cost")
+  riskBufferPercent Float @default(12) @map("risk_buffer_percent")
+  riskBufferAmount  Float @default(0) @map("risk_buffer_amount")
+  finalTotalCost    Float @default(0) @map("final_total_cost")
+  estimatedWeeks    Int   @default(1) @map("estimated_weeks")
 
   // 30% - 40% - 30% Milestones
-  milestone1Amount  Float         @default(0) @map("milestone_1_amount")
-  milestone2Amount  Float         @default(0) @map("milestone_2_amount")
-  milestone3Amount  Float         @default(0) @map("milestone_3_amount")
+  milestone1Amount Float @default(0) @map("milestone_1_amount")
+  milestone2Amount Float @default(0) @map("milestone_2_amount")
+  milestone3Amount Float @default(0) @map("milestone_3_amount")
 
-  rejectionReason   String?       @db.Text @map("rejection_reason")
-  reviewedById      String?       @map("reviewed_by_id")
-  createdAt         DateTime      @default(now()) @map("created_at")
-  updatedAt         DateTime      @updatedAt @map("updated_at")
+  rejectionReason String?  @map("rejection_reason") @db.Text
+  reviewedById    String?  @map("reviewed_by_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
-  createdBy         User          @relation("CreatedProjects", fields: [createdById], references: [id], onDelete: Cascade)
-  reviewedBy        User?         @relation("ReviewedProjects", fields: [reviewedById], references: [id], onDelete: SetNull)
-  features          Feature[]
+  createdBy  User      @relation("CreatedProjects", fields: [createdById], references: [id], onDelete: Cascade)
+  reviewedBy User?     @relation("ReviewedProjects", fields: [reviewedById], references: [id], onDelete: SetNull)
+  features   Feature[]
 
   @@index([createdById])
   @@index([status])
@@ -107,7 +108,7 @@ model Feature {
   createdAt      DateTime          @default(now()) @map("created_at")
   updatedAt      DateTime          @updatedAt @map("updated_at")
 
-  project        Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
   @@map("features")

@@ -34,6 +34,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(config.env === 'development' ? 'dev' : 'combined'));
 
+// Root Base Route
+app.get('/', (_req: Request, res: Response) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to ScopeAI Backend API Server',
+    environment: config.env,
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      apiV1: '/api/v1',
+    },
+  });
+});
+
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({

@@ -7,7 +7,7 @@ import CalculationService from '../../services/calculation.service';
 import WorkflowService from '../../services/workflow.service';
 import {
   IGenerateProjectInput,
-  IUpdateHourlyRateInput,
+  IUpdateProjectFeeInput,
   IUpdateProjectStatusInput,
 } from './project.interface';
 
@@ -42,11 +42,13 @@ const generateProjectWithAI = async (
   const featuresForCalc = aiResult.features.map((f) => ({
     estimatedHours: f.estimatedHours,
     isIncluded: true,
+    category: f.category,
+    complexity: f.complexity,
   }));
 
   const metrics = CalculationService.calculateMetrics(
     featuresForCalc,
-    payload.hourlyRate,
+    CalculationService.DEFAULT_SCOPE_POINT_VALUE,
     aiResult.riskLevel
   );
 
@@ -57,7 +59,6 @@ const generateProjectWithAI = async (
         createdById: userId,
         title: payload.title,
         rawRequirement: payload.rawRequirement,
-        hourlyRate: payload.hourlyRate,
         status: ProjectStatus.AI_ESTIMATED,
         executiveSummary: aiResult.executiveSummary,
         riskLevel: aiResult.riskLevel,
@@ -218,12 +219,12 @@ const updateProjectStatus = async (
 };
 
 /**
- * Update project hourly rate and recalculate metrics
+ * Update the fixed project fee and recalibrate the internal scope-point value.
  */
-const updateHourlyRate = async (
+const updateProjectFee = async (
   projectId: string,
   userId: string,
-  payload: IUpdateHourlyRateInput
+  payload: IUpdateProjectFeeInput
 ) => {
   const project = await getSingleProjectFromDB(projectId);
   assertProjectOwner(project, userId);
@@ -231,19 +232,20 @@ const updateHourlyRate = async (
   // Guard 4: Immutability lock check
   WorkflowService.validateFeatureModification(project.status);
 
-  const metrics = CalculationService.calculateMetrics(
+  const metrics = CalculationService.calculateMetricsForFixedFee(
     project.features.map((f) => ({
       estimatedHours: f.estimatedHours,
       isIncluded: f.isIncluded,
+      category: f.category,
+      complexity: f.complexity,
     })),
-    payload.hourlyRate,
+    payload.finalTotalCost,
     project.riskLevel
   );
 
   const updatedProject = await prisma.project.update({
     where: { id: projectId },
     data: {
-      hourlyRate: payload.hourlyRate,
       ...metrics,
     },
     include: projectFullDetailsInclude,
@@ -280,6 +282,6 @@ export const ProjectServices = {
   getAllProjectsFromDB,
   getSingleProjectFromDB,
   updateProjectStatus,
-  updateHourlyRate,
+  updateProjectFee,
   deleteProjectFromDB,
 };

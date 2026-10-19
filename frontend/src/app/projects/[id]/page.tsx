@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { fetchApi } from '@/lib/api';
 import { formatProjectTitle } from '@/lib/formatProjectTitle';
+import { getFeatureAllocation } from '@/lib/scopePricing';
 import { Feature, FeatureCategory, FeatureComplexity, Project, ProjectStatus } from '@/types';
 import Navbar from '@/components/common/Navbar';
 import StatusBadge from '@/components/common/StatusBadge';
@@ -137,25 +138,16 @@ function ProjectWorkspaceContent() {
 
   const handleUpdateProjectFee = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!project || project.totalHours <= 0 || newProjectFee <= 0) return;
-
-    // The backend keeps an internal planning rate; translate the fixed quote
-    // into that value without exposing an hourly price to the client.
-    const internalRate = Number(
-      (newProjectFee / (project.totalHours * (1 + project.riskBufferPercent / 100))).toFixed(2)
-    );
-    if (internalRate < 5 || internalRate > 500) {
-      const minFee = project.totalHours * 5 * (1 + project.riskBufferPercent / 100);
-      const maxFee = project.totalHours * 500 * (1 + project.riskBufferPercent / 100);
-      toast.error(`For this scope, choose a project fee between $${minFee.toLocaleString()} and $${maxFee.toLocaleString()}.`);
+    if (!project || newProjectFee < 100 || newProjectFee > 5000000) {
+      toast.error('Enter a fixed project fee between $100 and $5,000,000.');
       return;
     }
 
     try {
       setUpdatingProjectFee(true);
-      const res = await fetchApi<Project>(`/projects/${projectId}/rate`, {
+      const res = await fetchApi<Project>(`/projects/${projectId}/fee`, {
         method: 'PATCH',
-        body: JSON.stringify({ hourlyRate: internalRate }),
+        body: JSON.stringify({ finalTotalCost: newProjectFee }),
       });
       if (res.success && res.data) {
         syncProject(res.data);
@@ -363,8 +355,11 @@ function ProjectWorkspaceContent() {
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
             </Link>
-            <h1 className="mt-1.5 text-xl sm:text-3xl lg:text-4xl font-semibold leading-tight tracking-tight text-[#182b39] break-words">
-              {formatProjectTitle(project.title)}
+            <h1
+              title={formatProjectTitle(project.title)}
+              className="mt-1 text-base sm:text-lg lg:text-xl font-semibold leading-snug tracking-tight text-[#182b39] truncate max-w-xl sm:max-w-2xl"
+            >
+              {formatProjectTitle(project.title, 42)}
             </h1>
             <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2">
               <StatusBadge status={project.status} />
@@ -495,7 +490,7 @@ function ProjectWorkspaceContent() {
         </div>
 
         {/* Effort & Cost Distribution by Component */}
-        <CategoryAnalytics features={project.features} hourlyRate={project.hourlyRate} />
+        <CategoryAnalytics features={project.features} scopePointValue={project.scopePointValue} />
 
         {/* 2-Column Workspace Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -625,7 +620,7 @@ function ProjectWorkspaceContent() {
                       <th className="py-2.5 px-2.5 font-medium">Category</th>
                       <th className="py-2.5 px-2.5 font-medium">Complexity</th>
                       <th className="py-2.5 px-3 text-center font-medium">Hours</th>
-                      <th className="py-2.5 px-3 text-right font-medium">Subtotal</th>
+                      <th className="py-2.5 px-3 text-right font-medium">Fee allocation</th>
                       <th className="py-2.5 px-2.5 w-16 text-center font-medium">Actions</th>
                     </tr>
                   </thead>
@@ -795,7 +790,7 @@ function ProjectWorkspaceContent() {
 
                         {/* Subtotal */}
                         <td className="py-2 px-3 text-right font-semibold text-emerald-900">
-                          ${(f.estimatedHours * project.hourlyRate).toLocaleString()}
+                          ${getFeatureAllocation(f, project.scopePointValue).toLocaleString('en-US', { maximumFractionDigits: 2 })}
                         </td>
 
                         {/* Delete */}
@@ -861,7 +856,7 @@ function ProjectWorkspaceContent() {
                 Project fee
               </h3>
               <p className="text-xs sm:text-sm text-[#526270] font-sans">
-                Set the fixed price for the agreed scope. Estimated hours are used only for delivery planning.
+                Set a fixed USD quote for the agreed scope. Feature complexity shapes the internal allocation; estimated hours only guide the delivery plan.
               </p>
 
               <form onSubmit={handleUpdateProjectFee} className="space-y-2.5">
@@ -869,7 +864,8 @@ function ProjectWorkspaceContent() {
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#65717a] text-xs">$</span>
                   <input
                     type="number"
-                    min={1}
+                    min={100}
+                    max={5000000}
                     step="0.01"
                     disabled={!isScopeEditable || updatingProjectFee}
                     value={newProjectFee}
@@ -888,7 +884,7 @@ function ProjectWorkspaceContent() {
                       </span>
                     </div>
                     <div className="text-xs text-[#65717a] font-sans">
-                      Milestone amounts and scope allocations will update with this price.
+                    Milestone amounts and feature allocations will update with this fixed quote.
                     </div>
                   </div>
                 )}

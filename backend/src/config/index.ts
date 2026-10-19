@@ -4,6 +4,12 @@ import path from 'path';
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 const environment = process.env.NODE_ENV || 'development';
+const configuredScopePointValue = Number(process.env.SOUTH_ASIA_SCOPE_POINT_USD || 350);
+const scopePointValueUsd = Number.isFinite(configuredScopePointValue)
+  && configuredScopePointValue >= 25
+  && configuredScopePointValue <= 20000
+  ? configuredScopePointValue
+  : 350;
 const jwtSecret = process.env.JWT_SECRET || 'scopeai_local_development_secret_only';
 if (
   environment === 'production' &&
@@ -21,6 +27,9 @@ const config = {
     .map((origin) => origin.trim())
     .filter(Boolean),
   database_url: process.env.DATABASE_URL || '',
+  pricing: {
+    south_asia_scope_point_usd: scopePointValueUsd,
+  },
   jwt: {
     secret: jwtSecret,
     expires_in: process.env.JWT_EXPIRES_IN || '7d',

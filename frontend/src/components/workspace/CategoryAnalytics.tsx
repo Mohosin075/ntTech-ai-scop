@@ -2,10 +2,11 @@
 
 import React, { useMemo } from 'react';
 import { Feature, FeatureCategory } from '@/types';
+import { getFeatureScopePoints } from '@/lib/scopePricing';
 
 interface CategoryAnalyticsProps {
   features: Feature[];
-  hourlyRate: number;
+  scopePointValue: number;
 }
 
 const CATEGORY_COLORS: Record<FeatureCategory, { bar: string; badge: string }> = {
@@ -18,7 +19,7 @@ const CATEGORY_COLORS: Record<FeatureCategory, { bar: string; badge: string }> =
 
 export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
   features,
-  hourlyRate,
+  scopePointValue,
 }) => {
   const activeFeatures = useMemo(
     () => features.filter((f) => f.isIncluded),
@@ -31,27 +32,28 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
   );
 
   const distribution = useMemo(() => {
-    const map: Record<FeatureCategory, { hours: number; count: number }> = {
-      FRONTEND: { hours: 0, count: 0 },
-      BACKEND: { hours: 0, count: 0 },
-      DATABASE: { hours: 0, count: 0 },
-      INTEGRATION: { hours: 0, count: 0 },
-      AI: { hours: 0, count: 0 },
+    const map: Record<FeatureCategory, { hours: number; count: number; scopePoints: number }> = {
+      FRONTEND: { hours: 0, count: 0, scopePoints: 0 },
+      BACKEND: { hours: 0, count: 0, scopePoints: 0 },
+      DATABASE: { hours: 0, count: 0, scopePoints: 0 },
+      INTEGRATION: { hours: 0, count: 0, scopePoints: 0 },
+      AI: { hours: 0, count: 0, scopePoints: 0 },
     };
 
     activeFeatures.forEach((f) => {
       if (map[f.category]) {
         map[f.category].hours += f.estimatedHours;
         map[f.category].count += 1;
+        map[f.category].scopePoints += getFeatureScopePoints(f);
       }
     });
+    const totalScopePoints = Object.values(map).reduce((sum, item) => sum + item.scopePoints, 0);
 
     return Object.entries(map)
       .map(([cat, data]) => {
         const category = cat as FeatureCategory;
-        const percentage =
-          totalActiveHours > 0 ? Math.round((data.hours / totalActiveHours) * 100) : 0;
-        const cost = data.hours * hourlyRate;
+        const percentage = totalScopePoints > 0 ? Math.round((data.scopePoints / totalScopePoints) * 100) : 0;
+        const cost = data.scopePoints * scopePointValue;
         return {
           category,
           ...data,
@@ -60,9 +62,9 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
           colors: CATEGORY_COLORS[category],
         };
       })
-      .filter((item) => item.hours > 0)
-      .sort((a, b) => b.hours - a.hours);
-  }, [activeFeatures, totalActiveHours, hourlyRate]);
+      .filter((item) => item.scopePoints > 0)
+      .sort((a, b) => b.scopePoints - a.scopePoints);
+  }, [activeFeatures, scopePointValue]);
 
   if (totalActiveHours === 0) return null;
 
@@ -71,10 +73,10 @@ export const CategoryAnalytics: React.FC<CategoryAnalyticsProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 pb-2 border-b border-[#d5deda]">
         <div>
           <h3 className="font-medium text-xs text-[#263d4a]">
-            Effort and cost distribution
+            Project scope and fee allocation
           </h3>
           <p className="text-xs text-[#526270] font-sans">
-            Workload distribution across architectural layers
+            Scoped delivery fee before the risk contingency
           </p>
         </div>
         <span className="text-xs text-[#526270] bg-[#f7f7f4] border border-[#d5deda] px-2 py-0.5 rounded-md">
