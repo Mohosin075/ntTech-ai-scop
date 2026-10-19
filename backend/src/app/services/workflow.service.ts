@@ -18,13 +18,20 @@ export class WorkflowService {
     userRole: Role,
     rejectionReason?: string
   ): void {
-    if (currentStatus === ProjectStatus.APPROVED && targetStatus !== ProjectStatus.APPROVED) {
-      if (userRole !== Role.ADMIN) {
-        throw new AppError(
-          StatusCodes.BAD_REQUEST,
-          'Approved projects are finalized and locked.'
-        );
-      }
+    const allowedTransitions: Record<ProjectStatus, ProjectStatus[]> = {
+      [ProjectStatus.AI_ESTIMATED]: [ProjectStatus.UNDER_REVIEW],
+      [ProjectStatus.UNDER_REVIEW]: [ProjectStatus.APPROVED, ProjectStatus.REJECTED],
+      [ProjectStatus.REJECTED]: [ProjectStatus.UNDER_REVIEW],
+      [ProjectStatus.APPROVED]: [],
+    };
+
+    if (!allowedTransitions[currentStatus].includes(targetStatus)) {
+      throw new AppError(
+        StatusCodes.BAD_REQUEST,
+        currentStatus === ProjectStatus.APPROVED
+          ? 'Approved projects are finalized and locked.'
+          : `Cannot transition a project from ${currentStatus} to ${targetStatus}.`
+      );
     }
 
     if (targetStatus === ProjectStatus.UNDER_REVIEW) {
@@ -54,10 +61,15 @@ export class WorkflowService {
   }
 
   static validateFeatureModification(projectStatus: ProjectStatus): void {
-    if (projectStatus === ProjectStatus.APPROVED) {
+    if (
+      projectStatus === ProjectStatus.APPROVED ||
+      projectStatus === ProjectStatus.UNDER_REVIEW
+    ) {
       throw new AppError(
         StatusCodes.BAD_REQUEST,
-        'Approved projects are locked. Features cannot be added, edited, or removed.'
+        projectStatus === ProjectStatus.APPROVED
+          ? 'Approved projects are locked. Features cannot be added, edited, or removed.'
+          : 'Projects under review are locked. Wait for the review decision before changing the scope.'
       );
     }
   }

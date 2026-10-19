@@ -12,30 +12,30 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, risk, classNam
     switch (status) {
       case 'APPROVED':
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 ${className}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-900 border border-emerald-300 ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-700"></span>
             Approved
           </span>
         );
       case 'UNDER_REVIEW':
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 ${className}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-            Under Review
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-300 ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-700"></span>
+            In review
           </span>
         );
       case 'REJECTED':
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20 ${className}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-900 border border-rose-300 ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-700"></span>
             Rejected
           </span>
         );
       case 'AI_ESTIMATED':
       default:
         return (
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 ${className}`}>
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-900 border border-blue-300 ${className}`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-700"></span>
             AI Estimated
           </span>
         );
@@ -46,20 +46,20 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, risk, classNam
     switch (risk) {
       case 'LOW':
         return (
-          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 ${className}`}>
+          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-900 border border-emerald-300 ${className}`}>
             Low Risk (5%)
           </span>
         );
       case 'HIGH':
         return (
-          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20 ${className}`}>
+          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-900 border border-rose-300 ${className}`}>
             High Risk (20%)
           </span>
         );
       case 'MEDIUM':
       default:
         return (
-          <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20 ${className}`}>
+          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-300 ${className}`}>
             Medium Risk (12%)
           </span>
         );

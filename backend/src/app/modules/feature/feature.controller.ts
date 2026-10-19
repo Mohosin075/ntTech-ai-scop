@@ -6,7 +6,11 @@ import { FeatureServices } from './feature.service';
 
 const addFeature = catchAsync(async (req: Request, res: Response) => {
   const { id: projectId } = req.params;
-  const result = await FeatureServices.addFeatureToProject(projectId, req.body);
+  const result = await FeatureServices.addFeatureToProject(
+    projectId,
+    req.user!.id,
+    req.body
+  );
 
   sendResponse(res, {
     statusCode: StatusCodes.CREATED,
@@ -21,6 +25,7 @@ const updateFeature = catchAsync(async (req: Request, res: Response) => {
   const result = await FeatureServices.updateFeatureInProject(
     projectId,
     featureId,
+    req.user!.id,
     req.body
   );
 
@@ -36,7 +41,8 @@ const deleteFeature = catchAsync(async (req: Request, res: Response) => {
   const { id: projectId, featureId } = req.params;
   const result = await FeatureServices.deleteFeatureFromProject(
     projectId,
-    featureId
+    featureId,
+    req.user!.id
   );
 
   sendResponse(res, {

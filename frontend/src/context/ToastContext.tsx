@@ -50,23 +50,23 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto flex items-center justify-between gap-2 p-2.5 rounded-md border border-[#27272A] border-l-2 text-xs shadow-xl transition-colors ${
+            className={`pointer-events-auto flex items-center justify-between gap-2 p-2.5 rounded-md border border-[#d5deda] border-l-2 text-xs shadow-xl transition-colors ${
               t.type === 'success'
-                ? 'bg-[#121214] border-l-emerald-500 text-zinc-200'
+                ? 'bg-[#ffffff] border-l-emerald-500 text-[#263d4a]'
                 : t.type === 'error'
-                ? 'bg-[#121214] border-l-rose-500 text-zinc-200'
-                : 'bg-[#121214] border-l-zinc-500 text-zinc-200'
+                ? 'bg-[#ffffff] border-l-rose-500 text-[#263d4a]'
+                : 'bg-[#ffffff] border-l-slate-400 text-[#263d4a]'
             }`}
           >
             <div className="flex items-center gap-2">
-              {t.type === 'success' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
-              {t.type === 'error' && <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />}
-              {t.type === 'info' && <Info className="w-3.5 h-3.5 text-zinc-400 shrink-0" />}
+              {t.type === 'success' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-900 shrink-0" />}
+              {t.type === 'error' && <AlertCircle className="w-3.5 h-3.5 text-rose-900 shrink-0" />}
+              {t.type === 'info' && <Info className="w-3.5 h-3.5 text-[#526270] shrink-0" />}
               <span>{t.message}</span>
             </div>
             <button
               onClick={() => removeToast(t.id)}
-              className="text-zinc-500 hover:text-zinc-200 p-0.5 rounded transition"
+              className="text-[#65717a] hover:text-[#263d4a] p-0.5 rounded transition"
             >
               <X className="w-3 h-3" />
             </button>

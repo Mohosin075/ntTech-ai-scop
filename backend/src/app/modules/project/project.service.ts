@@ -93,8 +93,15 @@ const generateProjectWithAI = async (
 /**
  * Get all projects with optional status filtering
  */
-const getAllProjectsFromDB = async (statusFilter?: ProjectStatus) => {
-  const whereClause = statusFilter ? { status: statusFilter } : {};
+const getAllProjectsFromDB = async (
+  userId: string,
+  userRole: Role,
+  statusFilter?: ProjectStatus
+) => {
+  const whereClause = {
+    ...(userRole === Role.ADMIN ? {} : { createdById: userId }),
+    ...(statusFilter ? { status: statusFilter } : {}),
+  };
 
   const projects = await prisma.project.findMany({
     where: whereClause,
@@ -113,7 +120,11 @@ const getAllProjectsFromDB = async (statusFilter?: ProjectStatus) => {
 /**
  * Get a single project with its features and creator/reviewer
  */
-const getSingleProjectFromDB = async (projectId: string) => {
+const getSingleProjectFromDB = async (
+  projectId: string,
+  requesterId?: string,
+  requesterRole?: Role
+) => {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     include: projectFullDetailsInclude,
@@ -123,7 +134,27 @@ const getSingleProjectFromDB = async (projectId: string) => {
     throw new AppError(StatusCodes.NOT_FOUND, 'Project not found!');
   }
 
+  if (
+    requesterId &&
+    requesterRole !== Role.ADMIN &&
+    project.createdById !== requesterId
+  ) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'Project not found!');
+  }
+
   return project;
+};
+
+const assertProjectOwner = (
+  project: { createdById: string },
+  userId: string
+): void => {
+  if (project.createdById !== userId) {
+    throw new AppError(
+      StatusCodes.FORBIDDEN,
+      'You can only change projects that you created.'
+    );
+  }
 };
 
 /**
@@ -136,6 +167,20 @@ const updateProjectStatus = async (
   payload: IUpdateProjectStatusInput
 ) => {
   const project = await getSingleProjectFromDB(projectId);
+
+  if (payload.status === ProjectStatus.UNDER_REVIEW) {
+    assertProjectOwner(project, userId);
+  } else if (
+    payload.status === ProjectStatus.APPROVED ||
+    payload.status === ProjectStatus.REJECTED
+  ) {
+    if (project.createdById === userId) {
+      throw new AppError(
+        StatusCodes.FORBIDDEN,
+        'A project creator cannot review their own scope.'
+      );
+    }
+  }
 
   // Guard 1: Empty Scope Check before submitting to UNDER_REVIEW
   if (payload.status === ProjectStatus.UNDER_REVIEW) {
@@ -177,9 +222,11 @@ const updateProjectStatus = async (
  */
 const updateHourlyRate = async (
   projectId: string,
+  userId: string,
   payload: IUpdateHourlyRateInput
 ) => {
   const project = await getSingleProjectFromDB(projectId);
+  assertProjectOwner(project, userId);
 
   // Guard 4: Immutability lock check
   WorkflowService.validateFeatureModification(project.status);
@@ -208,8 +255,18 @@ const updateHourlyRate = async (
 /**
  * Delete a project
  */
-const deleteProjectFromDB = async (projectId: string) => {
-  await getSingleProjectFromDB(projectId);
+const deleteProjectFromDB = async (projectId: string, userId: string) => {
+  const project = await getSingleProjectFromDB(projectId);
+  assertProjectOwner(project, userId);
+  if (
+    project.status === ProjectStatus.UNDER_REVIEW ||
+    project.status === ProjectStatus.APPROVED
+  ) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      'Projects under review or approved cannot be deleted.'
+    );
+  }
 
   await prisma.project.delete({
     where: { id: projectId },

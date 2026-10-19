@@ -20,6 +20,8 @@ const generateProject = catchAsync(async (req: Request, res: Response) => {
 const getAllProjects = catchAsync(async (req: Request, res: Response) => {
   const { status } = req.query;
   const result = await ProjectServices.getAllProjectsFromDB(
+    req.user!.id,
+    req.user!.role,
     status as ProjectStatus | undefined
   );
 
@@ -33,7 +35,11 @@ const getAllProjects = catchAsync(async (req: Request, res: Response) => {
 
 const getSingleProject = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ProjectServices.getSingleProjectFromDB(id);
+  const result = await ProjectServices.getSingleProjectFromDB(
+    id,
+    req.user!.id,
+    req.user!.role
+  );
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -65,7 +71,7 @@ const updateProjectStatus = catchAsync(async (req: Request, res: Response) => {
 
 const updateHourlyRate = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ProjectServices.updateHourlyRate(id, req.body);
+  const result = await ProjectServices.updateHourlyRate(id, req.user!.id, req.body);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -77,7 +83,7 @@ const updateHourlyRate = catchAsync(async (req: Request, res: Response) => {
 
 const deleteProject = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const result = await ProjectServices.deleteProjectFromDB(id);
+  const result = await ProjectServices.deleteProjectFromDB(id, req.user!.id);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,

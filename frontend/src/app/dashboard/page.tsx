@@ -17,30 +17,41 @@ import {
 
 const SAMPLE_PROMPTS = [
   {
-    title: 'Pathao Courier COD Settlement Engine',
-    rate: 35,
+    label: 'Courier settlements',
     text: 'A real-time logistics module for managing cash-on-delivery (COD) collection, automated rider payout balancing, delivery OTP confirmation, and merchant reconciliation ledgers.',
   },
   {
-    title: 'Chaldal Warehouse Inventory Batching Module',
-    rate: 30,
+    label: 'Warehouse inventory',
     text: 'Enterprise grocery fulfillment module for multi-hub warehouse inventory tracking, barcode scanner verification, perishable batch expiration alerts, and order picking routes.',
   },
   {
-    title: 'bKash Merchant Payment Gateway & Reconciliation',
-    rate: 40,
+    label: 'Merchant payments',
     text: 'High-availability payment orchestration engine with bKash and Nagad webhook handlers, tokenized recurring subscriptions, automated dispute refunds, and daily ledger reports.',
   },
 ];
+
+const DEFAULT_HOURLY_RATE = 25;
+
+const createTitleFromBrief = (brief: string) => {
+  const firstSentence = brief
+    .trim()
+    .split(/[.!?\n]/, 1)[0]
+    .replace(/^(please\s+)?(build|create|design|develop|make|we need|i need|i want)\s+/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const words = firstSentence.split(' ').filter(Boolean);
+  const title = words.slice(0, 8).join(' ');
+  if (title.length < 3) return 'Project estimate';
+  return `${title.charAt(0).toUpperCase()}${title.slice(1)}${words.length > 8 ? '…' : ''}`;
+};
 
 export default function DashboardPage() {
   const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
-  const [title, setTitle] = useState('');
-  const [hourlyRate, setHourlyRate] = useState<number>(25);
   const [rawRequirement, setRawRequirement] = useState('');
+  const briefLength = rawRequirement.trim().length;
   const [generating, setGenerating] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
 
@@ -82,10 +93,11 @@ export default function DashboardPage() {
   }, [user]);
 
   const stats = useMemo(() => {
-    const totalPipeline = projects.reduce((acc, p) => acc + (p.finalTotalCost || 0), 0);
-    const totalDevHours = projects.reduce((acc, p) => acc + (p.totalHours || 0), 0);
-    const pendingReviews = projects.filter((p) => p.status === 'UNDER_REVIEW').length;
-    const avgCost = projects.length > 0 ? Math.round(totalPipeline / projects.length) : 0;
+    const activeProjects = projects.filter((project) => project.status !== 'REJECTED');
+    const totalPipeline = activeProjects.reduce((acc, project) => acc + (project.finalTotalCost || 0), 0);
+    const totalDevHours = activeProjects.reduce((acc, project) => acc + (project.totalHours || 0), 0);
+    const pendingReviews = projects.filter((project) => project.status === 'UNDER_REVIEW').length;
+    const avgCost = activeProjects.length > 0 ? Math.round(totalPipeline / activeProjects.length) : 0;
     return {
       totalPipeline,
       totalDevHours,
@@ -122,8 +134,8 @@ export default function DashboardPage() {
     e.preventDefault();
     setGenError(null);
 
-    if (rawRequirement.trim().length < 20) {
-      const err = 'Please provide at least 20 characters of project description.';
+    if (briefLength < 20) {
+      const err = 'Please describe the project in at least 20 characters.';
       setGenError(err);
       toast.error(err);
       return;
@@ -134,174 +146,153 @@ export default function DashboardPage() {
       const res = await fetchApi<Project>('/projects/generate', {
         method: 'POST',
         body: JSON.stringify({
-          title,
+          title: createTitleFromBrief(rawRequirement),
           rawRequirement,
-          hourlyRate: Number(hourlyRate),
+          hourlyRate: DEFAULT_HOURLY_RATE,
         }),
       });
 
       if (res.success && res.data) {
         toast.success('Scope calculation complete');
         router.push(`/projects/${res.data.id}`);
+      } else {
+        throw new Error(res.message || 'Could not generate a project estimate. Please try again.');
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Generation failed';
       setGenError(msg);
       toast.error(msg);
+    } finally {
       setGenerating(false);
     }
   };
 
   const applySamplePrompt = (sample: (typeof SAMPLE_PROMPTS)[0]) => {
-    setTitle(sample.title);
-    setHourlyRate(sample.rate);
     setRawRequirement(sample.text);
     setGenError(null);
-    toast.info(`Loaded blueprint: ${sample.title}`);
+    toast.info(`Added example brief: ${sample.label}`);
   };
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-[#0A0A0B] flex items-center justify-center text-zinc-400">
+      <div className="min-h-screen bg-[#f7f7f4] flex items-center justify-center text-[#526270]">
         <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0B] text-zinc-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-transparent text-[#182b39] flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+        <section className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-medium text-[#126b67]">Your workspace</p>
+            <h1 className="mt-2 text-3xl sm:text-4xl font-semibold tracking-tight text-[#182b39]">Welcome back, {user.name.split(' ')[0]}</h1>
+            <p className="mt-2 text-base text-[#526270]">Plan, price, and review your projects.</p>
+          </div>
+          <div className="flex items-center gap-2 self-start sm:self-auto rounded-full border border-[#d5deda] bg-[#edf1ef] px-3 py-2 text-xs text-[#526270]">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />{user.role === 'ADMIN' ? 'Administrator' : 'Estimator'}
+          </div>
+        </section>
         {/* Minimal Stat Strip */}
-        <section className="bg-[#121214] border border-[#27272A] rounded-lg px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
-            <span className="text-zinc-500 font-sans">Total Pipeline Value:</span>
-            <span className="font-mono font-medium text-emerald-400">
+        <section className="bg-[#ffffff]/90 border border-[#d5deda] rounded-2xl px-5 py-4 sm:px-6 sm:py-5 grid grid-cols-2 lg:grid-cols-4 gap-4 text-xs shadow-sm shadow-slate-900/5">
+          <div className="flex flex-col gap-2">
+            <span className="text-[#65717a] font-sans">Project value</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-[#126b67]">
               ${stats.totalPipeline.toLocaleString()}
             </span>
           </div>
 
-          <span className="hidden md:inline text-zinc-700">•</span>
-
-          <div className="flex items-center gap-2">
-            <span className="text-zinc-500 font-sans">Total Effort:</span>
-            <span className="font-mono font-medium text-zinc-200">
+          <div className="flex flex-col gap-2 border-l border-[#d5deda] pl-4">
+            <span className="text-[#65717a] font-sans">Estimated effort</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-[#182b39]">
               {stats.totalDevHours.toLocaleString()}h
             </span>
           </div>
 
-          <span className="hidden md:inline text-zinc-700">•</span>
-
           <button
             onClick={() => setStatusFilter(statusFilter === 'UNDER_REVIEW' ? 'ALL' : 'UNDER_REVIEW')}
             title="Click to filter by Pending Review"
-            className={`flex items-center gap-2 px-2 py-1 rounded transition-colors ${
-              statusFilter === 'UNDER_REVIEW' ? 'bg-[#18181B] border border-[#27272A]' : 'hover:opacity-80'
+            className={`flex flex-col items-start gap-2 rounded-lg text-left transition-colors ${
+              statusFilter === 'UNDER_REVIEW' ? 'bg-amber-100 ring-1 ring-amber-300' : 'hover:bg-[#edf1ef]'
             }`}
           >
-            <span className="text-zinc-500 font-sans">Pending Review:</span>
+            <span className="text-[#65717a] font-sans">Pending review</span>
             <span
-              className={`font-mono font-medium ${
-                stats.pendingReviews > 0 ? 'text-amber-400' : 'text-zinc-300'
+              className={`text-2xl sm:text-3xl font-semibold ${
+                stats.pendingReviews > 0 ? 'text-amber-900' : 'text-[#304756]'
               }`}
             >
               {stats.pendingReviews}
             </span>
           </button>
 
-          <span className="hidden md:inline text-zinc-700">•</span>
-
-          <div className="flex items-center gap-2">
-            <span className="text-zinc-500 font-sans">Average Quote:</span>
-            <span className="font-mono font-medium text-zinc-200">
+          <div className="flex flex-col gap-2 border-l border-[#d5deda] pl-4">
+            <span className="text-[#65717a] font-sans">Average estimate</span>
+            <span className="text-2xl sm:text-3xl font-semibold text-[#182b39]">
               ${stats.avgCost.toLocaleString()}
             </span>
           </div>
         </section>
 
         {/* Project Scoping Generator Section */}
-        <section className="rounded-lg border border-[#27272A] bg-[#121214] p-5 space-y-4">
+        <section className="rounded-2xl border border-[#d5deda] bg-[#ffffff]/95 p-5 sm:p-7 space-y-5 shadow-sm shadow-slate-900/5">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-100">Create project estimate</h2>
-            <p className="text-xs text-zinc-400 mt-0.5 font-sans">
-              Enter target requirements and base hourly rate to calculate effort breakdown, risk buffer, and milestones.
+            <h2 className="text-2xl sm:text-3xl font-semibold text-[#182b39]">Describe your project</h2>
+            <p className="text-base text-[#526270] mt-1 font-sans">
+              Title comes from your brief. Rate: ${DEFAULT_HOURLY_RATE}/hr, adjustable in the workspace.
             </p>
           </div>
 
           {genError && (
-            <div className="flex items-start gap-2 p-2.5 rounded-md bg-rose-950/40 border border-rose-800/80 text-rose-300 text-xs">
-              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-rose-400" />
+            <div className="flex items-start gap-2 p-2.5 rounded-md bg-rose-100 border border-rose-300 text-rose-900 text-xs">
+              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-rose-900" />
               <span>{genError}</span>
             </div>
           )}
 
           <form onSubmit={handleGenerate} className="space-y-3.5">
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-              <div className="sm:col-span-3">
-                <label className="block text-xs font-medium text-zinc-300 mb-1 font-sans">
-                  Project title
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Pathao Courier COD Settlement Engine"
-                  className="w-full px-3 py-2 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-zinc-300 mb-1 font-sans">
-                  Hourly rate ($/hr)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-mono">$</span>
-                  <input
-                    type="number"
-                    min={5}
-                    max={500}
-                    required
-                    value={hourlyRate}
-                    onChange={(e) => setHourlyRate(Number(e.target.value))}
-                    className="w-full pl-6 pr-3 py-2 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs font-mono focus:outline-none focus:border-zinc-500 transition-colors"
-                  />
-                </div>
-              </div>
-            </div>
-
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-medium text-zinc-300 font-sans">
-                  Project requirements and scope description (minimum 20 characters)
+                <label htmlFor="project-brief" className="block text-base font-semibold text-[#263d4a] font-sans">
+                  Project brief <span className="text-rose-900">*</span>
                 </label>
-                <span className="text-xs text-zinc-500 font-mono">
-                  {rawRequirement.length} chars
+                <span
+                  id="brief-help"
+                  aria-live="polite"
+                  className={`text-sm font-semibold ${briefLength >= 20 ? 'text-emerald-900' : 'text-[#526270]'}`}
+                >
+                  {briefLength >= 20 ? 'Ready to generate' : `${20 - briefLength} more characters needed`}
                 </span>
               </div>
               <textarea
                 required
+                minLength={20}
                 rows={3}
+                id="project-brief"
+                aria-describedby="brief-help"
+                aria-invalid={briefLength > 0 && briefLength < 20}
                 value={rawRequirement}
                 onChange={(e) => setRawRequirement(e.target.value)}
-                placeholder="Describe business capabilities, core workflows, database entities, and integrations..."
-                className="w-full px-3 py-2 rounded-md bg-[#0A0A0B] border border-[#27272A] text-zinc-100 text-xs focus:outline-none focus:border-zinc-500 transition-colors placeholder:text-zinc-600 resize-none leading-relaxed font-sans"
+                placeholder="What should this project deliver? Include key features, users, integrations, and constraints."
+                className="w-full px-4 py-4 rounded-lg bg-[#f7f7f4] border border-[#d5deda] text-[#182b39] text-lg focus:outline-none focus:border-[#168780]/60 transition-colors placeholder:text-[#65717a] resize-y min-h-36 leading-relaxed font-sans"
               />
 
               {/* Sample Blueprints */}
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                <span className="text-xs text-zinc-500 font-sans">
-                  Presets:
+                <span className="text-sm text-[#65717a] font-sans">
+                  Example briefs:
                 </span>
-                {SAMPLE_PROMPTS.map((p, idx) => (
+                {SAMPLE_PROMPTS.map((p) => (
                   <button
-                    key={idx}
+                    key={p.label}
                     type="button"
                     onClick={() => applySamplePrompt(p)}
-                    className="text-xs px-2.5 py-1 rounded-md bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-zinc-300 hover:text-white transition-colors font-sans"
+                    className="text-sm px-3 py-2 rounded-md bg-white hover:bg-[#e3ebe8] border border-[#d5deda] text-[#304756] hover:text-[#182b39] transition-colors font-sans"
                   >
-                    {p.title.split(' ')[0]} {p.title.split(' ')[1]}
+                    {p.label}
                   </button>
                 ))}
               </div>
@@ -310,16 +301,16 @@ export default function DashboardPage() {
             <div className="flex justify-end pt-1">
               <button
                 type="submit"
-                disabled={generating}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-md font-medium text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition-colors disabled:opacity-50"
+                disabled={generating || briefLength < 20}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-semibold text-base bg-[#173f52] hover:bg-[#102f3e] text-white shadow-sm shadow-emerald-800/15 transition-colors disabled:opacity-60"
               >
                 {generating ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Calculating project scope...</span>
+                    <span>Preparing estimate…</span>
                   </>
                 ) : (
-                  <span>Calculate scope and milestones</span>
+                  <span>Generate estimate</span>
                 )}
               </button>
             </div>
@@ -330,28 +321,27 @@ export default function DashboardPage() {
         <section className="space-y-3.5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h3 className="text-sm font-semibold text-zinc-100">Project estimates</h3>
-              <p className="text-xs text-zinc-400 font-sans">Track and review scoped projects and milestones</p>
+              <h3 className="text-xl sm:text-2xl font-semibold text-[#182b39]">Estimates</h3>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-[#65717a] absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search estimates..."
-                  className="pl-8 pr-3 py-1.5 rounded-md bg-[#121214] border border-[#27272A] text-xs text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors w-44 sm:w-52"
+                  className="pl-8 pr-3 py-1.5 rounded-md bg-[#ffffff] border border-[#d5deda] text-xs text-[#263d4a] placeholder:text-[#65717a] focus:outline-none focus:border-[#168780] transition-colors w-44 sm:w-52"
                 />
               </div>
 
               <div className="flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-zinc-400" />
+                <Filter className="w-3.5 h-3.5 text-[#526270]" />
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="px-2.5 py-1.5 rounded-md bg-[#121214] border border-[#27272A] text-xs text-zinc-300 focus:outline-none focus:border-zinc-500 transition-colors font-sans"
+                  className="px-2.5 py-1.5 rounded-md bg-[#ffffff] border border-[#d5deda] text-xs text-[#304756] focus:outline-none focus:border-[#168780] transition-colors font-sans"
                 >
                   <option value="ALL">All statuses ({statusCounts.ALL})</option>
                   <option value="AI_ESTIMATED">AI estimated ({statusCounts.AI_ESTIMATED})</option>
@@ -364,14 +354,14 @@ export default function DashboardPage() {
           </div>
 
           {fetchingProjects ? (
-            <div className="py-12 text-center text-zinc-500 flex flex-col items-center justify-center gap-2">
+            <div className="py-12 text-center text-[#65717a] flex flex-col items-center justify-center gap-2">
               <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
               <span className="text-xs font-sans">Loading estimates...</span>
             </div>
           ) : filteredProjects.length === 0 ? (
-            <div className="p-8 text-center rounded-lg border border-[#27272A] bg-[#121214] text-zinc-400 space-y-3">
-              <p className="text-xs font-medium text-zinc-200">No project estimates found.</p>
-              <p className="text-xs text-zinc-500 font-sans">
+            <div className="p-8 text-center rounded-lg border border-[#d5deda] bg-[#ffffff] text-[#526270] space-y-3">
+              <p className="text-xs font-medium text-[#263d4a]">No project estimates found.</p>
+              <p className="text-xs text-[#65717a] font-sans">
                 {searchQuery || statusFilter !== 'ALL'
                   ? 'No estimates match your active search or status filter.'
                   : 'Use the form above to calculate your first project scope.'}
@@ -383,7 +373,7 @@ export default function DashboardPage() {
                     setSearchQuery('');
                     setStatusFilter('ALL');
                   }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-zinc-200 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-[#edf1ef] hover:bg-[#d5deda] border border-[#d5deda] text-[#263d4a] transition-colors"
                 >
                   <span>Reset all filters</span>
                 </button>

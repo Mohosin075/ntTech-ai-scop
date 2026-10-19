@@ -60,6 +60,7 @@ export class AIService {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(15000),
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { responseMimeType: 'application/json' },
@@ -72,13 +73,14 @@ export class AIService {
     if (!text) return null;
 
     const parsed = JSON.parse(text);
+    if (!this.isValidEstimate(parsed)) return null;
     return {
       executiveSummary: parsed.executiveSummary,
       riskLevel: parsed.riskLevel as RiskLevel,
       recommendedStack: parsed.recommendedStack,
       aiConfidenceScore: Number(parsed.aiConfidenceScore) || 90,
       isFallbackUsed: false,
-      features: parsed.features,
+      features: parsed.features as IAIFeatureItem[],
     };
   }
 
@@ -92,6 +94,7 @@ export class AIService {
     const prompt = this.buildPrompt(title, rawRequirement);
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
+      signal: AbortSignal.timeout(15000),
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${config.ai.openai_api_key}`,
@@ -109,14 +112,52 @@ export class AIService {
     if (!text) return null;
 
     const parsed = JSON.parse(text);
+    if (!this.isValidEstimate(parsed)) return null;
     return {
       executiveSummary: parsed.executiveSummary,
       riskLevel: parsed.riskLevel as RiskLevel,
       recommendedStack: parsed.recommendedStack,
       aiConfidenceScore: Number(parsed.aiConfidenceScore) || 92,
       isFallbackUsed: false,
-      features: parsed.features,
+      features: parsed.features as IAIFeatureItem[],
     };
+  }
+
+  private static isValidEstimate(value: unknown): boolean {
+    if (!value || typeof value !== 'object') return false;
+    const result = value as Record<string, unknown>;
+    if (
+      typeof result.executiveSummary !== 'string' ||
+      !result.executiveSummary.trim() ||
+      !Object.values(RiskLevel).includes(result.riskLevel as RiskLevel) ||
+      !Array.isArray(result.recommendedStack) ||
+      result.recommendedStack.length === 0 ||
+      !result.recommendedStack.every((item) => typeof item === 'string') ||
+      typeof result.aiConfidenceScore !== 'number' ||
+      !Number.isFinite(result.aiConfidenceScore) ||
+      result.aiConfidenceScore < 0 ||
+      result.aiConfidenceScore > 100 ||
+      !Array.isArray(result.features) ||
+      result.features.length < 6 ||
+      result.features.length > 8
+    ) {
+      return false;
+    }
+
+    return result.features.every((feature: unknown) => {
+      if (!feature || typeof feature !== 'object') return false;
+      const item = feature as Record<string, unknown>;
+      return (
+        typeof item.title === 'string' &&
+        item.title.trim().length > 0 &&
+        Object.values(FeatureCategory).includes(item.category as FeatureCategory) &&
+        Object.values(FeatureComplexity).includes(item.complexity as FeatureComplexity) &&
+        typeof item.estimatedHours === 'number' &&
+        Number.isFinite(item.estimatedHours) &&
+        item.estimatedHours >= 1 &&
+        item.estimatedHours <= 200
+      );
+    });
   }
 
   private static buildPrompt(title: string, rawRequirement: string): string {
@@ -150,27 +191,27 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
     title: string,
     rawRequirement: string
   ): IAIEstimateResult {
-    const text = `${title} ${rawRequirement}`.toLowerCase();
+    const normalizedText = ` ${`${title} ${rawRequirement}`
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim()} `;
+    const hasAny = (...terms: string[]) =>
+      terms.some((term) => {
+        const normalizedTerm = term.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+        return normalizedText.includes(` ${normalizedTerm} `);
+      });
 
     // 1. Risk Classification heuristic
     let riskLevel: RiskLevel = RiskLevel.MEDIUM;
     let confidence = 86;
 
     if (
-      text.includes('ai') ||
-      text.includes('blockchain') ||
-      text.includes('realtime') ||
-      text.includes('streaming') ||
-      text.includes('microservice') ||
-      text.includes('multi-vendor')
+      hasAny('ai', 'blockchain', 'real time', 'realtime', 'streaming', 'microservice', 'microservices', 'multi-vendor', 'high availability', 'payment gateway', 'recurring payments')
     ) {
       riskLevel = RiskLevel.HIGH;
       confidence = 82;
     } else if (
-      text.includes('blog') ||
-      text.includes('landing') ||
-      text.includes('portfolio') ||
-      text.includes('simple')
+      hasAny('blog', 'landing', 'portfolio', 'simple')
     ) {
       riskLevel = RiskLevel.LOW;
       confidence = 94;
@@ -185,10 +226,10 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
       'PostgreSQL',
       'Prisma ORM',
     ];
-    if (text.includes('realtime') || text.includes('chat')) {
+    if (hasAny('real time', 'realtime', 'chat')) {
       recommendedStack.push('Socket.io', 'Redis');
     }
-    if (text.includes('ai') || text.includes('machine learning')) {
+    if (hasAny('ai', 'machine learning')) {
       recommendedStack.push('OpenAI / Gemini API');
     }
 
@@ -208,7 +249,7 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
       },
     ];
 
-    if (text.includes('e-commerce') || text.includes('shop') || text.includes('cart')) {
+    if (hasAny('e-commerce', 'ecommerce', 'shop', 'cart', 'product catalog')) {
       features.push(
         {
           title: 'Product Catalog & Advanced Multi-Facet Filtering',
@@ -235,7 +276,7 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
           estimatedHours: 26,
         }
       );
-    } else if (text.includes('food') || text.includes('restaurant') || text.includes('delivery')) {
+    } else if (hasAny('food', 'restaurant', 'meal', 'menu')) {
       features.push(
         {
           title: 'Restaurant Menu & Add-on Item Selection UI',
@@ -262,7 +303,7 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
           estimatedHours: 16,
         }
       );
-    } else if (text.includes('hospital') || text.includes('health') || text.includes('clinic')) {
+    } else if (hasAny('hospital', 'health', 'clinic', 'patient', 'medical')) {
       features.push(
         {
           title: 'Doctor Appointment Scheduling & Calendar Booking',
@@ -287,6 +328,60 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
           category: FeatureCategory.FRONTEND,
           complexity: FeatureComplexity.MEDIUM,
           estimatedHours: 22,
+        }
+      );
+    } else if (hasAny('courier', 'logistics', 'rider', 'cash on delivery', 'delivery otp', 'merchant settlement')) {
+      features.push(
+        {
+          title: 'Cash-on-Delivery Collection & Merchant Settlement',
+          category: FeatureCategory.BACKEND,
+          complexity: FeatureComplexity.HIGH,
+          estimatedHours: 28,
+        },
+        {
+          title: 'Rider Payout Balancing & Delivery Reconciliation',
+          category: FeatureCategory.BACKEND,
+          complexity: FeatureComplexity.HIGH,
+          estimatedHours: 24,
+        },
+        {
+          title: 'Delivery OTP Confirmation & Status Integration',
+          category: FeatureCategory.INTEGRATION,
+          complexity: FeatureComplexity.MEDIUM,
+          estimatedHours: 18,
+        },
+        {
+          title: 'Merchant Ledger & Operations Reporting',
+          category: FeatureCategory.DATABASE,
+          complexity: FeatureComplexity.HIGH,
+          estimatedHours: 22,
+        }
+      );
+    } else if (hasAny('payment', 'gateway', 'bkash', 'nagad', 'webhook', 'reconciliation', 'ledger', 'subscription', 'refund')) {
+      features.push(
+        {
+          title: 'Payment Gateway Orchestration & Webhook Handling',
+          category: FeatureCategory.INTEGRATION,
+          complexity: FeatureComplexity.HIGH,
+          estimatedHours: 26,
+        },
+        {
+          title: 'Recurring Billing, Token Lifecycle & Subscription Management',
+          category: FeatureCategory.BACKEND,
+          complexity: FeatureComplexity.HIGH,
+          estimatedHours: 24,
+        },
+        {
+          title: 'Dispute, Refund & Payment Status Workflow',
+          category: FeatureCategory.BACKEND,
+          complexity: FeatureComplexity.HIGH,
+          estimatedHours: 20,
+        },
+        {
+          title: 'Merchant Ledger Reconciliation & Settlement Reports',
+          category: FeatureCategory.DATABASE,
+          complexity: FeatureComplexity.HIGH,
+          estimatedHours: 26,
         }
       );
     } else {
@@ -320,7 +415,7 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
     }
 
     // AI or Analytics feature
-    if (text.includes('ai') || text.includes('analytics') || text.includes('smart')) {
+    if (hasAny('ai', 'machine learning', 'recommendation engine', 'intelligent assistant')) {
       features.push({
         title: 'Intelligent AI Recommendations & Insights Engine',
         category: FeatureCategory.AI,
@@ -336,7 +431,11 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
       });
     }
 
-    const executiveSummary = `Comprehensive fullstack solution designed for "${title}". Engineered with a modular decoupled architecture, robust PostgreSQL relational schema, secure role-based access control, and scalable milestone-driven delivery milestones.`;
+    const focus = features
+      .slice(2, 5)
+      .map((feature) => feature.title.toLowerCase())
+      .join(', ');
+    const executiveSummary = `Estimate for "${title}" focused on ${focus}. The baseline includes the core data and access-control work needed to deliver these features. Review feature hours and assumptions before submitting the scope for approval.`;
 
     return {
       executiveSummary,
