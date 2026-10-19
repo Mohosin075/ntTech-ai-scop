@@ -13,6 +13,8 @@ import {
   Loader2,
   AlertCircle,
   Search,
+  ShieldCheck,
+  ClipboardCheck,
 } from 'lucide-react';
 
 const SAMPLE_PROMPTS = [
@@ -37,6 +39,8 @@ const createTitleFromBrief = (brief: string) => {
     .trim()
     .split(/[.!?\n]/, 1)[0]
     .replace(/^(please\s+)?(build|create|design|develop|make|we need|i need|i want)\s+/i, '')
+    .replace(/^[\p{Extended_Pictographic}\s]+/u, '')
+    .replace(/^(?:project|estimate)\s*[:—-]\s*/i, '')
     .replace(/\s+/g, ' ')
     .trim();
   const words = firstSentence.split(' ').filter(Boolean);
@@ -192,8 +196,19 @@ export default function DashboardPage() {
             <h1 className="mt-2 text-3xl sm:text-4xl font-semibold tracking-tight text-[#182b39]">Welcome back, {user.name.split(' ')[0]}</h1>
             <p className="mt-2 text-base text-[#526270]">Plan, price, and review your projects.</p>
           </div>
-          <div className="flex items-center gap-2 self-start sm:self-auto rounded-full border border-[#d5deda] bg-[#edf1ef] px-3 py-2 text-xs text-[#526270]">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />{user.role === 'ADMIN' ? 'Administrator' : 'Estimator'}
+          <div className="flex w-full items-start gap-3 rounded-2xl border border-[#d5deda] bg-white p-4 shadow-sm shadow-[#173f52]/[0.04] sm:w-[340px]">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#edf4f2] text-[#126b67]">
+              {user.role === 'ADMIN' ? <ShieldCheck className="h-5 w-5" /> : <ClipboardCheck className="h-5 w-5" />}
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#65717a]">Your role</p>
+              <p className="mt-0.5 text-base font-semibold text-[#182b39]">{user.role === 'ADMIN' ? 'Administrator' : 'Estimator'}</p>
+              <p className="mt-1 text-sm leading-5 text-[#526270]">
+                {user.role === 'ADMIN'
+                  ? 'Review team estimates, approve them, or return them with feedback.'
+                  : 'Create and refine estimates, then submit them for review.'}
+              </p>
+            </div>
           </div>
         </section>
         {/* Minimal Stat Strip */}
@@ -242,7 +257,7 @@ export default function DashboardPage() {
           <div>
             <h2 className="text-2xl sm:text-3xl font-semibold text-[#182b39]">Describe your project</h2>
             <p className="text-base text-[#526270] mt-1 font-sans">
-              Title comes from your brief. Rate: ${DEFAULT_HOURLY_RATE}/hr, adjustable in the workspace.
+              Turn your brief into a fixed project quote, scoped deliverables, and milestone plan. Effort stays as internal planning guidance.
             </p>
           </div>
 
@@ -307,10 +322,10 @@ export default function DashboardPage() {
                 {generating ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Preparing estimate…</span>
+                    <span>Preparing project quote…</span>
                   </>
                 ) : (
-                  <span>Generate estimate</span>
+                  <span>Build project quote</span>
                 )}
               </button>
             </div>

@@ -28,7 +28,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, risk, classNam
         return (
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-900 border border-rose-300 ${className}`}>
             <span className="w-1.5 h-1.5 rounded-full bg-rose-700"></span>
-            Rejected
+            Changes requested
           </span>
         );
       case 'AI_ESTIMATED':
@@ -36,7 +36,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, risk, classNam
         return (
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-900 border border-blue-300 ${className}`}>
             <span className="w-1.5 h-1.5 rounded-full bg-blue-700"></span>
-            AI Estimated
+            Draft estimate
           </span>
         );
     }

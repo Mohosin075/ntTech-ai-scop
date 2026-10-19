@@ -45,17 +45,16 @@ ${project.recommendedStack?.join(', ') || 'N/A'}
 ${activeFeatures
   .map(
     (f) =>
-      `- [x] **${f.title}** (${f.category} - ${f.complexity}): ${f.estimatedHours}h = $${(
+      `- [x] **${f.title}** (${f.category} - ${f.complexity}): $${(
         f.estimatedHours * project.hourlyRate
       ).toLocaleString()}`
   )
   .join('\n')}
 
-## Commercial Quotation
-- Total Effort: ${project.totalHours} Hours @ $${project.hourlyRate}/hr
-- Base Engineering: $${project.baseCost.toLocaleString()}
-- Contingency Buffer (${project.riskBufferPercent}%): +$${project.riskBufferAmount.toLocaleString()}
-- **Final Commercial Total: $${project.finalTotalCost.toLocaleString()}**
+## Fixed Project Fee
+- Feature allocations: $${project.baseCost.toLocaleString()}
+- Scope contingency (${project.riskBufferPercent}%): +$${project.riskBufferAmount.toLocaleString()}
+- **Total project fee: $${project.finalTotalCost.toLocaleString()}**
 
 ## Milestone Schedule
 - M1 (Kickoff - 30%): $${project.milestone1Amount.toLocaleString()}
@@ -193,7 +192,7 @@ ${activeFeatures
                 Itemized deliverables ({activeFeatures.length} active modules)
               </span>
               <span className="text-xs text-[#65717a]">
-                Rate: ${project.hourlyRate}/hr
+                Fixed-fee deliverables
               </span>
             </div>
 
@@ -204,7 +203,6 @@ ${activeFeatures
                     <th className="py-2.5 px-3 font-medium">Deliverable</th>
                     <th className="py-2.5 px-2.5 font-medium">Category</th>
                     <th className="py-2.5 px-2.5 font-medium">Complexity</th>
-                    <th className="py-2.5 px-2.5 text-center font-medium">Hours</th>
                     <th className="py-2.5 px-3 text-right font-medium">Subtotal</th>
                   </tr>
                 </thead>
@@ -230,7 +228,6 @@ ${activeFeatures
                           {f.complexity.toLowerCase()}
                         </span>
                       </td>
-                      <td className="py-2 px-2.5 text-center text-[#304756]">{f.estimatedHours}h</td>
                       <td className="py-2 px-3 text-right font-semibold text-emerald-900">
                         ${(f.estimatedHours * project.hourlyRate).toLocaleString()}
                       </td>
@@ -245,26 +242,18 @@ ${activeFeatures
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
             <div className="p-4 rounded-md bg-[#ffffff] border border-[#d5deda] space-y-2 text-xs">
               <span className="font-sans font-medium text-[#182b39] text-xs block border-b border-[#d5deda] pb-2">
-                Commercial Quotation
+                Fixed Project Fee
               </span>
               <div className="flex justify-between py-0.5">
-                <span className="text-[#65717a] font-sans">Total Effort:</span>
-                <span className="font-medium text-[#263d4a]">{project.totalHours} Hours</span>
+                <span className="text-[#65717a] font-sans">Feature allocations:</span>
+                <span className="font-medium text-[#263d4a]">${project.baseCost.toLocaleString()}</span>
               </div>
               <div className="flex justify-between py-0.5">
-                <span className="text-[#65717a] font-sans">Hourly Rate:</span>
-                <span className="text-[#263d4a]">${project.hourlyRate}/hr</span>
-              </div>
-              <div className="flex justify-between py-0.5">
-                <span className="text-[#65717a] font-sans">Base Engineering:</span>
-                <span className="text-[#263d4a]">${project.baseCost.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between py-0.5 text-[#526270]">
-                <span className="font-sans">Contingency Buffer ({project.riskBufferPercent}%):</span>
-                <span className="text-amber-900">+${project.riskBufferAmount.toLocaleString()}</span>
+                <span className="text-[#65717a] font-sans">Scope contingency ({project.riskBufferPercent}%):</span>
+                <span className="font-medium text-[#263d4a]">+${project.riskBufferAmount.toLocaleString()}</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-[#d5deda] text-xs font-semibold">
-                <span className="font-sans text-[#182b39]">Total Commercial Quotation:</span>
+                <span className="font-sans text-[#182b39]">Total project fee:</span>
                 <span className="text-emerald-900 text-sm">${project.finalTotalCost.toLocaleString()}</span>
               </div>
             </div>

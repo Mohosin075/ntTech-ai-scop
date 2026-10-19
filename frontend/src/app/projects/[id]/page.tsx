@@ -46,8 +46,12 @@ function ProjectWorkspaceContent() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const [newRate, setNewRate] = useState<number>(25);
-  const [updatingRate, setUpdatingRate] = useState(false);
+  const [newProjectFee, setNewProjectFee] = useState<number>(0);
+  const [updatingProjectFee, setUpdatingProjectFee] = useState(false);
+  const syncProject = (updatedProject: Project) => {
+    setProject(updatedProject);
+    setNewProjectFee(updatedProject.finalTotalCost);
+  };
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [featureTitle, setFeatureTitle] = useState('');
@@ -84,8 +88,7 @@ function ProjectWorkspaceContent() {
       try {
         const res = await fetchApi<Project>(`/projects/${projectId}`);
         if (!isCancelled && res.success && res.data) {
-          setProject(res.data);
-          setNewRate(res.data.hourlyRate);
+          syncProject(res.data);
         }
       } catch (err: unknown) {
         if (!isCancelled) {
@@ -129,22 +132,36 @@ function ProjectWorkspaceContent() {
     }
   };
 
-  const handleUpdateRate = async (e: React.FormEvent) => {
+  const handleUpdateProjectFee = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!project || project.totalHours <= 0 || newProjectFee <= 0) return;
+
+    // The backend keeps an internal planning rate; translate the fixed quote
+    // into that value without exposing an hourly price to the client.
+    const internalRate = Number(
+      (newProjectFee / (project.totalHours * (1 + project.riskBufferPercent / 100))).toFixed(2)
+    );
+    if (internalRate < 5 || internalRate > 500) {
+      const minFee = project.totalHours * 5 * (1 + project.riskBufferPercent / 100);
+      const maxFee = project.totalHours * 500 * (1 + project.riskBufferPercent / 100);
+      toast.error(`For this scope, choose a project fee between $${minFee.toLocaleString()} and $${maxFee.toLocaleString()}.`);
+      return;
+    }
+
     try {
-      setUpdatingRate(true);
+      setUpdatingProjectFee(true);
       const res = await fetchApi<Project>(`/projects/${projectId}/rate`, {
         method: 'PATCH',
-        body: JSON.stringify({ hourlyRate: Number(newRate) }),
+        body: JSON.stringify({ hourlyRate: internalRate }),
       });
       if (res.success && res.data) {
-        setProject(res.data);
-        toast.success('Hourly rate updated and costs recalculated');
+        syncProject(res.data);
+        toast.success('Fixed project quote updated');
       }
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : 'Failed to update hourly rate');
+      toast.error(err instanceof Error ? err.message : 'Failed to update project quote');
     } finally {
-      setUpdatingRate(false);
+      setUpdatingProjectFee(false);
     }
   };
 
@@ -159,7 +176,7 @@ function ProjectWorkspaceContent() {
         }
       );
       if (res.success && res.data) {
-        setProject(res.data.project);
+        syncProject(res.data.project);
         toast.info(
           `Feature ${feature.isIncluded ? 'excluded from' : 'included in'} budget calculations`
         );
@@ -181,7 +198,7 @@ function ProjectWorkspaceContent() {
         }
       );
       if (res.success && res.data) {
-        setProject(res.data.project);
+        syncProject(res.data.project);
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to adjust hours');
@@ -203,7 +220,7 @@ function ProjectWorkspaceContent() {
         }
       );
       if (res.success && res.data) {
-        setProject(res.data.project);
+        syncProject(res.data.project);
         toast.success('Feature title updated');
         setEditingFeatureId(null);
       }
@@ -225,7 +242,7 @@ function ProjectWorkspaceContent() {
         }
       );
       if (res.success && res.data) {
-        setProject(res.data.project);
+        syncProject(res.data.project);
         toast.success('Hours updated');
       }
     } catch (err: unknown) {
@@ -244,7 +261,7 @@ function ProjectWorkspaceContent() {
         }
       );
       if (res.success && res.data) {
-        setProject(res.data.project);
+        syncProject(res.data.project);
         toast.success('Feature removed');
       }
     } catch (err: unknown) {
@@ -271,7 +288,7 @@ function ProjectWorkspaceContent() {
         }
       );
       if (res.success && res.data) {
-        setProject(res.data.project);
+        syncProject(res.data.project);
         setIsAddModalOpen(false);
         setFeatureTitle('');
         setFeatureHours(10);
@@ -419,11 +436,11 @@ function ProjectWorkspaceContent() {
         {/* Summary Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           <KpiCard
-            label="Total Estimated Cost"
+            label="Fixed Project Quote"
             value={project.finalTotalCost.toLocaleString()}
             icon={<DollarSign className="w-4 h-4 -mr-1" />}
             valueClassName="text-emerald-900"
-            subtitle={`Base: $${project.baseCost.toLocaleString()} + Buffer: $${project.riskBufferAmount.toLocaleString()}`}
+            subtitle={`Includes ${project.riskBufferPercent}% scope contingency`}
           />
 
           <KpiCard
@@ -807,42 +824,40 @@ function ProjectWorkspaceContent() {
               </div>
             </div>
 
-            {/* Hourly Rate */}
+            {/* Fixed Project Fee */}
             <div className="rounded-lg border border-[#d5deda] bg-[#ffffff] p-4 space-y-3">
               <h3 className="font-semibold text-lg text-[#182b39]">
-                Hourly rate adjuster
+                Project fee
               </h3>
               <p className="text-sm text-[#526270] font-sans">
-                Update the rate, then recalculate the estimate.
+                Set the fixed price for the agreed scope. Estimated hours are used only for delivery planning.
               </p>
 
-              <form onSubmit={handleUpdateRate} className="space-y-2.5">
+              <form onSubmit={handleUpdateProjectFee} className="space-y-2.5">
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#65717a] text-xs">$</span>
                   <input
                     type="number"
-                    min={5}
-                    max={500}
-                    disabled={isScopeLocked || updatingRate}
-                    value={newRate}
-                    onChange={(e) => setNewRate(Number(e.target.value))}
+                    min={1}
+                    step="0.01"
+                    disabled={isScopeLocked || updatingProjectFee}
+                    value={newProjectFee}
+                    onChange={(e) => setNewProjectFee(Number(e.target.value))}
+                    aria-label="Fixed project fee in US dollars"
                     className="w-full pl-6 pr-3 py-1.5 rounded-md bg-[#f7f7f4] border border-[#d5deda] text-[#182b39] text-xs focus:outline-none focus:border-slate-400 transition-colors disabled:opacity-60"
                   />
                 </div>
 
-                {newRate !== project.hourlyRate && newRate > 0 && (
+                {newProjectFee !== project.finalTotalCost && newProjectFee > 0 && (
                   <div className="p-2.5 rounded-md bg-[#f7f7f4] border border-[#d5deda] text-xs space-y-1">
                     <div className="flex justify-between items-center text-[#304756]">
-                      <span className="font-sans text-[#65717a]">Projected Total:</span>
+                      <span className="font-sans text-[#65717a]">New fixed project quote:</span>
                       <span className="text-emerald-900 font-semibold">
-                        ${(
-                          project.totalHours * newRate +
-                          Math.round(project.totalHours * newRate * (project.riskBufferPercent / 100))
-                        ).toLocaleString()}
+                        ${newProjectFee.toLocaleString()}
                       </span>
                     </div>
                     <div className="text-xs text-[#65717a] font-sans">
-                      Click Recalculate to apply new rate to scope deliverables.
+                      Milestone amounts and scope allocations will update with this price.
                     </div>
                   </div>
                 )}
@@ -850,11 +865,11 @@ function ProjectWorkspaceContent() {
                 {!isScopeLocked && (
                   <button
                     type="submit"
-                    disabled={updatingRate || newRate === project.hourlyRate}
+                    disabled={updatingProjectFee || newProjectFee === project.finalTotalCost || newProjectFee <= 0}
                     className="w-full py-1.5 px-3 rounded-md bg-[#edf1ef] hover:bg-[#e3ebe8] text-xs font-medium text-[#263d4a] border border-[#d5deda] transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5"
                   >
-                    {updatingRate ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                    <span>Recalculate deliverables</span>
+                    {updatingProjectFee ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                    <span>Update project quote</span>
                   </button>
                 )}
               </form>
@@ -1029,7 +1044,7 @@ function ProjectWorkspaceContent() {
               1. Input Parameters
             </span>
             <p className="text-[#526270]">
-              Project title, raw natural language description, and financial hourly rate baseline.
+              Project title and raw natural language description. Effort and contingency are used to prepare a planning baseline for the fixed project quote.
             </p>
           </div>
 
