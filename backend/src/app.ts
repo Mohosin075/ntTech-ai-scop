@@ -8,26 +8,39 @@ import notFound from './app/middlewares/notFound';
 import router from './app/routes';
 
 const app: Application = express();
-const allowedOrigins = new Set(config.cors_origins);
+const allowedOrigins = new Set(config.cors_origins.map((origin) => origin.replace(/\/+$/, '')));
 
 // Security and utility middlewares
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
 app.use(
   cors({
     origin: (origin, callback) => {
       // Allow non-browser clients such as curl and Postman.
       if (!origin) return callback(null, true);
 
-      if (allowedOrigins.has(origin)) {
+      const normalizedOrigin = origin.replace(/\/+$/, '');
+
+      if (allowedOrigins.has(normalizedOrigin) || allowedOrigins.has('*')) {
         return callback(null, true);
       }
 
-      if (config.env === 'development' && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)) {
+      if (
+        /^https?:\/\/(localhost|127\.0\.0\.1|92\.205\.234\.176)(:\d+)?$/.test(
+          normalizedOrigin
+        )
+      ) {
         return callback(null, true);
       }
 
       return callback(null, false);
     },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   })
 );
 app.use(express.json());

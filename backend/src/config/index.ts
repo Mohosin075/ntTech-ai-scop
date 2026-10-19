@@ -24,7 +24,7 @@ const config = {
   client_url: process.env.CLIENT_URL || 'http://localhost:3000',
   cors_origins: (process.env.CORS_ORIGINS || process.env.CLIENT_URL || 'http://localhost:3000')
     .split(',')
-    .map((origin) => origin.trim())
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
     .filter(Boolean),
   database_url: process.env.DATABASE_URL || '',
   pricing: {

@@ -156,7 +156,7 @@ export default function DashboardPage() {
         </section>
         {/* Project Scoping Generator Section */}
         <section className="space-y-5 rounded-3xl border border-[#e1e8e4] bg-gradient-to-b from-white to-[#fbfcfa] p-4 shadow-[0_18px_50px_-38px_rgba(23,63,82,0.28)] sm:p-7">
-          <div className="max-w-3xl">
+          <div className="hidden sm:block max-w-3xl">
             <h2 className="text-[1.4rem] font-semibold tracking-tight text-[#20332f] sm:text-3xl">Describe your project</h2>
             <p className="mt-2 font-sans text-[15px] leading-6 text-[#65736e] sm:text-base">
               Describe the outcome. We’ll shape the scope and build a fixed USD quote for the agreed deliverables. Hours guide planning only.
@@ -194,7 +194,7 @@ export default function DashboardPage() {
                 value={rawRequirement}
                 onChange={(e) => setRawRequirement(e.target.value)}
                 placeholder="What are you planning to build? Include the main features, who it’s for, and any important requirements."
-                className="min-h-36 w-full resize-y rounded-xl border border-[#dfe5df] bg-[#fffefd] px-4 py-3.5 font-sans text-base leading-7 text-[#263a34] shadow-[0_2px_8px_-6px_rgba(45,66,57,0.2)] transition placeholder:text-[#84918b] focus:border-[#43877a] focus:outline-none focus:ring-4 focus:ring-[#43877a]/10 sm:px-5 sm:py-4 sm:text-lg"
+                className="min-h-28 sm:min-h-36 w-full resize-y rounded-xl border border-[#dfe5df] bg-[#fffefd] px-3.5 py-3 sm:px-5 sm:py-4 font-sans text-sm sm:text-lg leading-relaxed text-[#263a34] shadow-[0_2px_8px_-6px_rgba(45,66,57,0.2)] transition placeholder:text-xs sm:placeholder:text-base placeholder:leading-relaxed placeholder:text-[#84918b] focus:border-[#43877a] focus:outline-none focus:ring-4 focus:ring-[#43877a]/10"
               />
 
               {/* Sample Blueprints */}
