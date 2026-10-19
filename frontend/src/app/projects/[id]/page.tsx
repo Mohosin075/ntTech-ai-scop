@@ -352,9 +352,9 @@ function ProjectWorkspaceContent() {
     <div className="min-h-screen bg-[#f7f7f4] text-[#182b39] flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
         {/* Header Bar */}
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto] items-start gap-4 pb-5 border-b border-[#d5deda]">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto] items-start gap-3.5 sm:gap-4 pb-4 sm:pb-5 border-b border-[#d5deda]">
           <div className="min-w-0">
             <Link
               href="/dashboard"
@@ -362,10 +362,10 @@ function ProjectWorkspaceContent() {
             >
               <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
             </Link>
-            <h1 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-semibold leading-tight tracking-tight text-[#182b39] break-words">
+            <h1 className="mt-1.5 text-xl sm:text-3xl lg:text-4xl font-semibold leading-tight tracking-tight text-[#182b39] break-words">
               {formatProjectTitle(project.title)}
             </h1>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
+            <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-1.5 sm:gap-2">
               <StatusBadge status={project.status} />
               {isScopeLocked && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-[#edf1ef] text-[#304756] border border-[#d5deda]">
@@ -379,7 +379,7 @@ function ProjectWorkspaceContent() {
             <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setIsProposalModalOpen(true)}
-              className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-[#edf1ef] hover:bg-[#e3ebe8] border border-[#d5deda] text-[#263d4a] text-sm font-medium transition"
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-lg bg-[#edf1ef] hover:bg-[#e3ebe8] border border-[#d5deda] text-[#263d4a] text-xs sm:text-sm font-medium transition"
               title="Preview and print Statement of Work"
             >
               <FileText className="w-3.5 h-3.5 text-[#526270]" />
@@ -390,7 +390,7 @@ function ProjectWorkspaceContent() {
               <button
                 onClick={() => handleStatusChange('UNDER_REVIEW')}
                 disabled={actionLoading || project.totalHours === 0}
-                className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#173f52] hover:bg-[#102f3e] text-white text-sm font-medium transition disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-lg bg-[#173f52] hover:bg-[#102f3e] text-white text-xs sm:text-sm font-medium transition disabled:opacity-60"
               >
                 {actionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                 <span>{isAdmin ? 'Send for peer review' : 'Send for review'}</span>
@@ -501,10 +501,10 @@ function ProjectWorkspaceContent() {
           {/* Left Column: Summary + Feature Table (8 Columns) */}
           <div className="min-w-0 space-y-6 lg:col-span-8">
             {/* Scope Summary & Architecture */}
-            <div className="rounded-lg border border-[#d5deda] bg-[#ffffff] p-5 space-y-3">
+            <div className="rounded-2xl border border-[#d5deda] bg-[#ffffff] p-3.5 sm:p-5 space-y-2.5 sm:space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-lg text-[#182b39]">
+                  <h3 className="font-semibold text-base sm:text-lg text-[#182b39]">
                     Scope summary and architecture
                   </h3>
                   <button
@@ -521,7 +521,7 @@ function ProjectWorkspaceContent() {
                 )}
               </div>
 
-              <p className="text-base text-[#304756] leading-relaxed font-sans">
+              <p className="text-sm sm:text-base text-[#304756] leading-relaxed font-sans">
                 {project.executiveSummary}
               </p>
 
@@ -543,16 +543,16 @@ function ProjectWorkspaceContent() {
             </div>
 
             {/* Feature Table Card */}
-            <div className="rounded-2xl border border-[#d5deda] bg-[#ffffff] p-4 sm:p-5 space-y-4">
+            <div className="rounded-2xl border border-[#d5deda] bg-[#ffffff] p-3.5 sm:p-5 space-y-3.5 sm:space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#d5deda]">
                 <div>
-                  <h3 className="font-semibold text-lg text-[#182b39] flex items-center gap-2">
+                  <h3 className="font-semibold text-base sm:text-lg text-[#182b39] flex items-center gap-2">
                     <span>Feature breakdown</span>
                     <span className="text-xs text-[#65717a]">
                       ({filteredFeatures.length} of {project.features.length})
                     </span>
                   </h3>
-                    <p className="text-sm text-[#526270] font-sans">
+                  <p className="text-xs sm:text-sm text-[#526270] font-sans mt-0.5">
                     {isScopeLocked
                       ? 'Scope is locked during review and after approval.'
                       : isProjectOwner
@@ -564,7 +564,7 @@ function ProjectWorkspaceContent() {
                 {isScopeEditable && (
                   <button
                     onClick={() => setIsAddModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#173f52] hover:bg-[#102f3e] text-white text-xs font-medium transition-colors"
+                    className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md bg-[#173f52] hover:bg-[#102f3e] text-white text-xs font-medium transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add feature</span>
@@ -573,14 +573,14 @@ function ProjectWorkspaceContent() {
               </div>
 
               {/* Filters & Search */}
-              <div className="grid grid-cols-1 gap-3 pt-0.5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-2.5 pt-0.5 sm:grid-cols-2">
                 <div className="relative min-w-0">
                   <Filter className="w-4 h-4 text-[#65717a] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <select
                     aria-label="Filter features by category"
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
-                    className="w-full appearance-none pl-9 pr-3 py-2 rounded-lg bg-[#f7f7f4] border border-[#d5deda] text-sm text-[#263d4a] focus:outline-none focus:border-[#168780] focus:ring-2 focus:ring-[#168780]/10 transition-colors"
+                    className="w-full appearance-none pl-9 pr-3 py-2 rounded-lg bg-[#f7f7f4] border border-[#d5deda] text-xs sm:text-sm text-[#263d4a] focus:outline-none focus:border-[#168780] focus:ring-2 focus:ring-[#168780]/10 transition-colors"
                   >
                     {['ALL', 'FRONTEND', 'BACKEND', 'DATABASE', 'INTEGRATION', 'AI'].map((cat) => (
                       <option key={cat} value={cat}>
@@ -597,15 +597,15 @@ function ProjectWorkspaceContent() {
                     value={featureSearch}
                     onChange={(e) => setFeatureSearch(e.target.value)}
                     placeholder="Filter features..."
-                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-[#f7f7f4] border border-[#d5deda] text-sm text-[#263d4a] placeholder:text-[#65717a] focus:outline-none focus:border-[#168780] focus:ring-2 focus:ring-[#168780]/10 transition-colors"
+                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-[#f7f7f4] border border-[#d5deda] text-xs sm:text-sm text-[#263d4a] placeholder:text-[#65717a] focus:outline-none focus:border-[#168780] focus:ring-2 focus:ring-[#168780]/10 transition-colors"
                   />
                 </div>
               </div>
 
               {/* Table */}
               <p className="text-xs text-[#65717a] sm:hidden">Swipe horizontally to view all feature details.</p>
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[680px] text-left text-sm">
+              <div className="overflow-x-auto rounded-xl border border-[#d5deda]">
+                <table className="w-full min-w-[640px] text-left text-xs sm:text-sm">
                   <thead className="bg-[#f7f7f4] text-[#526270] font-sans text-xs border-b border-[#d5deda]">
                     <tr>
                       <th className="py-2.5 px-2.5 w-16 text-center font-medium">Include</th>
@@ -810,11 +810,11 @@ function ProjectWorkspaceContent() {
           </div>
 
           {/* Right Column: Milestones & Rates (4 Columns) */}
-          <div className="min-w-0 space-y-5 lg:col-span-4">
+          <div className="min-w-0 space-y-4 sm:space-y-5 lg:col-span-4">
             {/* Milestone Breakdown */}
-            <div className="rounded-lg border border-[#d5deda] bg-[#ffffff] p-4 space-y-3">
+            <div className="rounded-2xl border border-[#d5deda] bg-[#ffffff] p-3.5 sm:p-4 space-y-3">
               <div className="flex items-center justify-between pb-2 border-b border-[#d5deda]">
-                <h3 className="font-semibold text-lg text-[#182b39]">
+                <h3 className="font-semibold text-base sm:text-lg text-[#182b39]">
                   Milestone breakdown
                 </h3>
                 <span className="text-xs text-[#526270] bg-[#f7f7f4] px-2 py-0.5 rounded-md border border-[#d5deda]">
@@ -844,11 +844,11 @@ function ProjectWorkspaceContent() {
             </div>
 
             {/* Fixed Project Fee */}
-            <div className="rounded-lg border border-[#d5deda] bg-[#ffffff] p-4 space-y-3">
-              <h3 className="font-semibold text-lg text-[#182b39]">
+            <div className="rounded-2xl border border-[#d5deda] bg-[#ffffff] p-3.5 sm:p-4 space-y-3">
+              <h3 className="font-semibold text-base sm:text-lg text-[#182b39]">
                 Project fee
               </h3>
-              <p className="text-sm text-[#526270] font-sans">
+              <p className="text-xs sm:text-sm text-[#526270] font-sans">
                 Set the fixed price for the agreed scope. Estimated hours are used only for delivery planning.
               </p>
 
@@ -863,7 +863,7 @@ function ProjectWorkspaceContent() {
                     value={newProjectFee}
                     onChange={(e) => setNewProjectFee(Number(e.target.value))}
                     aria-label="Fixed project fee in US dollars"
-                    className="w-full pl-6 pr-3 py-1.5 rounded-md bg-[#f7f7f4] border border-[#d5deda] text-[#182b39] text-xs focus:outline-none focus:border-slate-400 transition-colors disabled:opacity-60"
+                    className="w-full pl-6 pr-3 py-2 rounded-lg bg-[#f7f7f4] border border-[#d5deda] text-[#182b39] text-xs focus:outline-none focus:border-slate-400 transition-colors disabled:opacity-60"
                   />
                 </div>
 
@@ -885,7 +885,7 @@ function ProjectWorkspaceContent() {
                   <button
                     type="submit"
                     disabled={updatingProjectFee || newProjectFee === project.finalTotalCost || newProjectFee <= 0}
-                    className="w-full py-1.5 px-3 rounded-md bg-[#edf1ef] hover:bg-[#e3ebe8] text-xs font-medium text-[#263d4a] border border-[#d5deda] transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5"
+                    className="w-full py-2 px-3 rounded-lg bg-[#edf1ef] hover:bg-[#e3ebe8] text-xs font-semibold text-[#263d4a] border border-[#d5deda] transition-colors disabled:opacity-40 flex items-center justify-center gap-1.5"
                   >
                     {updatingProjectFee ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
                     <span>Update project quote</span>
@@ -895,8 +895,8 @@ function ProjectWorkspaceContent() {
             </div>
 
             {/* Audit Trail */}
-            <div className="rounded-lg border border-[#d5deda] bg-[#ffffff] p-4 space-y-2.5 text-xs">
-              <h3 className="font-medium text-xs text-[#263d4a]">
+            <div className="rounded-2xl border border-[#d5deda] bg-[#ffffff] p-3.5 sm:p-4 space-y-2.5 text-xs">
+              <h3 className="font-semibold text-xs text-[#263d4a]">
                 Audit trail
               </h3>
 

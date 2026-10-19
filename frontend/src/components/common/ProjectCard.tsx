@@ -42,12 +42,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, showCreator =
 
   return (
     <div
-      className="rounded-2xl bg-white border border-[#d5deda] p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#a9c1bb] hover:shadow-lg hover:shadow-[#173f52]/[0.06] group"
+      className="rounded-2xl bg-white border border-[#d5deda] p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#a9c1bb] hover:shadow-lg hover:shadow-[#173f52]/[0.06] group"
     >
-      <div className="space-y-3">
+      <div className="space-y-2.5 sm:space-y-3">
         {/* Top Row: Title + Status Badge */}
-        <div className="flex flex-col items-start gap-2.5">
-          <h4 className="min-h-14 font-semibold text-lg leading-7 text-[#182b39] transition-colors line-clamp-2">
+        <div className="flex flex-col items-start gap-2">
+          <h4 className="min-h-0 sm:min-h-14 font-semibold text-base sm:text-lg leading-6 sm:leading-7 text-[#182b39] transition-colors line-clamp-2">
             {title}
           </h4>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -60,21 +60,21 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, showCreator =
         </div>
 
         {/* Distinct project summary */}
-        <p className="min-h-12 text-[#526270] text-base line-clamp-2 leading-6 font-sans">
+        <p className="min-h-0 sm:min-h-12 text-[#526270] text-xs sm:text-sm line-clamp-2 leading-5 sm:leading-6 font-sans">
           {summary}
         </p>
 
         {/* Bottom Metrics: Flex in one line */}
-        <div className="pt-3 border-t border-[#d5deda] flex flex-col gap-2 text-base sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-1.5">
+        <div className="pt-2.5 sm:pt-3 border-t border-[#d5deda] flex items-center justify-between gap-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-1.5 truncate">
             <span className="text-[#65717a] font-sans">Project fee:</span>
-            <span className="text-[#182b39] font-medium">
+            <span className="text-[#182b39] font-semibold">
               ${project.finalTotalCost.toLocaleString()}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span className="text-[#65717a] font-sans">Effort:</span>
+          <div className="flex items-center gap-1 shrink-0">
+            <span className="text-[#65717a] font-sans hidden xs:inline">Effort:</span>
             <span className="text-[#304756] font-medium flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-[#65717a]" />
               {project.totalHours}h ({project.estimatedWeeks}w)
@@ -83,10 +83,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, showCreator =
         </div>
       </div>
 
-      <div className="mt-3.5 pt-2.5 border-t border-[#d5deda]">
+      <div className="mt-3 pt-2.5 border-t border-[#d5deda]">
         <Link
           href={`/projects/${project.id}`}
-          className="w-full inline-flex items-center justify-center gap-1.5 py-3 px-3 rounded-xl bg-[#edf4f2] hover:bg-[#e2eeea] border border-[#d5e2dd] hover:border-[#a9c1bb] text-base font-semibold text-[#173f52] transition-colors"
+          className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 sm:py-3 px-3 rounded-xl bg-[#edf4f2] hover:bg-[#e2eeea] border border-[#d5e2dd] hover:border-[#a9c1bb] text-sm sm:text-base font-semibold text-[#173f52] transition-colors"
         >
           <span>View estimate</span>
           <ArrowRight className="w-3.5 h-3.5" />

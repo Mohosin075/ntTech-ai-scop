@@ -117,15 +117,15 @@ ${activeFeatures
         </div>
 
         {/* SOW Document Sheet */}
-        <div className="rounded-lg border border-[#d5deda] bg-white p-6 sm:p-8 space-y-6 text-[#263d4a] print:p-0 print:border-none print:bg-white print:text-black">
+        <div className="rounded-2xl border border-[#d5deda] bg-white p-3.5 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 text-[#263d4a] print:p-0 print:border-none print:bg-white print:text-black">
           {/* Header Row */}
-          <div className="flex flex-col sm:flex-row justify-between items-start pb-5 border-b border-[#d5deda] gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start pb-4 sm:pb-5 border-b border-[#d5deda] gap-3.5 sm:gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <div className="h-7 w-7 rounded-md bg-[#173f52] flex items-center justify-center text-[#8ed0c5]">
                   <Layers3 className="h-4 w-4" strokeWidth={1.8} />
                 </div>
-                <h2 className="text-base font-semibold text-[#182b39] tracking-tight">
+                <h2 className="text-sm sm:text-base font-semibold text-[#182b39] tracking-tight">
                   ScopeAI Engineering Solutions
                 </h2>
               </div>
@@ -150,7 +150,7 @@ ${activeFeatures
             <div className="text-xs text-emerald-900 uppercase tracking-wide">
               Engagement Scope
             </div>
-            <h3 className="text-lg font-semibold text-[#182b39] tracking-tight">
+            <h3 className="text-base sm:text-lg font-semibold text-[#182b39] tracking-tight">
               {formatProjectTitle(project.title)}
             </h3>
             <p className="text-xs text-[#304756] leading-relaxed font-sans">
@@ -241,8 +241,8 @@ ${activeFeatures
           </div>
 
           {/* Financial Breakdown & Milestone Schedule */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-            <div className="p-4 rounded-md bg-[#ffffff] border border-[#d5deda] space-y-2 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 pt-1">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#ffffff] border border-[#d5deda] space-y-2 text-xs">
               <span className="font-sans font-medium text-[#182b39] text-xs block border-b border-[#d5deda] pb-2">
                 Fixed Project Fee
               </span>
@@ -260,7 +260,7 @@ ${activeFeatures
               </div>
             </div>
 
-            <div className="p-4 rounded-md bg-[#ffffff] border border-[#d5deda] space-y-2 text-xs">
+            <div className="p-3 sm:p-4 rounded-xl bg-[#ffffff] border border-[#d5deda] space-y-2 text-xs">
               <span className="font-sans font-medium text-[#182b39] text-xs block border-b border-[#d5deda] pb-2">
                 Milestone Payment Schedule
               </span>

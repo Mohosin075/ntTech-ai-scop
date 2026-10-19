@@ -149,21 +149,20 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-transparent text-[#182b39] flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3.5 sm:px-6 py-5 sm:py-8 space-y-6 sm:space-y-8">
         <section>
           <div>
-            <p className="text-sm font-medium text-[#126b67]">Your workspace</p>
-            <h1 className="mt-2 text-3xl sm:text-4xl font-semibold tracking-tight text-[#182b39]">Welcome back, {user.name.split(' ')[0]}</h1>
-            <p className="mt-2 text-base text-[#526270]">Plan, price, and review your projects.</p>
+            <p className="text-xs sm:text-sm font-medium text-[#326b64]">Your workspace</p>
+            <h1 className="mt-1 text-2xl sm:text-4xl font-semibold tracking-tight text-[#20332f]">Welcome back, {user.name.split(' ')[0]}</h1>
+            <p className="mt-1 text-[15px] leading-6 text-[#65736e]">Your projects, from first brief to final quote.</p>
           </div>
         </section>
         {/* Project Scoping Generator Section */}
         <section className="space-y-5 rounded-3xl border border-[#e1e8e4] bg-gradient-to-b from-white to-[#fbfcfa] p-4 shadow-[0_18px_50px_-38px_rgba(23,63,82,0.28)] sm:p-7">
           <div className="max-w-3xl">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#126b67]">New project quote</p>
-            <h2 className="text-2xl font-semibold tracking-tight text-[#182b39] sm:text-3xl">Describe your project</h2>
-            <p className="mt-1.5 font-sans text-sm leading-6 text-[#526270] sm:text-base">
-              Share the outcome and key requirements. We’ll shape the scope and fixed quote.
+            <h2 className="text-[1.4rem] font-semibold tracking-tight text-[#20332f] sm:text-3xl">Describe your project</h2>
+            <p className="mt-2 font-sans text-[15px] leading-6 text-[#65736e] sm:text-base">
+              Tell us what you need built. We’ll turn the details into a clear scope and fixed price.
             </p>
           </div>
 
@@ -176,16 +175,16 @@ export default function DashboardPage() {
 
           <form onSubmit={handleGenerate} className="space-y-3.5">
             <div>
-              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                <label htmlFor="project-brief" className="block font-sans text-sm font-semibold text-[#263d4a] sm:text-base">
+              <div className="mb-2">
+                <label htmlFor="project-brief" className="block font-sans text-[15px] font-semibold text-[#31453f] sm:text-base">
                   Project brief <span className="text-rose-900">*</span>
                 </label>
                 <span
                   id="brief-help"
                   aria-live="polite"
-                  className={`text-xs font-medium sm:text-sm ${briefLength >= 20 ? 'text-emerald-900' : 'text-[#65717a]'}`}
+                  className={`mt-1 block text-xs font-medium sm:text-sm ${briefLength >= 20 ? 'text-[#28715f]' : 'text-[#738079]'}`}
                 >
-                  {briefLength >= 20 ? 'Ready to generate' : `${20 - briefLength} more characters needed`}
+                  {briefLength >= 20 ? 'Ready to continue' : `${20 - briefLength} more characters to continue`}
                 </span>
               </div>
               <textarea
@@ -197,12 +196,12 @@ export default function DashboardPage() {
                 aria-invalid={briefLength > 0 && briefLength < 20}
                 value={rawRequirement}
                 onChange={(e) => setRawRequirement(e.target.value)}
-                placeholder="What should this project deliver? Include key features, users, integrations, and constraints."
-                className="min-h-36 w-full resize-y rounded-xl border border-[#dce5e0] bg-white px-4 py-3.5 font-sans text-base leading-7 text-[#182b39] shadow-[0_2px_8px_-6px_rgba(23,63,82,0.25)] transition placeholder:text-[#82908c] focus:border-[#168780] focus:outline-none focus:ring-4 focus:ring-[#168780]/10 sm:px-5 sm:py-4 sm:text-lg"
+                placeholder="What are you planning to build? Include the main features, who it’s for, and any important requirements."
+                className="min-h-36 w-full resize-y rounded-xl border border-[#dfe5df] bg-[#fffefd] px-4 py-3.5 font-sans text-base leading-7 text-[#263a34] shadow-[0_2px_8px_-6px_rgba(45,66,57,0.2)] transition placeholder:text-[#84918b] focus:border-[#43877a] focus:outline-none focus:ring-4 focus:ring-[#43877a]/10 sm:px-5 sm:py-4 sm:text-lg"
               />
 
               {/* Sample Blueprints */}
-              <div className="mt-4 space-y-2.5">
+              <div className="mt-4 hidden space-y-2.5 sm:block">
                 <span className="block font-sans text-xs font-medium text-[#65717a] sm:text-sm">Need a starting point? Try an example</span>
                 <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                   {SAMPLE_PROMPTS.map((p, index) => (
@@ -248,7 +247,7 @@ export default function DashboardPage() {
               <h3 className="text-xl sm:text-2xl font-semibold text-[#182b39]">Recent estimates</h3>
               <p className="mt-1 text-sm text-[#65717a]">Latest project quotes in your workspace</p>
             </div>
-            <Link href="/estimates" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#d5deda] bg-white px-4 py-2.5 text-sm font-semibold text-[#173f52] transition hover:border-[#a9c1bb] hover:bg-[#f5f8f6]">
+            <Link href="/estimates" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-lg border border-[#d5deda] bg-white px-4 py-2.5 text-sm font-semibold text-[#173f52] transition hover:border-[#a9c1bb] hover:bg-[#f5f8f6]">
               View all estimates <span aria-hidden="true">→</span>
             </Link>
           </div>

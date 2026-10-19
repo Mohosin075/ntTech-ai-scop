@@ -92,39 +92,39 @@ export default function EstimatesClient({ initialStatus }: { initialStatus?: str
   return (
     <div className="flex min-h-screen flex-col bg-[#f7f7f4] text-[#182b39]">
       <Navbar />
-      <main className="mx-auto w-full max-w-7xl flex-1 space-y-7 px-4 py-8 sm:px-6">
-        <header className="flex flex-col gap-5 border-b border-[#d5deda] pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <main className="mx-auto w-full max-w-7xl flex-1 space-y-5 sm:space-y-7 px-3.5 sm:px-6 py-5 sm:py-8">
+        <header className="flex flex-col gap-4 sm:gap-5 border-b border-[#d5deda] pb-4 sm:pb-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <Link href="/dashboard" className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-[#526270] transition hover:text-[#126b67]">
+            <Link href="/dashboard" className="mb-2 sm:mb-3 inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-[#526270] transition hover:text-[#126b67]">
               <span aria-hidden="true">←</span> Dashboard
             </Link>
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#e6f1ee] text-[#126b67]">
-                <ClipboardList className="h-5 w-5" />
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-lg sm:rounded-xl bg-[#e6f1ee] text-[#126b67]">
+                <ClipboardList className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div>
-                <p className="text-sm font-medium text-[#126b67]">{user.role === 'ADMIN' ? 'Team workspace' : 'Your workspace'}</p>
-                <h1 className="text-3xl font-semibold tracking-tight text-[#182b39] sm:text-4xl">Estimates</h1>
+                <p className="text-xs sm:text-sm font-medium text-[#126b67]">{user.role === 'ADMIN' ? 'Team workspace' : 'Your workspace'}</p>
+                <h1 className="text-2xl font-semibold tracking-tight text-[#182b39] sm:text-4xl">Estimates</h1>
               </div>
             </div>
-            <p className="mt-3 max-w-2xl text-base leading-6 text-[#526270]">
+            <p className="mt-2 sm:mt-3 max-w-2xl text-xs sm:text-base leading-5 sm:leading-6 text-[#526270]">
               {user.role === 'ADMIN'
                 ? 'Browse team project quotes, check their status, and review submitted scopes.'
                 : 'Find your project quotes and follow each scope from draft through review.'}
             </p>
           </div>
-          <Link href="/dashboard" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#173f52] px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#102f3e]">
+          <Link href="/dashboard" className="w-full sm:w-auto inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-[#173f52] px-4 py-2.5 sm:py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#102f3e]">
             New project quote <span aria-hidden="true">+</span>
           </Link>
         </header>
 
-        <section aria-label="Estimate list and filters" className="space-y-5">
-          <div className="flex flex-col gap-3 rounded-2xl border border-[#d5deda] bg-white p-4 shadow-sm shadow-[#173f52]/[0.04] sm:flex-row sm:items-center sm:justify-between sm:p-5">
-            <p className="text-sm text-[#65717a]" aria-live="polite">
+        <section aria-label="Estimate list and filters" className="space-y-4 sm:space-y-5">
+          <div className="flex flex-col gap-2.5 rounded-2xl border border-[#d5deda] bg-white p-3.5 shadow-sm shadow-[#173f52]/[0.04] sm:flex-row sm:items-center sm:justify-between sm:p-5">
+            <p className="text-xs sm:text-sm text-[#65717a]" aria-live="polite">
               Showing <span className="font-semibold text-[#182b39]">{filteredProjects.length}</span> of{' '}
               <span className="font-semibold text-[#182b39]">{projects.length}</span> estimates
             </p>
-            <div className="grid w-full grid-cols-1 gap-3 sm:w-auto sm:min-w-[34rem] sm:grid-cols-2">
+            <div className="grid w-full grid-cols-1 gap-2.5 sm:w-auto sm:min-w-[34rem] sm:grid-cols-2">
               <label className="relative block min-w-0">
                 <span className="sr-only">Search estimates</span>
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#65717a]" />
@@ -181,7 +181,7 @@ export default function EstimatesClient({ initialStatus }: { initialStatus?: str
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filteredProjects.map((project) => (
                 <ProjectCard key={project.id} project={project} showCreator={user.role === 'ADMIN'} />
               ))}

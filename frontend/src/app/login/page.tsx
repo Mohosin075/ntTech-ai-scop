@@ -78,20 +78,20 @@ export default function LoginPage() {
         </div>
 
         <div className="mb-2 sm:mb-4">
-          <p className="text-sm font-semibold text-[#126b67]">{isRegister ? 'Get started' : 'Welcome back'}</p>
-          <h2 className="mt-1 sm:mt-2 text-3xl font-semibold tracking-tight text-[#182b39]">{isRegister ? 'Create your account' : 'Sign in to ScopeAI'}</h2>
-          <p className="mt-1 sm:mt-2 text-base text-[#526270]">{isRegister ? 'Set up your workspace access in a moment.' : 'Your project scopes and reviews are waiting.'}</p>
+          <p className="text-xs sm:text-sm font-semibold text-[#126b67]">{isRegister ? 'Get started' : 'Welcome back'}</p>
+          <h2 className="mt-1 sm:mt-2 text-2xl sm:text-3xl font-semibold tracking-tight text-[#182b39]">{isRegister ? 'Create your account' : 'Sign in to ScopeAI'}</h2>
+          <p className="mt-1 sm:mt-2 text-xs sm:text-base text-[#526270]">{isRegister ? 'Set up your workspace access in a moment.' : 'Your project scopes and reviews are waiting.'}</p>
         </div>
 
-        <div className="mb-2 sm:mb-4 grid grid-cols-2 rounded-xl bg-[#f2f5f3] p-1">
-          <button type="button" onClick={() => { setIsRegister(false); setError(null); }} aria-pressed={!isRegister} className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${!isRegister ? 'bg-white text-[#173f52] shadow-sm' : 'text-[#65717a] hover:text-[#304756]'}`}>Sign in</button>
-          <button type="button" onClick={() => { setIsRegister(true); setError(null); }} aria-pressed={isRegister} className={`rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${isRegister ? 'bg-white text-[#173f52] shadow-sm' : 'text-[#65717a] hover:text-[#304756]'}`}>Create account</button>
+        <div className="mb-2.5 sm:mb-4 grid grid-cols-2 rounded-xl bg-[#f2f5f3] p-1">
+          <button type="button" onClick={() => { setIsRegister(false); setError(null); }} aria-pressed={!isRegister} className={`rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold transition-colors ${!isRegister ? 'bg-white text-[#173f52] shadow-sm' : 'text-[#65717a] hover:text-[#304756]'}`}>Sign in</button>
+          <button type="button" onClick={() => { setIsRegister(true); setError(null); }} aria-pressed={isRegister} className={`rounded-lg px-3 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold transition-colors ${isRegister ? 'bg-white text-[#173f52] shadow-sm' : 'text-[#65717a] hover:text-[#304756]'}`}>Create account</button>
         </div>
 
         <div className="rounded-2xl border border-[#e2e8e4] bg-white p-3 sm:p-4">
 
           {error && (
-            <div role="alert" className="mb-4 flex items-start gap-2.5 rounded-xl bg-rose-50 border border-rose-200 p-3 text-sm text-rose-900">
+            <div role="alert" className="mb-3 sm:mb-4 flex items-start gap-2 rounded-xl bg-rose-50 border border-rose-200 p-2.5 sm:p-3 text-xs sm:text-sm text-rose-900">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
               <span>{error}</span>
             </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3">
             {isRegister && (
               <div>
-                <label htmlFor="auth-name" className="block text-sm font-semibold text-[#304756] mb-1">Full name</label>
+                <label htmlFor="auth-name" className="block text-xs sm:text-sm font-semibold text-[#304756] mb-1">Full name</label>
                 <input
                   id="auth-name"
                   type="text"
@@ -109,13 +109,13 @@ export default function LoginPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
-                  className="w-full rounded-xl border border-[#d5deda] bg-[#fbfcfb] px-4 py-2.5 sm:py-3 text-base text-[#182b39] transition-colors placeholder:text-[#8a959c] focus:border-[#168780] focus:outline-none focus:ring-4 focus:ring-[#168780]/10"
+                  className="w-full rounded-xl border border-[#d5deda] bg-[#fbfcfb] px-3.5 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-[#182b39] transition-colors placeholder:text-[#8a959c] focus:border-[#168780] focus:outline-none focus:ring-4 focus:ring-[#168780]/10"
                 />
               </div>
             )}
 
             <div>
-              <label htmlFor="auth-email" className="block text-sm font-semibold text-[#304756] mb-1">Email address</label>
+              <label htmlFor="auth-email" className="block text-xs sm:text-sm font-semibold text-[#304756] mb-1">Email address</label>
               <input
                 id="auth-email"
                 type="email"
@@ -124,12 +124,12 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
-                className="w-full rounded-xl border border-[#d5deda] bg-[#fbfcfb] px-4 py-2.5 sm:py-3 text-base text-[#182b39] transition-colors placeholder:text-[#8a959c] focus:border-[#168780] focus:outline-none focus:ring-4 focus:ring-[#168780]/10"
+                className="w-full rounded-xl border border-[#d5deda] bg-[#fbfcfb] px-3.5 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-[#182b39] transition-colors placeholder:text-[#8a959c] focus:border-[#168780] focus:outline-none focus:ring-4 focus:ring-[#168780]/10"
               />
             </div>
 
             <div>
-              <label htmlFor="auth-password" className="block text-sm font-semibold text-[#304756] mb-1">Password</label>
+              <label htmlFor="auth-password" className="block text-xs sm:text-sm font-semibold text-[#304756] mb-1">Password</label>
               <input
                 id="auth-password"
                 type="password"
@@ -138,14 +138,14 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="w-full rounded-xl border border-[#d5deda] bg-[#fbfcfb] px-4 py-2.5 sm:py-3 text-base text-[#182b39] transition-colors placeholder:text-[#8a959c] focus:border-[#168780] focus:outline-none focus:ring-4 focus:ring-[#168780]/10"
+                className="w-full rounded-xl border border-[#d5deda] bg-[#fbfcfb] px-3.5 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-[#182b39] transition-colors placeholder:text-[#8a959c] focus:border-[#168780] focus:outline-none focus:ring-4 focus:ring-[#168780]/10"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 rounded-xl font-semibold text-base bg-[#173f52] hover:bg-[#102f3e] text-white shadow-md shadow-[#173f52]/15 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+              className="w-full py-2.5 sm:py-3 px-4 rounded-xl font-semibold text-sm sm:text-base bg-[#173f52] hover:bg-[#102f3e] text-white shadow-md shadow-[#173f52]/15 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               <span>{isRegister ? 'Create account' : 'Sign in'}</span>
@@ -162,12 +162,12 @@ export default function LoginPage() {
                 type="button"
                 disabled={demoLoading !== null}
                 onClick={() => handleDemo('ESTIMATOR')}
-                className="py-2.5 sm:py-3 px-2 rounded-xl bg-white hover:bg-[#f7f9f8] border border-[#d5deda] hover:border-[#a9c1bb] text-[#263d4a] text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                className="py-2 sm:py-3 px-2 rounded-xl bg-white hover:bg-[#f7f9f8] border border-[#d5deda] hover:border-[#a9c1bb] text-[#263d4a] text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-60"
               >
                 {demoLoading === 'ESTIMATOR' ? (
                   <Loader2 className="w-3 h-3 animate-spin" />
                 ) : (
-                  <UserCheck className="w-4 h-4 text-[#126b67]" />
+                  <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#126b67]" />
                 )}
                 <span>Estimator</span>
               </button>
@@ -176,17 +176,17 @@ export default function LoginPage() {
                 type="button"
                 disabled={demoLoading !== null}
                 onClick={() => handleDemo('ADMIN')}
-                className="py-2.5 sm:py-3 px-2 rounded-xl bg-white hover:bg-[#f7f9f8] border border-[#d5deda] hover:border-[#a9c1bb] text-[#263d4a] text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                className="py-2 sm:py-3 px-2 rounded-xl bg-white hover:bg-[#f7f9f8] border border-[#d5deda] hover:border-[#a9c1bb] text-[#263d4a] text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 sm:gap-2 disabled:opacity-60"
               >
                 {demoLoading === 'ADMIN' ? (
                   <Loader2 className="w-3 h-3 animate-spin" />
                 ) : (
-                  <Shield className="w-4 h-4 text-[#526270]" />
+                  <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#526270]" />
                 )}
                 <span>Admin</span>
               </button>
             </div>
-            <p className="text-xs text-[#8a959c] text-center mt-2">Demo accounts only — changes are saved to the demo workspace.</p>
+            <p className="text-[11px] sm:text-xs text-[#8a959c] text-center mt-2">Demo accounts only — changes are saved to the demo workspace.</p>
           </div>
         </div>
         </div>

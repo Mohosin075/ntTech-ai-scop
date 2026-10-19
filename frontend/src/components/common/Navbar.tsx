@@ -28,13 +28,13 @@ export const Navbar: React.FC = () => {
   return (
     <>
     <header className="sticky top-0 z-50 border-b border-[#d5deda] bg-white/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link href="/dashboard" className="flex shrink-0 items-center gap-3" aria-label="ScopeAI dashboard">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#173f52] text-[#a4ddd2] shadow-sm shadow-[#173f52]/20">
-            <Layers3 className="h-5 w-5" strokeWidth={1.8} />
+      <div className="mx-auto flex h-14 sm:h-[4.5rem] max-w-7xl items-center justify-between gap-3 px-3.5 sm:px-6">
+        <Link href="/dashboard" className="flex shrink-0 items-center gap-2 sm:gap-3" aria-label="ScopeAI dashboard">
+          <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-[#173f52] text-[#a4ddd2] shadow-sm shadow-[#173f52]/20">
+            <Layers3 className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.8} />
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-bold leading-5 tracking-tight text-[#182b39]">ScopeAI</span>
+            <span className="text-base sm:text-lg font-bold leading-5 tracking-tight text-[#182b39]">ScopeAI</span>
             <span className="hidden text-[11px] font-semibold uppercase tracking-[0.16em] text-[#65717a] sm:block">Project studio</span>
           </div>
         </Link>
@@ -117,9 +117,9 @@ export const Navbar: React.FC = () => {
             <Link
               href="/profile"
               aria-label={`Profile: ${user.name}`}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-[#173f52] text-sm font-bold text-white ring-2 ring-[#e5efec]"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#173f52] text-xs font-bold text-white ring-2 ring-[#e5efec]"
             >
-              {user.name.trim().charAt(0).toUpperCase() || <UserRound className="h-4 w-4" />}
+              {user.name.trim().charAt(0).toUpperCase() || <UserRound className="h-3.5 w-3.5" />}
             </Link>
             <button
               type="button"
@@ -127,9 +127,9 @@ export const Navbar: React.FC = () => {
               aria-expanded={mobileNavOpen}
               aria-controls="mobile-navigation"
               onClick={() => setMobileNavOpen((open) => !open)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#d5deda] bg-white text-[#304756] transition hover:bg-[#f2f5f3]"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#d5deda] bg-white text-[#304756] transition hover:bg-[#f2f5f3]"
             >
-              {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileNavOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
             </button>
           </div>
           </>
