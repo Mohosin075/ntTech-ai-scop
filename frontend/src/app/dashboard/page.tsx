@@ -156,7 +156,7 @@ export default function DashboardPage() {
         </section>
         {/* Project Scoping Generator Section */}
         <section className="space-y-5 rounded-3xl border border-[#e1e8e4] bg-gradient-to-b from-white to-[#fbfcfa] p-4 shadow-[0_18px_50px_-38px_rgba(23,63,82,0.28)] sm:p-7">
-          <div className="hidden sm:block max-w-3xl">
+          <div className="block sm:max-w-3xl">
             <h2 className="text-[1.4rem] font-semibold tracking-tight text-[#20332f] sm:text-3xl">Describe your project</h2>
             <p className="mt-2 font-sans text-[15px] leading-6 text-[#65736e] sm:text-base">
               Describe the outcome. We’ll shape the scope and build a fixed USD quote for the agreed deliverables. Hours guide planning only.
