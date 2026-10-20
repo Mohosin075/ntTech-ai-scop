@@ -15,6 +15,13 @@ const assertProjectOwner = (createdById: string, userId: string): void => {
   }
 };
 
+const getProjectScopePointValue = (project: unknown): number => {
+  const proj = project as { scopePointValue?: number; hourlyRate?: number } | null | undefined;
+  return Number(
+    proj?.scopePointValue ?? proj?.hourlyRate ?? CalculationService.DEFAULT_SCOPE_POINT_VALUE
+  );
+};
+
 /**
  * Reusable helper to recalculate project metrics and persist state inside transaction
  */
@@ -90,7 +97,7 @@ const addFeatureToProject = async (
     const updatedProject = await recalculateAndSyncProject(
       tx,
       projectId,
-      project.scopePointValue,
+      getProjectScopePointValue(project),
       project.riskLevel
     );
 
@@ -141,7 +148,7 @@ const updateFeatureInProject = async (
     const updatedProject = await recalculateAndSyncProject(
       tx,
       projectId,
-      project.scopePointValue,
+      getProjectScopePointValue(project),
       project.riskLevel
     );
 
@@ -190,7 +197,7 @@ const deleteFeatureFromProject = async (
     const updatedProject = await recalculateAndSyncProject(
       tx,
       projectId,
-      project.scopePointValue,
+      getProjectScopePointValue(project),
       project.riskLevel
     );
 
