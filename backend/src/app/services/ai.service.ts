@@ -163,8 +163,8 @@ export class AIService {
       result.aiConfidenceScore < 0 ||
       result.aiConfidenceScore > 100 ||
       !Array.isArray(result.features) ||
-      result.features.length < 6 ||
-      result.features.length > 8
+      result.features.length < 3 ||
+      result.features.length > 10
     ) {
       return false;
     }
@@ -196,20 +196,22 @@ Evaluate the technical requirements and produce a highly realistic, professional
 Guidelines for realistic scoping:
 1. "executiveSummary": A concise 2-3 sentence executive summary explaining the target business problem, technical solution, architecture, and delivery path.
 2. "riskLevel":
-   - "LOW": Straightforward web portals, portfolios, basic CRUD tools with standard patterns (5% buffer).
+   - "LOW": Straightforward web portals, portfolios, UI redesigns, styling/asset tweaks, basic CRUD tools with standard patterns (5% buffer).
    - "MEDIUM": Standard commercial SaaS, marketplaces, e-commerce, booking systems, third-party API integrations (12% buffer).
    - "HIGH": Mission-critical, compliance-heavy (HIPAA, PCI-DSS, GDPR), fintech/payments, high-concurrency real-time streaming, or distributed AI pipelines (20% buffer).
-3. "recommendedStack": 4 to 6 modern, production-grade technologies appropriate for this specific domain (e.g., Next.js 15, Node.js, PostgreSQL, Redis, Stripe, Tailwind CSS, etc.).
+3. "recommendedStack": 3 to 6 modern technologies appropriate for this specific domain (e.g., Next.js 15, Node.js, PostgreSQL, Tailwind CSS, Figma, etc.).
 4. "aiConfidenceScore": An integer between 80 and 98 reflecting requirement clarity.
-5. "features": Generate exactly 6 to 8 realistic, concrete deliverable modules.
+5. "features":
+   - For focused tasks (such as UI redesign, image/color/asset updates, styling polish, minor adjustments), produce 3 to 5 deliverable modules with realistic hours (2 to 8 hours each). Do NOT add unrelated backend auth, databases, or API connectors if not requested!
+   - For complete web apps / full-stack builds, produce 5 to 8 concrete deliverable modules (10 to 40 hours each).
    For each feature:
-   - "title": Specific, professional deliverable name (avoid vague titles like "Frontend" or "Database"; use clear deliverable names like "Role-Based Authentication & Session Security", "Multi-Tenant Doctor Scheduling Engine", "Payment Gateway & Webhook Reconciliation").
+   - "title": Specific, professional deliverable name (avoid generic "Frontend" or "Database"; use clear deliverable names like "Brand Color Palette & Theme Tokens Redesign", "Image Asset Replacement & WebP Optimization", "Component Visual Styling & Polish").
    - "category": Exact enum matching the primary workstream: "FRONTEND" | "BACKEND" | "DATABASE" | "INTEGRATION" | "AI".
    - "complexity":
-     - "LOW": Simple presentation UI, contact/inquiry forms, standard data display (1.5 scope points).
+     - "LOW": Simple presentation UI, asset replacement, color token updates, contact forms (1.5 scope points).
      - "MEDIUM": Core business logic workflows, CRUD APIs with validation, authenticated dashboards, relational DB models (3.0 scope points).
      - "HIGH": Real-time WebSockets, payment orchestration, complex state machines, data encryption, AI inference integration (5.0 scope points).
-   - "estimatedHours": Realistic engineering effort hours (e.g., 10 to 45 hours per deliverable).
+   - "estimatedHours": Realistic engineering effort hours.
 
 Required JSON format:
 {
@@ -226,7 +228,7 @@ Required JSON format:
     }
   ]
 }
-Include exactly 6 to 8 core features. Respond with JSON only.`;
+Respond with JSON only.`;
   }
 
   /**
@@ -245,6 +247,84 @@ Include exactly 6 to 8 core features. Respond with JSON only.`;
         const normalizedTerm = term.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
         return normalizedText.includes(` ${normalizedTerm} `);
       });
+
+    // Check for UI design / asset / styling / color updates
+    const isDesignOrAssetUpdate =
+      hasAny(
+        'redesign',
+        'color',
+        'colors',
+        'image',
+        'images',
+        'banner',
+        'assets',
+        'styling',
+        'css',
+        'theme',
+        'typography',
+        'ui polish',
+        'logo',
+        'ui update',
+        'figma'
+      ) &&
+      !hasAny(
+        'full stack',
+        'fullstack',
+        'database',
+        'backend',
+        'saas',
+        'crm',
+        'erp',
+        'ecommerce',
+        'e-commerce',
+        'patient',
+        'doctor',
+        'payment gateway',
+        'auth',
+        'authentication'
+      );
+
+    if (isDesignOrAssetUpdate) {
+      return {
+        executiveSummary: `Targeted UI redesign and asset overhaul for "${title}". Scope covers color palette token migration, visual asset replacement and optimization, component styling alignment, and cross-browser responsive verification.`,
+        riskLevel: RiskLevel.LOW,
+        recommendedStack: [
+          'Tailwind CSS',
+          'Next.js 15 (React 19)',
+          'TypeScript',
+          'Figma',
+          'WebP / SVG Asset Pipeline',
+        ],
+        aiConfidenceScore: 95,
+        isFallbackUsed: true,
+        features: [
+          {
+            title: 'Brand Color Palette & Theme Tokens Redesign',
+            category: FeatureCategory.FRONTEND,
+            complexity: FeatureComplexity.LOW,
+            estimatedHours: 4,
+          },
+          {
+            title: 'Image Assets Replacement, Sizing & WebP Optimization',
+            category: FeatureCategory.FRONTEND,
+            complexity: FeatureComplexity.LOW,
+            estimatedHours: 4,
+          },
+          {
+            title: 'Component Visual Styling & Typography Alignment',
+            category: FeatureCategory.FRONTEND,
+            complexity: FeatureComplexity.LOW,
+            estimatedHours: 5,
+          },
+          {
+            title: 'Cross-Device Responsive Visual QA & Polish',
+            category: FeatureCategory.FRONTEND,
+            complexity: FeatureComplexity.LOW,
+            estimatedHours: 3,
+          },
+        ],
+      };
+    }
 
     // 1. Risk Classification heuristic
     let riskLevel: RiskLevel = RiskLevel.MEDIUM;
