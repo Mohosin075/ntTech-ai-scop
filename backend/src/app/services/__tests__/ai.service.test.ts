@@ -30,4 +30,21 @@ describe('AIService — deterministic fallback evaluation', () => {
     expect(estimate.features.length).toBeLessThanOrEqual(8);
     expect(estimate.executiveSummary).toContain('Simple portfolio website');
   });
+
+  it('accurately scopes a UI redesign and image/color update without boilerplate auth or db', () => {
+    const estimate = AIService.generateFallbackEstimate(
+      'Website design update',
+      'I have a new design but I need redesign it, simple update some image and color'
+    );
+
+    expect(estimate.isFallbackUsed).toBe(true);
+    expect(estimate.riskLevel).toBe('LOW');
+    expect(estimate.features.length).toBe(4);
+    expect(estimate.features.some((f) => /authentication|database/i.test(f.title))).toBe(false);
+    expect(estimate.features.some((f) => /color|palette/i.test(f.title))).toBe(true);
+    expect(estimate.features.some((f) => /image|asset/i.test(f.title))).toBe(true);
+    const totalHours = estimate.features.reduce((sum, f) => sum + f.estimatedHours, 0);
+    expect(totalHours).toBeLessThanOrEqual(20);
+  });
 });
+
