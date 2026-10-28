@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthResponse, User } from '@/types';
-import { fetchApi } from '@/lib/api';
+import { fetchApi, isInvalidSessionError } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -41,8 +41,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setUser(meRes.data);
               localStorage.setItem('scopeai_user', JSON.stringify(meRes.data));
             }
-          } catch {
-            // Token might be expired
+          } catch (error) {
+            // Preserve the session during network failures and server outages.
+            if (!isInvalidSessionError(error)) return;
             localStorage.removeItem('scopeai_token');
             localStorage.removeItem('scopeai_user');
             setToken(null);
