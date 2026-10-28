@@ -74,6 +74,7 @@ export default function AnalysisPage() {
       count: projects.filter((project) => project.status === status).length,
     }));
 
+    const allStatusEffort = projects.reduce((sum, project) => sum + (project.totalHours || 0), 0);
     const statusHours = counts.map((item) => ({
       ...item,
       hours: projects.filter((project) => project.status === item.status)
@@ -110,6 +111,7 @@ export default function AnalysisPage() {
       pendingReviews: projects.filter((project) => project.status === 'UNDER_REVIEW').length,
       counts,
       statusHours,
+      allStatusEffort,
       months,
       statusGradient: gradient,
       maxMonthCount: Math.max(1, ...months.map((month) => month.count)),
@@ -219,7 +221,7 @@ export default function AnalysisPage() {
                         <span className="tabular-nums text-[#65717a]">{item.hours.toLocaleString()} hrs</span>
                       </div>
                       <div className="h-2.5 overflow-hidden rounded-full bg-[#edf1ef]">
-                        <div className="h-full rounded-full transition-all" style={{ width: `${(item.hours / Math.max(1, analytics.totalEffort)) * 100}%`, backgroundColor: item.color }} />
+                        <div className="h-full rounded-full transition-all" style={{ width: `${(item.hours / Math.max(1, analytics.allStatusEffort)) * 100}%`, backgroundColor: item.color }} />
                       </div>
                     </div>
                   ))}

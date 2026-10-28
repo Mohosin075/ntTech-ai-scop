@@ -1,5 +1,27 @@
 # 🚀 ScopeAI — Intelligent Software Scoping, Costing & Milestone Engine
 
+### Request protection and regression tests
+
+Login and registration share a limit of 20 requests per IP per 15 minutes. AI generation
+allows 10 requests per authenticated account per 15 minutes. Exceeding a limit returns
+HTTP 429 with `Retry-After`. Counters are held in server memory; deployments with multiple
+API instances should configure a shared rate-limit store. Configure Express `trust proxy`
+for the actual trusted proxy topology when deploying behind a reverse proxy.
+
+All scope mutations lock the parent project row inside a PostgreSQL transaction before
+checking ownership, status, or calculating totals. Feature updates accept only editable fields.
+
+Run the standard suite with `npm run test:backend`. To also run the real PostgreSQL
+concurrency regressions against the database configured in `backend/.env`, use PowerShell:
+
+```powershell
+$env:RUN_DB_TESTS = '1'
+npm --prefix backend test
+Remove-Item Env:RUN_DB_TESTS
+```
+
+The database tests create isolated fixture users and projects, then remove those fixtures.
+
 > **NT TECH INNOVATION — Full Stack Developer Practical Assessment**  
 > **Tagline:** Intelligent Software Scoping, Costing & Milestone Engine for Digital Agencies and Engineering Studios.
 

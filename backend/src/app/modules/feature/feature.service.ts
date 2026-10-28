@@ -1,6 +1,6 @@
 import { Prisma, RiskLevel } from '@prisma/client';
 import { StatusCodes } from 'http-status-codes';
-import prisma from '../../../config/prisma';
+import { withProjectLock } from '../../services/projectTransaction';
 import AppError from '../../errors/AppError';
 import CalculationService from '../../services/calculation.service';
 import WorkflowService from '../../services/workflow.service';
@@ -67,8 +67,8 @@ const addFeatureToProject = async (
   projectId: string,
   userId: string,
   payload: ICreateFeatureInput
-) => {
-  const project = await prisma.project.findUnique({
+) => withProjectLock(projectId, async (tx) => {
+  const project = await tx.project.findUnique({
     where: { id: projectId },
   });
 
@@ -80,33 +80,31 @@ const addFeatureToProject = async (
   // Guard 4: Immutability lock check
   WorkflowService.validateFeatureModification(project.status);
 
-  return prisma.$transaction(async (tx) => {
-    // 1. Create feature
-    const createdFeature = await tx.feature.create({
-      data: {
-        projectId,
-        title: payload.title,
-        category: payload.category,
-        complexity: payload.complexity,
-        estimatedHours: payload.estimatedHours,
-        isIncluded: payload.isIncluded ?? true,
-      },
-    });
-
-    // 2. Recalculate & sync project metrics
-    const updatedProject = await recalculateAndSyncProject(
-      tx,
+  // 1. Create feature
+  const createdFeature = await tx.feature.create({
+    data: {
       projectId,
-      getProjectScopePointValue(project),
-      project.riskLevel
-    );
-
-    return {
-      feature: createdFeature,
-      project: updatedProject,
-    };
+      title: payload.title,
+      category: payload.category,
+      complexity: payload.complexity,
+      estimatedHours: payload.estimatedHours,
+      isIncluded: payload.isIncluded ?? true,
+    },
   });
-};
+
+  // 2. Recalculate & sync project metrics
+  const updatedProject = await recalculateAndSyncProject(
+    tx,
+    projectId,
+    getProjectScopePointValue(project),
+    project.riskLevel
+  );
+
+  return {
+    feature: createdFeature,
+    project: updatedProject,
+  };
+});
 
 /**
  * Update an existing feature (hours, isIncluded checkbox, title, etc.) and recalculate metrics
@@ -116,8 +114,8 @@ const updateFeatureInProject = async (
   featureId: string,
   userId: string,
   payload: IUpdateFeatureInput
-) => {
-  const project = await prisma.project.findUnique({
+) => withProjectLock(projectId, async (tx) => {
+  const project = await tx.project.findUnique({
     where: { id: projectId },
   });
 
@@ -129,7 +127,7 @@ const updateFeatureInProject = async (
   // Guard 4: Immutability lock check
   WorkflowService.validateFeatureModification(project.status);
 
-  const existingFeature = await prisma.feature.findUnique({
+  const existingFeature = await tx.feature.findUnique({
     where: { id: featureId },
   });
 
@@ -137,27 +135,31 @@ const updateFeatureInProject = async (
     throw new AppError(StatusCodes.NOT_FOUND, 'Feature not found in this project!');
   }
 
-  return prisma.$transaction(async (tx) => {
-    // 1. Update feature
-    const updatedFeature = await tx.feature.update({
-      where: { id: featureId },
-      data: payload,
-    });
-
-    // 2. Recalculate & sync project metrics
-    const updatedProject = await recalculateAndSyncProject(
-      tx,
-      projectId,
-      getProjectScopePointValue(project),
-      project.riskLevel
-    );
-
-    return {
-      feature: updatedFeature,
-      project: updatedProject,
-    };
+  // 1. Update feature
+  const updatedFeature = await tx.feature.update({
+    where: { id: featureId },
+    data: {
+      title: payload.title,
+      category: payload.category,
+      complexity: payload.complexity,
+      estimatedHours: payload.estimatedHours,
+      isIncluded: payload.isIncluded,
+    },
   });
-};
+
+  // 2. Recalculate & sync project metrics
+  const updatedProject = await recalculateAndSyncProject(
+    tx,
+    projectId,
+    getProjectScopePointValue(project),
+    project.riskLevel
+  );
+
+  return {
+    feature: updatedFeature,
+    project: updatedProject,
+  };
+});
 
 /**
  * Delete a feature from a project and recalculate metrics
@@ -166,8 +168,8 @@ const deleteFeatureFromProject = async (
   projectId: string,
   featureId: string,
   userId: string
-) => {
-  const project = await prisma.project.findUnique({
+) => withProjectLock(projectId, async (tx) => {
+  const project = await tx.project.findUnique({
     where: { id: projectId },
   });
 
@@ -179,7 +181,7 @@ const deleteFeatureFromProject = async (
   // Guard 4: Immutability lock check
   WorkflowService.validateFeatureModification(project.status);
 
-  const existingFeature = await prisma.feature.findUnique({
+  const existingFeature = await tx.feature.findUnique({
     where: { id: featureId },
   });
 
@@ -187,26 +189,24 @@ const deleteFeatureFromProject = async (
     throw new AppError(StatusCodes.NOT_FOUND, 'Feature not found in this project!');
   }
 
-  return prisma.$transaction(async (tx) => {
-    // 1. Delete feature
-    await tx.feature.delete({
-      where: { id: featureId },
-    });
-
-    // 2. Recalculate & sync project metrics
-    const updatedProject = await recalculateAndSyncProject(
-      tx,
-      projectId,
-      getProjectScopePointValue(project),
-      project.riskLevel
-    );
-
-    return {
-      message: 'Feature deleted successfully',
-      project: updatedProject,
-    };
+  // 1. Delete feature
+  await tx.feature.delete({
+    where: { id: featureId },
   });
-};
+
+  // 2. Recalculate & sync project metrics
+  const updatedProject = await recalculateAndSyncProject(
+    tx,
+    projectId,
+    getProjectScopePointValue(project),
+    project.riskLevel
+  );
+
+  return {
+    message: 'Feature deleted successfully',
+    project: updatedProject,
+  };
+});
 
 export const FeatureServices = {
   addFeatureToProject,

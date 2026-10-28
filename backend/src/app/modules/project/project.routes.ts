@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { generationRateLimit } from '../../middlewares/rateLimit';
 import { authenticate } from '../../middlewares/auth.middleware';
 import validateRequest from '../../middlewares/validateRequest';
 import { ProjectControllers } from './project.controller';
@@ -10,6 +11,7 @@ router.use(authenticate);
 
 router.post(
   '/generate',
+  generationRateLimit,
   validateRequest(ProjectValidations.generateProjectValidationSchema),
   ProjectControllers.generateProject
 );

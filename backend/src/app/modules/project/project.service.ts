@@ -5,6 +5,7 @@ import AppError from '../../errors/AppError';
 import AIService from '../../services/ai.service';
 import CalculationService from '../../services/calculation.service';
 import WorkflowService from '../../services/workflow.service';
+import { withProjectLock } from '../../services/projectTransaction';
 import {
   IGenerateProjectInput,
   IUpdateProjectFeeInput,
@@ -166,8 +167,9 @@ const updateProjectStatus = async (
   userId: string,
   userRole: Role,
   payload: IUpdateProjectStatusInput
-) => {
-  const project = await getSingleProjectFromDB(projectId);
+) => withProjectLock(projectId, async (tx) => {
+  const project = await tx.project.findUnique({ where: { id: projectId }, include: projectFullDetailsInclude });
+  if (!project) throw new AppError(StatusCodes.NOT_FOUND, 'Project not found!');
 
   if (payload.status === ProjectStatus.UNDER_REVIEW) {
     assertProjectOwner(project, userId);
@@ -196,7 +198,7 @@ const updateProjectStatus = async (
     payload.rejectionReason
   );
 
-  const updatedProject = await prisma.project.update({
+  const updatedProject = await tx.project.update({
     where: { id: projectId },
     data: {
       status: payload.status,
@@ -216,7 +218,7 @@ const updateProjectStatus = async (
   });
 
   return updatedProject;
-};
+});
 
 /**
  * Update the fixed project fee and recalibrate the internal scope-point value.
@@ -225,8 +227,9 @@ const updateProjectFee = async (
   projectId: string,
   userId: string,
   payload: IUpdateProjectFeeInput
-) => {
-  const project = await getSingleProjectFromDB(projectId);
+) => withProjectLock(projectId, async (tx) => {
+  const project = await tx.project.findUnique({ where: { id: projectId }, include: projectFullDetailsInclude });
+  if (!project) throw new AppError(StatusCodes.NOT_FOUND, 'Project not found!');
   assertProjectOwner(project, userId);
 
   // Guard 4: Immutability lock check
@@ -243,7 +246,7 @@ const updateProjectFee = async (
     project.riskLevel
   );
 
-  const updatedProject = await prisma.project.update({
+  const updatedProject = await tx.project.update({
     where: { id: projectId },
     data: {
       ...metrics,
@@ -252,13 +255,14 @@ const updateProjectFee = async (
   });
 
   return updatedProject;
-};
+});
 
 /**
  * Delete a project
  */
-const deleteProjectFromDB = async (projectId: string, userId: string) => {
-  const project = await getSingleProjectFromDB(projectId);
+const deleteProjectFromDB = async (projectId: string, userId: string) => withProjectLock(projectId, async (tx) => {
+  const project = await tx.project.findUnique({ where: { id: projectId }, include: projectFullDetailsInclude });
+  if (!project) throw new AppError(StatusCodes.NOT_FOUND, 'Project not found!');
   assertProjectOwner(project, userId);
   if (
     project.status === ProjectStatus.UNDER_REVIEW ||
@@ -270,12 +274,12 @@ const deleteProjectFromDB = async (projectId: string, userId: string) => {
     );
   }
 
-  await prisma.project.delete({
+  await tx.project.delete({
     where: { id: projectId },
   });
 
   return { message: 'Project deleted successfully' };
-};
+});
 
 export const ProjectServices = {
   generateProjectWithAI,
